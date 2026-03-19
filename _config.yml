@@ -1,1 +1,13 @@
+# 网站基本信息
+title: "Principia - My Math Space"
+author: "Ethereal Kasumi"
+description: "A personal blog with mathematical aesthetics."
 
+# 设置 Markdown 引擎，关闭自带公式解析（让前端的 KaTeX 接管，速度更快）
+markdown: kramdown
+kramdown:
+  math_engine: null 
+
+# 排除不需要生成网页的文件
+exclude:
+  - README.md
