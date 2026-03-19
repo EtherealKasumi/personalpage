@@ -13,14 +13,15 @@
     <style>
         /* === 基础颜色与排版 === */
         :root {
-            --bg-color: #06090f; /* 调整为更深邃的暗夜蓝背景 */
             --text-color: #c9d1d9;
             --accent-color: #58a6ff;
             --math-font: "Georgia", "Times New Roman", serif; 
         }
+        
         body, html {
             margin: 0; padding: 0; 
-            background: linear-gradient(135deg, #06090f 0%, #161b22 100%); /* 增加高级渐变背景底色 */
+            /* 【修复点1】将身体背景设为完全透明，绝不遮挡底层画布 */
+            background-color: transparent; 
             color: var(--text-color); font-family: var(--math-font); 
             line-height: 1.8; overflow-x: hidden; min-height: 100vh;
         }
@@ -30,8 +31,9 @@
             position: fixed; top: 0; left: 0; 
             width: 100vw; height: 100vh; 
             z-index: -1; 
-            /* 让鼠标事件穿透画布，不影响你复制网页文字 */
             pointer-events: none; 
+            /* 【修复点2】把深邃的高级渐变色直接铺在画布最底层 */
+            background: linear-gradient(135deg, #06090f 0%, #161b22 100%);
         }
         
         /* === 顶部导航栏 === */
@@ -47,7 +49,7 @@
         }
         .top-nav a:hover { color: var(--accent-color); text-shadow: 0 0 10px rgba(88,166,255,0.5); }
 
-        /* === 阅读卡片 (毛玻璃质感增强) === */
+        /* === 阅读卡片 (毛玻璃质感) === */
         .paper-container {
             max-width: 850px; margin: 40px auto; padding: 50px 60px;
             background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -57,25 +59,12 @@
 
         /* === 主页名片组件 === */
         .profile-section { display: flex; align-items: center; gap: 40px; margin-bottom: 40px; }
-        .profile-avatar { 
-            width: 160px; height: 160px; border-radius: 50%; object-fit: cover; 
-            border: 2px solid rgba(88, 166, 255, 0.5); 
-            box-shadow: 0 0 25px rgba(88, 166, 255, 0.2); flex-shrink: 0; 
-        }
+        .profile-avatar { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(88, 166, 255, 0.5); box-shadow: 0 0 25px rgba(88, 166, 255, 0.2); flex-shrink: 0; }
         .profile-info h1 { margin: 0 0 10px 0; text-align: left; border-bottom: none; font-size: 2.2em; color: #fff;}
         .profile-info .subtitle { margin: 0 0 20px 0; color: #8b949e; font-size: 1.2em; font-style: italic; }
         .action-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
-        .btn { 
-            display: inline-block; padding: 10px 22px; 
-            background: rgba(88, 166, 255, 0.05); color: var(--accent-color); 
-            border: 1px solid rgba(88, 166, 255, 0.4); border-radius: 8px; 
-            text-decoration: none !important; font-weight: 600; font-family: sans-serif; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .btn:hover { 
-            background: var(--accent-color); color: #06090f; 
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); 
-        }
+        .btn { display: inline-block; padding: 10px 22px; background: rgba(88, 166, 255, 0.05); color: var(--accent-color); border: 1px solid rgba(88, 166, 255, 0.4); border-radius: 8px; text-decoration: none !important; font-weight: 600; font-family: sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn:hover { background: var(--accent-color); color: #06090f; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
         @media (max-width: 650px) {
             .profile-section { flex-direction: column; text-align: center; }
             .profile-info h1 { text-align: center; }
@@ -105,15 +94,13 @@
     <!-- 动态数学背景容器 -->
     <canvas id="math-canvas"></canvas>
 
-    <!-- 智能隐藏主页导航栏 -->
-    {% if page.url != "/" and page.url != "/index.html" %}
+    <!-- 【修复点3】去掉了 {% if %} 判断，强制所有页面（含主页）常驻全局导航栏 -->
     <nav class="top-nav">
-        <a href="{{ '/' | relative_url }}">Home</a>
-        <a href="{{ '/cv.html' | relative_url }}">CV</a>
-        <a href="{{ '/notes.html' | relative_url }}">Notes</a>
-        <a href="{{ '/resources.html' | relative_url }}">Resources</a>
+        <a href="{{ '/' | relative_url }}">Home (主页)</a>
+        <a href="{{ '/cv.html' | relative_url }}">CV (简历)</a>
+        <a href="{{ '/notes.html' | relative_url }}">Notes (笔记)</a>
+        <a href="{{ '/resources.html' | relative_url }}">Resources (资源)</a>
     </nav>
-    {% endif %}
 
     <!-- 核心文章渲染区 -->
     <div class="paper-container">
@@ -122,7 +109,6 @@
 
     <!-- === 高级互动星空网络脚本 === -->
     <script>
-        // 使用 DOMContentLoaded 确保网页（包括主页图片）完全加载后再渲染背景，杜绝 Bug
         document.addEventListener("DOMContentLoaded", function() {
             const canvas = document.getElementById('math-canvas');
             if (!canvas) return;
@@ -131,52 +117,35 @@
             let width = canvas.width = window.innerWidth;
             let height = canvas.height = window.innerHeight;
 
-            // 监听窗口大小变化
             window.addEventListener('resize', () => {
                 width = canvas.width = window.innerWidth;
                 height = canvas.height = window.innerHeight;
             });
 
-            // 监听鼠标位置
             let mouse = { x: null, y: null, radius: 150 };
-            window.addEventListener('mousemove', (event) => {
-                mouse.x = event.x;
-                mouse.y = event.y;
-            });
-            window.addEventListener('mouseout', () => {
-                mouse.x = null;
-                mouse.y = null;
-            });
+            window.addEventListener('mousemove', (event) => { mouse.x = event.x; mouse.y = event.y; });
+            window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
-            // 数学符号库
             const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈'];
             
-            // 粒子类定义
             class Particle {
                 constructor() {
                     this.x = Math.random() * width;
                     this.y = Math.random() * height;
-                    this.vx = (Math.random() - 0.5) * 0.8; // 极速变慢，更显优雅
+                    this.vx = (Math.random() - 0.5) * 0.8; 
                     this.vy = (Math.random() - 0.5) * 0.8;
                     this.baseSize = Math.random() * 1.5 + 1;
                     this.size = this.baseSize;
-                    
-                    // 30%的概率该节点变成一个数学符号
                     this.isSymbol = Math.random() > 0.7; 
                     this.symbol = symbols[Math.floor(Math.random() * symbols.length)];
                     this.fontSize = Math.random() * 12 + 10;
                 }
                 
                 update() {
-                    // 移动
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    
-                    // 边缘反弹
+                    this.x += this.vx; this.y += this.vy;
                     if (this.x < 0 || this.x > width) this.vx = -this.vx;
                     if (this.y < 0 || this.y > height) this.vy = -this.vy;
 
-                    // 鼠标排斥互动 (互动核心)
                     if (mouse.x != null && mouse.y != null) {
                         let dx = mouse.x - this.x;
                         let dy = mouse.y - this.y;
@@ -185,7 +154,6 @@
                             const forceDirectionX = dx / distance;
                             const forceDirectionY = dy / distance;
                             const force = (mouse.radius - distance) / mouse.radius;
-                            // 粒子受到鼠标的排斥力
                             this.x -= forceDirectionX * force * 2;
                             this.y -= forceDirectionY * force * 2;
                         }
@@ -193,7 +161,7 @@
                 }
                 
                 draw() {
-                    ctx.fillStyle = 'rgba(136, 175, 230, 0.7)'; // 幽蓝色
+                    ctx.fillStyle = 'rgba(136, 175, 230, 0.7)'; 
                     if (this.isSymbol) {
                         ctx.font = `${this.fontSize}px Georgia`;
                         ctx.fillText(this.symbol, this.x, this.y);
@@ -205,59 +173,40 @@
                 }
             }
 
-            // 初始化粒子群 (自适应屏幕大小决定数量，手机少点，电脑多点)
             let particles =[];
             let particleCount = Math.floor((width * height) / 15000); 
-            // 限制最大数量防止卡顿
             if(particleCount > 100) particleCount = 100; 
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
+            for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); }
 
-            // 动画主循环
             function animate() {
                 ctx.clearRect(0, 0, width, height);
-                
                 for (let i = 0; i < particles.length; i++) {
                     particles[i].update();
                     particles[i].draw();
-                    
-                    // 绘制粒子之间的连线
                     for (let j = i + 1; j < particles.length; j++) {
                         let dx = particles[i].x - particles[j].x;
                         let dy = particles[i].y - particles[j].y;
                         let distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        // 当两个粒子距离小于 120 时，绘制连线
                         if (distance < 120) {
-                            // 距离越近，线条越亮
                             let opacity = 1 - (distance / 120);
                             ctx.strokeStyle = `rgba(88, 166, 255, ${opacity * 0.4})`;
                             ctx.lineWidth = 0.8;
-                            ctx.beginPath();
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
                         }
                     }
                 }
                 requestAnimationFrame(animate);
             }
-            
-            // 启动动画
             animate();
         });
 
-        // === 启动 KaTeX 公式极速渲染 ===
+        // 启动 KaTeX
         document.addEventListener("DOMContentLoaded", function() {
             renderMathInElement(document.body, {
                 delimiters:[
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false},
-                    {left: '\\(', right: '\\)', display: false},
-                    {left: '\\[', right: '\\]', display: true}
-                ],
-                throwOnError : false
+                    {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}
+                ], throwOnError : false
             });
         });
     </script>
