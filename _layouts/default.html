@@ -95,10 +95,10 @@
     <canvas id="math-canvas"></canvas>
 
     <nav class="top-nav">
-        <a href="{{ '/' | relative_url }}">Home (主页)</a>
-        <a href="{{ '/cv.html' | relative_url }}">CV (简历)</a>
-        <a href="{{ '/notes.html' | relative_url }}">Notes (笔记)</a>
-        <a href="{{ '/resources.html' | relative_url }}">Resources (资源)</a>
+        <a href="{{ '/' | relative_url }}">Home</a>
+        <a href="{{ '/cv.html' | relative_url }}">CV</a>
+        <a href="{{ '/notes.html' | relative_url }}">Notes</a>
+        <a href="{{ '/resources.html' | relative_url }}">Resources</a>
     </nav>
 
     <!-- 核心文章渲染区 -->
@@ -124,8 +124,8 @@
             let mouse = { x: null, y: null, radius: 150 };
             window.addEventListener('mousemove', (event) => { mouse.x = event.x; mouse.y = event.y; });
             window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
-
-            const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈'];
+i
+            const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈', '⊕'];
             
             class Particle {
                 constructor() {
