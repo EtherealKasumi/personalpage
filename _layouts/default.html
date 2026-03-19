@@ -5,99 +5,261 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }} | {{ site.title }}</title>
 
-    <!-- 引入 KaTeX -->
+    <!-- 引入 KaTeX 用于极速公式渲染 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <style>
+        /* === 基础颜色与排版 === */
         :root {
-            --bg-color: #0d1117; --text-color: #c9d1d9; --accent-color: #58a6ff;
+            --bg-color: #06090f; /* 调整为更深邃的暗夜蓝背景 */
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
             --math-font: "Georgia", "Times New Roman", serif; 
         }
         body, html {
-            margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color);
-            font-family: var(--math-font); line-height: 1.8; overflow-x: hidden;
+            margin: 0; padding: 0; 
+            background: linear-gradient(135deg, #06090f 0%, #161b22 100%); /* 增加高级渐变背景底色 */
+            color: var(--text-color); font-family: var(--math-font); 
+            line-height: 1.8; overflow-x: hidden; min-height: 100vh;
         }
-        #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; opacity: 0.15; }
+
+        /* === 升级版动态背景容器 === */
+        #math-canvas { 
+            position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            z-index: -1; 
+            /* 让鼠标事件穿透画布，不影响你复制网页文字 */
+            pointer-events: none; 
+        }
         
-        /* 导航栏 */
+        /* === 顶部导航栏 === */
         .top-nav {
-            text-align: center; padding: 20px 0; background: rgba(13, 17, 23, 0.8);
-            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center; padding: 20px 0; background: rgba(6, 9, 15, 0.7);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             position: sticky; top: 0; z-index: 100;
         }
-        .top-nav a { color: var(--text-color); text-decoration: none; margin: 0 15px; font-size: 1.1em; transition: color 0.3s; }
-        .top-nav a:hover { color: var(--accent-color); }
+        .top-nav a { 
+            color: var(--text-color); text-decoration: none; margin: 0 15px; 
+            font-size: 1.1em; transition: all 0.3s; font-family: sans-serif;
+        }
+        .top-nav a:hover { color: var(--accent-color); text-shadow: 0 0 10px rgba(88,166,255,0.5); }
 
-        /* 内容容器 (限制宽度并居中) */
+        /* === 阅读卡片 (毛玻璃质感增强) === */
         .paper-container {
             max-width: 850px; margin: 40px auto; padding: 50px 60px;
-            background: rgba(13, 17, 23, 0.75); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
         }
 
-        /* 主页个人名片专属 CSS */
+        /* === 主页名片组件 === */
         .profile-section { display: flex; align-items: center; gap: 40px; margin-bottom: 40px; }
-        .profile-avatar { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); flex-shrink: 0; }
-        .profile-info h1 { margin: 0 0 10px 0; text-align: left; border-bottom: none; font-size: 2.2em; }
+        .profile-avatar { 
+            width: 160px; height: 160px; border-radius: 50%; object-fit: cover; 
+            border: 2px solid rgba(88, 166, 255, 0.5); 
+            box-shadow: 0 0 25px rgba(88, 166, 255, 0.2); flex-shrink: 0; 
+        }
+        .profile-info h1 { margin: 0 0 10px 0; text-align: left; border-bottom: none; font-size: 2.2em; color: #fff;}
         .profile-info .subtitle { margin: 0 0 20px 0; color: #8b949e; font-size: 1.2em; font-style: italic; }
         .action-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
-        .btn { display: inline-block; padding: 10px 20px; background: rgba(88, 166, 255, 0.05); color: var(--accent-color); border: 1px solid var(--accent-color); border-radius: 6px; text-decoration: none !important; font-weight: bold; font-family: sans-serif; transition: all 0.3s ease; }
-        .btn:hover { background: var(--accent-color); color: #0d1117; box-shadow: 0 0 15px rgba(88, 166, 255, 0.5); transform: translateY(-2px); }
+        .btn { 
+            display: inline-block; padding: 10px 22px; 
+            background: rgba(88, 166, 255, 0.05); color: var(--accent-color); 
+            border: 1px solid rgba(88, 166, 255, 0.4); border-radius: 8px; 
+            text-decoration: none !important; font-weight: 600; font-family: sans-serif; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .btn:hover { 
+            background: var(--accent-color); color: #06090f; 
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); 
+        }
         @media (max-width: 650px) {
             .profile-section { flex-direction: column; text-align: center; }
             .profile-info h1 { text-align: center; }
             .action-buttons { justify-content: center; }
+            .paper-container { padding: 30px 20px; margin: 20px; }
         }
 
-        /* 数学与其他标签样式 */
-        .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); }
+        /* === 学术风排版标签 === */
+        h1, h2, h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+        h1 { text-align: center; }
+        .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); border-radius: 4px; }
         .theorem::before { content: "定理 (Theorem). "; font-weight: bold; color: var(--accent-color); }
-        .proof { margin: 2em 0; padding: 15px 20px; font-style: italic; }
+        .proof { margin: 2em 0; padding: 15px 20px; font-style: italic; border-left: 2px solid rgba(255,255,255,0.1); }
         .proof::before { content: "证明 (Proof). "; font-weight: bold; font-style: normal; }
         .proof::after { content: "■"; float: right; color: var(--text-color); }
-        .definition { margin: 2em 0; padding: 15px 20px; border: 1px dashed rgba(255,255,255,0.3); background: rgba(255,255,255,0.02); }
-        .definition::before { content: "定义 (Definition). "; font-weight: bold; }
+        .definition { margin: 2em 0; padding: 15px 20px; border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.02); border-radius: 4px; }
+        .definition::before { content: "定义 (Definition). "; font-weight: bold; color: #a5d6ff; }
         .katex-display { overflow-x: auto; overflow-y: hidden; padding: 5px 0; }
         a { color: var(--accent-color); text-decoration: none; }
-        img { max-width: 100%; border-radius: 4px; }
-        code { background: rgba(255,255,255,0.1); padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        img { max-width: 100%; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #a5d6ff; }
+        blockquote { border-left: 4px solid #8b949e; margin: 1.5em 0; padding-left: 15px; color: #8b949e; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <!-- 动态数学背景 -->
+    <!-- 动态数学背景容器 -->
     <canvas id="math-canvas"></canvas>
 
-    <!-- 顶部导航栏 -->
+    <!-- 智能隐藏主页导航栏 -->
+    {% if page.url != "/" and page.url != "/index.html" %}
     <nav class="top-nav">
         <a href="{{ '/' | relative_url }}">Home</a>
         <a href="{{ '/cv.html' | relative_url }}">CV</a>
         <a href="{{ '/notes.html' | relative_url }}">Notes</a>
         <a href="{{ '/resources.html' | relative_url }}">Resources</a>
     </nav>
+    {% endif %}
 
-    <!-- !!! 核心区域 !!! 你的 Markdown 内容只会在这里渲染 -->
+    <!-- 核心文章渲染区 -->
     <div class="paper-container">
         {{ content }}
     </div>
 
+    <!-- === 高级互动星空网络脚本 === -->
     <script>
-        const canvas = document.getElementById('math-canvas'); const ctx = canvas.getContext('2d');
-        let width, height, symbolsArray = []; const mathChars =['∫', '∑', '∏', '∞', 'π', 'θ', 'λ', '∇', '∂', '√', 'Δ'];
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-        class MathSymbol {
-            constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.char = mathChars[Math.floor(Math.random() * mathChars.length)]; this.size = Math.random() * 20 + 10; this.speedY = Math.random() * 0.5 + 0.2; this.opacity = Math.random() * 0.5 + 0.2; this.angle = Math.random() * Math.PI * 2; this.amplitude = Math.random() * 1.5; }
-            update() { this.y -= this.speedY; this.x += Math.sin(this.angle) * this.amplitude; this.angle += 0.02; if (this.y < -50) { this.y = height + 50; this.x = Math.random() * width; } }
-            draw() { ctx.fillStyle = `rgba(136, 166, 204, ${this.opacity})`; ctx.font = `${this.size}px Georgia`; ctx.fillText(this.char, this.x, this.y); }
-        }
-        for (let i = 0; i < 80; i++) symbolsArray.push(new MathSymbol());
-        function animate() { ctx.clearRect(0, 0, width, height); ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)'; ctx.lineWidth = 1; for(let i=0; i<width; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke(); } for(let i=0; i<height; i+=50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke(); } symbolsArray.forEach(sym => { sym.update(); sym.draw(); }); requestAnimationFrame(animate); }
-        animate();
-        document.addEventListener("DOMContentLoaded", function() { renderMathInElement(document.body, { delimiters:[ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true} ], throwOnError : false }); });
+        // 使用 DOMContentLoaded 确保网页（包括主页图片）完全加载后再渲染背景，杜绝 Bug
+        document.addEventListener("DOMContentLoaded", function() {
+            const canvas = document.getElementById('math-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            // 监听窗口大小变化
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            // 监听鼠标位置
+            let mouse = { x: null, y: null, radius: 150 };
+            window.addEventListener('mousemove', (event) => {
+                mouse.x = event.x;
+                mouse.y = event.y;
+            });
+            window.addEventListener('mouseout', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            // 数学符号库
+            const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈'];
+            
+            // 粒子类定义
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.8; // 极速变慢，更显优雅
+                    this.vy = (Math.random() - 0.5) * 0.8;
+                    this.baseSize = Math.random() * 1.5 + 1;
+                    this.size = this.baseSize;
+                    
+                    // 30%的概率该节点变成一个数学符号
+                    this.isSymbol = Math.random() > 0.7; 
+                    this.symbol = symbols[Math.floor(Math.random() * symbols.length)];
+                    this.fontSize = Math.random() * 12 + 10;
+                }
+                
+                update() {
+                    // 移动
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    
+                    // 边缘反弹
+                    if (this.x < 0 || this.x > width) this.vx = -this.vx;
+                    if (this.y < 0 || this.y > height) this.vy = -this.vy;
+
+                    // 鼠标排斥互动 (互动核心)
+                    if (mouse.x != null && mouse.y != null) {
+                        let dx = mouse.x - this.x;
+                        let dy = mouse.y - this.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < mouse.radius) {
+                            const forceDirectionX = dx / distance;
+                            const forceDirectionY = dy / distance;
+                            const force = (mouse.radius - distance) / mouse.radius;
+                            // 粒子受到鼠标的排斥力
+                            this.x -= forceDirectionX * force * 2;
+                            this.y -= forceDirectionY * force * 2;
+                        }
+                    }
+                }
+                
+                draw() {
+                    ctx.fillStyle = 'rgba(136, 175, 230, 0.7)'; // 幽蓝色
+                    if (this.isSymbol) {
+                        ctx.font = `${this.fontSize}px Georgia`;
+                        ctx.fillText(this.symbol, this.x, this.y);
+                    } else {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // 初始化粒子群 (自适应屏幕大小决定数量，手机少点，电脑多点)
+            let particles =[];
+            let particleCount = Math.floor((width * height) / 15000); 
+            // 限制最大数量防止卡顿
+            if(particleCount > 100) particleCount = 100; 
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            // 动画主循环
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                    
+                    // 绘制粒子之间的连线
+                    for (let j = i + 1; j < particles.length; j++) {
+                        let dx = particles[i].x - particles[j].x;
+                        let dy = particles[i].y - particles[j].y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // 当两个粒子距离小于 120 时，绘制连线
+                        if (distance < 120) {
+                            // 距离越近，线条越亮
+                            let opacity = 1 - (distance / 120);
+                            ctx.strokeStyle = `rgba(88, 166, 255, ${opacity * 0.4})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            
+            // 启动动画
+            animate();
+        });
+
+        // === 启动 KaTeX 公式极速渲染 ===
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters:[
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError : false
+            });
+        });
     </script>
 </body>
 </html>
