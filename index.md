@@ -8,13 +8,13 @@ title: Home
     <img src="assets/images/avatar.jpg" alt="My Avatar" class="profile-avatar">
     
     <div class="profile-info">
-        <h1>你好，我是 [你的名字] 👋</h1>
-        <p class="subtitle">数学探路者 / 算法工程师 / 终身学习者</p>
+        <h1>你好, 我是朧千夏 👋</h1>
+        <p class="subtitle">数学爱好者 / 物理爱好者 </p>
         
         <div class="action-buttons">
             <a href="cv.html" class="btn">📄 查看简历 (CV)</a>
             <a href="notes.html" class="btn">✍️ 浏览笔记 (Notes)</a>
-            <a href="resources.html" class="btn">📥 资源下载 (Resources)</a>
+            <a href="resources.html" class="btn">📥 其他资源 (Resources)</a>
         </div>
     </div>
 </div>
