@@ -11,97 +11,29 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <style>
-        /* === 基础颜色与排版 === */
-        :root {
-            --text-color: #c9d1d9;
-            --accent-color: #58a6ff;
-            --math-font: "Georgia", "Times New Roman", serif; 
-        }
-        
-        body, html {
-            margin: 0; padding: 0; 
-            background-color: transparent; 
-            color: var(--text-color); font-family: var(--math-font); 
-            line-height: 1.8; overflow-x: hidden; min-height: 100vh;
-        }
-
-        /* === 动态背景容器 === */
-        #math-canvas { 
-            position: fixed; top: 0; left: 0; 
-            width: 100vw; height: 100vh; 
-            z-index: -1; pointer-events: none; 
-            background: linear-gradient(135deg, #06090f 0%, #11151d 100%);
-        }
-        
-        /* === 响应式顶部导航栏 === */
-        .top-nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 5%; background: rgba(6, 9, 15, 0.7);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(88,166,255,0.1);
-            position: sticky; top: 0; z-index: 100;
-        }
-        
-        .nav-brand {
-            font-size: 1.5em; font-weight: bold; color: #fff;
-            letter-spacing: 1px; font-style: italic;
-        }
-
-        .nav-links {
-            display: flex; gap: 20px; transition: all 0.3s ease;
-        }
-
-        .nav-links a { 
-            color: var(--text-color); text-decoration: none; padding: 5px 10px;
-            font-size: 1.05em; transition: all 0.3s; font-family: sans-serif;
-            border-radius: 6px;
-        }
-        
-        .nav-links a:hover { 
-            color: var(--accent-color); background: rgba(88,166,255,0.1); 
-        }
-
-        /* 移动端/小屏幕折叠按钮 */
-        .menu-toggle {
-            display: none; cursor: pointer; font-size: 1.8em; color: var(--accent-color);
-        }
-
+        :root { --text-color: #c9d1d9; --accent-color: #58a6ff; --math-font: "Georgia", "Times New Roman", serif; }
+        body, html { margin: 0; padding: 0; background-color: transparent; color: var(--text-color); font-family: var(--math-font); line-height: 1.8; overflow-x: hidden; min-height: 100vh; }
+        #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; background: linear-gradient(135deg, #05080e 0%, #11151d 100%); }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(5, 8, 14, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(88,166,255,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-size: 1.5em; font-weight: bold; color: #fff; letter-spacing: 1px; font-style: italic; }
+        .nav-links { display: flex; gap: 20px; transition: all 0.3s ease; }
+        .nav-links a { color: var(--text-color); text-decoration: none; padding: 5px 10px; font-size: 1.05em; transition: all 0.3s; font-family: sans-serif; border-radius: 6px; }
+        .nav-links a:hover { color: var(--accent-color); background: rgba(88,166,255,0.1); }
+        .menu-toggle { display: none; cursor: pointer; font-size: 1.8em; color: var(--accent-color); }
         @media (max-width: 768px) {
             .menu-toggle { display: block; }
-            .nav-links {
-                position: absolute; top: 100%; left: 0; width: 100%;
-                background: rgba(6, 9, 15, 0.95); backdrop-filter: blur(10px);
-                flex-direction: column; align-items: center; padding: 0;
-                max-height: 0; overflow: hidden; border-bottom: none;
-            }
-            .nav-links.active {
-                max-height: 400px; padding: 20px 0; border-bottom: 1px solid rgba(88,166,255,0.3);
-            }
+            .nav-links { position: absolute; top: 100%; left: 0; width: 100%; background: rgba(6, 9, 15, 0.95); backdrop-filter: blur(10px); flex-direction: column; align-items: center; padding: 0; max-height: 0; overflow: hidden; border-bottom: none; }
+            .nav-links.active { max-height: 400px; padding: 20px 0; border-bottom: 1px solid rgba(88,166,255,0.3); }
         }
-
-        /* === 阅读卡片 === */
-        .paper-container {
-            max-width: 850px; margin: 40px auto; padding: 50px 60px;
-            background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
-        }
-
-        /* === 主页名片与按键 === */
+        .paper-container { max-width: 850px; margin: 40px auto; padding: 50px 60px; background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05); }
         .profile-section { display: flex; align-items: center; gap: 40px; margin-bottom: 40px; }
         .profile-avatar { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(88, 166, 255, 0.5); box-shadow: 0 0 25px rgba(88, 166, 255, 0.2); flex-shrink: 0; }
         .profile-info h1 { margin: 0 0 10px 0; border-bottom: none; font-size: 2.2em; color: #fff;}
         .profile-info .subtitle { margin: 0 0 20px 0; color: #8b949e; font-size: 1.2em; font-style: italic; }
         .action-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
         .btn { display: inline-block; padding: 10px 22px; background: rgba(88, 166, 255, 0.05); color: var(--accent-color); border: 1px solid rgba(88, 166, 255, 0.4); border-radius: 8px; text-decoration: none !important; font-weight: 600; font-family: sans-serif; transition: all 0.3s; }
-        .btn:hover { background: var(--accent-color); color: #06090f; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
-        
-        @media (max-width: 650px) {
-            .profile-section { flex-direction: column; text-align: center; }
-            .paper-container { padding: 30px 20px; margin: 20px; }
-        }
-
-        /* === 数学标签样式保留 === */
+        .btn:hover { background: var(--accent-color); color: #05080e; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
+        @media (max-width: 650px) { .profile-section { flex-direction: column; text-align: center; } .paper-container { padding: 30px 20px; margin: 20px; } }
         h1, h2, h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
         .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); }
         .theorem::before { content: "定理 (Theorem). "; font-weight: bold; color: var(--accent-color); }
@@ -118,10 +50,8 @@
 </head>
 <body>
 
-    <!-- 动态数学时空网格 -->
     <canvas id="math-canvas"></canvas>
 
-    <!-- 带有收纳按钮的全新导航栏 -->
     <nav class="top-nav">
         <div class="nav-brand">Principia.</div>
         <div class="menu-toggle" id="mobile-menu-btn">☰</div>
@@ -130,23 +60,22 @@
             <a href="{{ '/cv.html' | relative_url }}">CV</a>
             <a href="{{ '/notes.html' | relative_url }}">Notes</a>
             <a href="{{ '/resources.html' | relative_url }}">Resources</a>
-            <!-- 未来你在这里加多少个链接都不会乱，会自动收纳 -->
         </div>
     </nav>
 
-    <!-- 核心渲染区 -->
     <div class="paper-container">
         {{ content }}
     </div>
 
-    <!-- === 折叠菜单与时空网格脚本 === -->
     <script>
-        // 1. 移动端折叠菜单逻辑
+        // 移动端菜单折叠
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             document.getElementById('nav-links').classList.toggle('active');
         });
 
-        // 2. 超高级：数学时空曲率波浪场 (Spacetime Curvature Grid)
+        // ==========================================
+        // 核心物理引擎：时空波浪之海 + 拓扑符号网络
+        // ==========================================
         document.addEventListener("DOMContentLoaded", function() {
             const canvas = document.getElementById('math-canvas');
             if (!canvas) return;
@@ -160,71 +89,116 @@
                 height = canvas.height = window.innerHeight;
             });
 
-            // 监听鼠标引力中心
-            let mouse = { x: null, y: null };
+            // 鼠标位置与引力半径
+            let mouse = { x: null, y: null, radius: 300 };
             window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
             window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
-            // 漂浮数学符号设置
-            const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈', '⊗', '⊕', '√'];
-            class MathSymbol {
+            let time = 0;
+            const gap = 65; // 网格的密度
+
+            // 核心函数：计算平面上任意坐标 (x, y) 在此时此刻的 Z 轴高度 (曲率)
+            function getZ(x, y) {
+                // 1. 基础海洋波浪方程
+                let z = Math.sin((x / 120) + time) * Math.cos((y / 120) + time) * 18;
+                
+                // 2. 鼠标造成的质量塌陷 (高斯引力井)
+                if (mouse.x != null && mouse.y != null) {
+                    let dx = x - mouse.x;
+                    let dy = y - mouse.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < mouse.radius) {
+                        let pull = (mouse.radius - dist) / mouse.radius;
+                        // 曲率下凹，平方衰减使得中心更深
+                        z -= pull * pull * 60; 
+                    }
+                }
+                return z;
+            }
+
+            // 漂浮在海面上的数学符号节点
+            const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈'];
+            class MathNode {
                 constructor() {
-                    this.x = Math.random() * width; this.y = Math.random() * height;
-                    this.speedY = Math.random() * 0.5 + 0.2;
+                    this.x = Math.random() * width; 
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.4;
+                    this.vy = (Math.random() - 0.5) * 0.4;
                     this.char = symbols[Math.floor(Math.random() * symbols.length)];
-                    this.fontSize = Math.random() * 15 + 10;
-                    this.opacity = Math.random() * 0.4 + 0.1;
+                    this.fontSize = Math.random() * 8 + 12; // 字体稍微缩小显得更精细
                 }
+
                 update() {
-                    this.y -= this.speedY; // 缓慢上升
-                    if (this.y < -50) { this.y = height + 50; this.x = Math.random() * width; }
+                    // 物理引擎：与鼠标引力场的互动
+                    if (mouse.x != null && mouse.y != null) {
+                        let dx = mouse.x - this.x;
+                        let dy = mouse.y - this.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (dist < mouse.radius) {
+                            let force = (mouse.radius - dist) / mouse.radius;
+                            // 1. 向引力中心滑落 (向心力)
+                            this.vx += (dx / dist) * force * 0.3;
+                            this.vy += (dy / dist) * force * 0.3;
+                            // 2. 产生轨道角动量 (洛伦兹漩涡效应)
+                            this.vx += (dy / dist) * force * 0.4;
+                            this.vy -= (dx / dist) * force * 0.4;
+                        }
+                    }
+
+                    // 空间阻力（防止粒子飞得太快）
+                    this.vx *= 0.95;
+                    this.vy *= 0.95;
+
+                    // 基础布朗运动（保证平时不静止）
+                    if (Math.abs(this.vx) < 0.2) this.vx += (Math.random() - 0.5) * 0.15;
+                    if (Math.abs(this.vy) < 0.2) this.vy += (Math.random() - 0.5) * 0.15;
+
+                    // 更新绝对坐标
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // 边缘循环穿越
+                    if (this.x < 0) this.x = width;
+                    if (this.x > width) this.x = 0;
+                    if (this.y < 0) this.y = height;
+                    if (this.y > height) this.y = 0;
+
+                    // 计算粒子受曲率影响后的 3D 渲染坐标
+                    this.renderZ = getZ(this.x, this.y);
+                    this.renderX = this.x;
+                    // z 为负（下凹）时，y 坐标加上正值，在屏幕上表现为向下掉落
+                    this.renderY = this.y - this.renderZ; 
                 }
+
                 draw() {
-                    ctx.fillStyle = `rgba(136, 175, 230, ${this.opacity})`;
+                    ctx.fillStyle = `rgba(136, 175, 230, 0.9)`;
                     ctx.font = `${this.fontSize}px Georgia`;
-                    ctx.fillText(this.char, this.x, this.y);
+                    ctx.fillText(this.char, this.renderX, this.renderY);
                 }
             }
-            let floatingSymbols =[];
-            for(let i=0; i<30; i++) floatingSymbols.push(new MathSymbol());
 
-            let time = 0;
-            const gap = 60; // 网格间距
+            // 初始化粒子群
+            let nodes =[];
+            let nodeCount = Math.floor((width * height) / 18000); 
+            if(nodeCount > 80) nodeCount = 80; // 限制数量防止卡顿
+            for(let i=0; i<nodeCount; i++) nodes.push(new MathNode());
 
             function animate() {
                 ctx.clearRect(0, 0, width, height);
                 
-                // 绘制背景漂浮符号
-                floatingSymbols.forEach(sym => { sym.update(); sym.draw(); });
-
-                // 核心：计算时空网格的 3D 投影坐标
-                ctx.strokeStyle = 'rgba(88, 166, 255, 0.18)'; // 科幻蓝线条
+                // === 1. 绘制时空波浪网格 ===
+                ctx.strokeStyle = 'rgba(88, 166, 255, 0.12)';
                 ctx.lineWidth = 1;
-
                 const points =[];
-                // 生成网格矩阵坐标
                 for (let x = 0; x <= width + gap; x += gap) {
                     let col =[];
                     for (let y = 0; y <= height + gap; y += gap) {
-                        // 基础方程：Z = A * sin(kx + wt) * cos(ky + wt) 产生波浪
-                        let z = Math.sin((x / 100) + time) * Math.cos((y / 100) + time) * 15;
-                        
-                        // 鼠标引力场方程：高斯衰减凹陷
-                        if (mouse.x != null && mouse.y != null) {
-                            let dx = x - mouse.x; let dy = y - mouse.y;
-                            let dist = Math.sqrt(dx*dx + dy*dy);
-                            if (dist < 250) { // 引力半径 250px
-                                let pull = Math.max(0, 250 - dist) / 250;
-                                z += pull * pull * 45; // 平方曲线使得引力井中心更深
-                            }
-                        }
-                        // 用 Z 轴偏移 Y 坐标，形成伪 3D 视觉
-                        col.push({ cx: x, cy: y - z });
+                        col.push({ cx: x, cy: y - getZ(x, y) });
                     }
                     points.push(col);
                 }
-
-                // 绘制横向连线
+                // 横向网格线
                 for (let i = 0; i < points.length; i++) {
                     ctx.beginPath();
                     for (let j = 0; j < points[i].length; j++) {
@@ -233,8 +207,7 @@
                     }
                     ctx.stroke();
                 }
-
-                // 绘制纵向连线
+                // 纵向网格线
                 for (let j = 0; j < points[0].length; j++) {
                     ctx.beginPath();
                     for (let i = 0; i < points.length; i++) {
@@ -244,13 +217,36 @@
                     ctx.stroke();
                 }
 
-                time += 0.02; // 时间流逝，波浪翻滚
+                // === 2. 更新并绘制符号节点 ===
+                nodes.forEach(node => node.update());
+
+                // === 3. 绘制节点之间的动态连线 ===
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        let dx = nodes[i].renderX - nodes[j].renderX;
+                        let dy = nodes[i].renderY - nodes[j].renderY;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (dist < 130) {
+                            let opacity = 1 - (dist / 130);
+                            ctx.strokeStyle = `rgba(136, 175, 230, ${opacity * 0.5})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.beginPath();
+                            ctx.moveTo(nodes[i].renderX, nodes[i].renderY);
+                            ctx.lineTo(nodes[j].renderX, nodes[j].renderY);
+                            ctx.stroke();
+                        }
+                    }
+                    nodes[i].draw(); // 确保节点在连线上方
+                }
+
+                time += 0.015; // 整体宇宙时间流逝速度
                 requestAnimationFrame(animate);
             }
             animate();
         });
 
-        // 3. 启动 KaTeX
+        // 启动 KaTeX 公式极速渲染
         document.addEventListener("DOMContentLoaded", function() {
             renderMathInElement(document.body, {
                 delimiters:[
