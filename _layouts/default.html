@@ -10,12 +10,25 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
+    <!-- 【新增】引入 Google Fonts 高级设计感字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
     <style>
         :root { --text-color: #c9d1d9; --accent-color: #58a6ff; --math-font: "Georgia", "Times New Roman", serif; }
         body, html { margin: 0; padding: 0; background-color: transparent; color: var(--text-color); font-family: var(--math-font); line-height: 1.8; overflow-x: hidden; min-height: 100vh; }
         #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; background: linear-gradient(135deg, #05080e 0%, #11151d 100%); }
         .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(5, 8, 14, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(88,166,255,0.1); position: sticky; top: 0; z-index: 100; }
-        .nav-brand { font-size: 1.5em; font-weight: bold; color: #fff; letter-spacing: 1px; font-style: italic; }
+        
+        /* 【修改点 1】为 Principia 标志专门设置的高级字体样式 */
+        .nav-brand { 
+            font-family: 'Playfair Display', serif; /* 使用优雅的衬线斜体 */
+            font-size: 1.8em; 
+            font-weight: 700; 
+            color: #fff; 
+            letter-spacing: 2px; /* 增加字间距提升高级感 */
+            text-shadow: 0 0 15px rgba(88, 166, 255, 0.4); /* 微光效果 */
+        }
+        
         .nav-links { display: flex; gap: 20px; transition: all 0.3s ease; }
         .nav-links a { color: var(--text-color); text-decoration: none; padding: 5px 10px; font-size: 1.05em; transition: all 0.3s; font-family: sans-serif; border-radius: 6px; }
         .nav-links a:hover { color: var(--accent-color); background: rgba(88,166,255,0.1); }
@@ -35,7 +48,6 @@
         .btn:hover { background: var(--accent-color); color: #05080e; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
         @media (max-width: 650px) { .profile-section { flex-direction: column; text-align: center; } .paper-container { padding: 30px 20px; margin: 20px; } }
         h1, h2, h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
-        .box.glass { background: rgba(22, 27, 34, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); }
         .theorem::before { content: "Theorem. "; font-weight: bold; color: var(--accent-color); }
         .proof { margin: 2em 0; padding: 15px 20px; font-style: italic; border-left: 2px solid rgba(255,255,255,0.1); }
@@ -43,6 +55,7 @@
         .proof::after { content: "■"; float: right; color: var(--text-color); }
         .definition { margin: 2em 0; padding: 15px 20px; border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.02); }
         .definition::before { content: "Definition. "; font-weight: bold; color: #a5d6ff; }
+        .box.glass { background: rgba(22, 27, 34, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08);}
         .katex-display { overflow-x: auto; overflow-y: hidden; padding: 5px 0; }
         a { color: var(--accent-color); text-decoration: none; }
         img { max-width: 100%; border-radius: 6px; }
@@ -69,13 +82,12 @@
     </div>
 
     <script>
-        // 移动端菜单折叠
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             document.getElementById('nav-links').classList.toggle('active');
         });
 
         // ==========================================
-        // 核心物理引擎：时空波浪之海 + 拓扑符号网络
+        // 核心物理引擎：时空波浪之海 + 拓扑符号网络 (含斥力)
         // ==========================================
         document.addEventListener("DOMContentLoaded", function() {
             const canvas = document.getElementById('math-canvas');
@@ -85,90 +97,62 @@
             let width = canvas.width = window.innerWidth;
             let height = canvas.height = window.innerHeight;
 
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
+            window.addEventListener('resize', () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; });
 
-            // 鼠标位置与引力半径
             let mouse = { x: null, y: null, radius: 300 };
             window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
             window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
             let time = 0;
-            const gap = 65; // 网格的密度
+            const gap = 65; 
 
-            // 核心函数：计算平面上任意坐标 (x, y) 在此时此刻的 Z 轴高度 (曲率)
             function getZ(x, y) {
-                // 1. 基础海洋波浪方程
                 let z = Math.sin((x / 120) + time) * Math.cos((y / 120) + time) * 18;
-                
-                // 2. 鼠标造成的质量塌陷 (高斯引力井)
                 if (mouse.x != null && mouse.y != null) {
-                    let dx = x - mouse.x;
-                    let dy = y - mouse.y;
+                    let dx = x - mouse.x; let dy = y - mouse.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
                     if (dist < mouse.radius) {
                         let pull = (mouse.radius - dist) / mouse.radius;
-                        // 曲率下凹，平方衰减使得中心更深
                         z -= pull * pull * 60; 
                     }
                 }
                 return z;
             }
 
-            // 漂浮在海面上的数学符号节点
             const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈'];
             class MathNode {
                 constructor() {
-                    this.x = Math.random() * width; 
-                    this.y = Math.random() * height;
-                    this.vx = (Math.random() - 0.5) * 0.4;
-                    this.vy = (Math.random() - 0.5) * 0.4;
+                    this.x = Math.random() * width; this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
                     this.char = symbols[Math.floor(Math.random() * symbols.length)];
-                    this.fontSize = Math.random() * 8 + 12; // 字体稍微缩小显得更精细
+                    this.fontSize = Math.random() * 8 + 12; 
                 }
 
                 update() {
-                    // 物理引擎：与鼠标引力场的互动
+                    // 鼠标引力场
                     if (mouse.x != null && mouse.y != null) {
-                        let dx = mouse.x - this.x;
-                        let dy = mouse.y - this.y;
+                        let dx = mouse.x - this.x; let dy = y = mouse.y - this.y;
                         let dist = Math.sqrt(dx*dx + dy*dy);
-                        
                         if (dist < mouse.radius) {
                             let force = (mouse.radius - dist) / mouse.radius;
-                            // 1. 向引力中心滑落 (向心力)
                             this.vx += (dx / dist) * force * 0.3;
                             this.vy += (dy / dist) * force * 0.3;
-                            // 2. 产生轨道角动量 (洛伦兹漩涡效应)
                             this.vx += (dy / dist) * force * 0.4;
                             this.vy -= (dx / dist) * force * 0.4;
                         }
                     }
 
-                    // 空间阻力（防止粒子飞得太快）
-                    this.vx *= 0.95;
-                    this.vy *= 0.95;
-
-                    // 基础布朗运动（保证平时不静止）
+                    this.vx *= 0.95; this.vy *= 0.95;
                     if (Math.abs(this.vx) < 0.2) this.vx += (Math.random() - 0.5) * 0.15;
                     if (Math.abs(this.vy) < 0.2) this.vy += (Math.random() - 0.5) * 0.15;
 
-                    // 更新绝对坐标
-                    this.x += this.vx;
-                    this.y += this.vy;
+                    this.x += this.vx; this.y += this.vy;
 
-                    // 边缘循环穿越
-                    if (this.x < 0) this.x = width;
-                    if (this.x > width) this.x = 0;
-                    if (this.y < 0) this.y = height;
-                    if (this.y > height) this.y = 0;
+                    if (this.x < 0) this.x = width; if (this.x > width) this.x = 0;
+                    if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
 
-                    // 计算粒子受曲率影响后的 3D 渲染坐标
                     this.renderZ = getZ(this.x, this.y);
                     this.renderX = this.x;
-                    // z 为负（下凹）时，y 坐标加上正值，在屏幕上表现为向下掉落
                     this.renderY = this.y - this.renderZ; 
                 }
 
@@ -179,27 +163,23 @@
                 }
             }
 
-            // 初始化粒子群
             let nodes =[];
             let nodeCount = Math.floor((width * height) / 18000); 
-            if(nodeCount > 80) nodeCount = 80; // 限制数量防止卡顿
+            if(nodeCount > 80) nodeCount = 80; 
             for(let i=0; i<nodeCount; i++) nodes.push(new MathNode());
 
             function animate() {
                 ctx.clearRect(0, 0, width, height);
                 
-                // === 1. 绘制时空波浪网格 ===
+                // 1. 绘制网格
                 ctx.strokeStyle = 'rgba(88, 166, 255, 0.12)';
                 ctx.lineWidth = 1;
                 const points =[];
                 for (let x = 0; x <= width + gap; x += gap) {
                     let col =[];
-                    for (let y = 0; y <= height + gap; y += gap) {
-                        col.push({ cx: x, cy: y - getZ(x, y) });
-                    }
+                    for (let y = 0; y <= height + gap; y += gap) { col.push({ cx: x, cy: y - getZ(x, y) }); }
                     points.push(col);
                 }
-                // 横向网格线
                 for (let i = 0; i < points.length; i++) {
                     ctx.beginPath();
                     for (let j = 0; j < points[i].length; j++) {
@@ -208,7 +188,6 @@
                     }
                     ctx.stroke();
                 }
-                // 纵向网格线
                 for (let j = 0; j < points[0].length; j++) {
                     ctx.beginPath();
                     for (let i = 0; i < points.length; i++) {
@@ -218,18 +197,32 @@
                     ctx.stroke();
                 }
 
-                // === 2. 更新并绘制符号节点 ===
+                // 2. 更新节点位置
                 nodes.forEach(node => node.update());
 
-                // === 3. 绘制节点之间的动态连线 ===
+                // 3. 【修改点 2】符号之间的连线与“量子斥力”引擎
                 for (let i = 0; i < nodes.length; i++) {
                     for (let j = i + 1; j < nodes.length; j++) {
-                        let dx = nodes[i].renderX - nodes[j].renderX;
-                        let dy = nodes[i].renderY - nodes[j].renderY;
+                        let dx = nodes[i].x - nodes[j].x;
+                        let dy = nodes[i].y - nodes[j].y;
                         let dist = Math.sqrt(dx*dx + dy*dy);
                         
-                        if (dist < 130) {
-                            let opacity = 1 - (dist / 130);
+                        // 【核心物理：斥力法则】如果两个符号靠得太近（小于 40px），触发斥力弹开
+                        if (dist < 40 && dist > 0.1) {
+                            let repelForce = (40 - dist) / 40; // 越近斥力越大
+                            let pushX = (dx / dist) * repelForce * 0.08;
+                            let pushY = (dy / dist) * repelForce * 0.08;
+                            nodes[i].vx += pushX; nodes[i].vy += pushY;
+                            nodes[j].vx -= pushX; nodes[j].vy -= pushY;
+                        }
+
+                        // 渲染三维连线
+                        let renderDx = nodes[i].renderX - nodes[j].renderX;
+                        let renderDy = nodes[i].renderY - nodes[j].renderY;
+                        let renderDist = Math.sqrt(renderDx*renderDx + renderDy*renderDy);
+                        
+                        if (renderDist < 130) {
+                            let opacity = 1 - (renderDist / 130);
                             ctx.strokeStyle = `rgba(136, 175, 230, ${opacity * 0.5})`;
                             ctx.lineWidth = 0.8;
                             ctx.beginPath();
@@ -238,16 +231,15 @@
                             ctx.stroke();
                         }
                     }
-                    nodes[i].draw(); // 确保节点在连线上方
+                    nodes[i].draw();
                 }
 
-                time += 0.015; // 整体宇宙时间流逝速度
+                time += 0.015; 
                 requestAnimationFrame(animate);
             }
             animate();
         });
 
-        // 启动 KaTeX 公式极速渲染
         document.addEventListener("DOMContentLoaded", function() {
             renderMathInElement(document.body, {
                 delimiters:[
