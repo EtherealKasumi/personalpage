@@ -57,15 +57,16 @@
         .btn:hover { background: var(--accent-color); color: #05080e; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
         @media (max-width: 650px) { .profile-section { flex-direction: column; text-align: center; } .paper-container { padding: 30px 20px; margin: 20px; } }
         /* === 学术风排版标签 (全套数学区块) === */
+        /* === 学术风排版标签 (全套数学区块统一视觉) === */
         h1, h2, h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
         
         /* 1. 定理 (Theorem) - 主题蓝 */
         .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); border-radius: 0 4px 4px 0; }
         .theorem::before { content: "定理 (Theorem). "; font-weight: bold; color: var(--accent-color); }
         
-        /* 2. 定义 (Definition) - 虚线透密 */
-        .definition { margin: 2em 0; padding: 15px 20px; border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.02); border-radius: 4px; }
-        .definition::before { content: "定义 (Definition). "; font-weight: bold; color: #a5d6ff; }
+        /* 2. 定义 (Definition) - 极客青 (统一风格) */
+        .definition { margin: 2em 0; padding: 15px 20px; background: rgba(57, 197, 207, 0.05); border-left: 4px solid #39c5cf; border-radius: 0 4px 4px 0; }
+        .definition::before { content: "定义 (Definition). "; font-weight: bold; color: #39c5cf; }
         
         /* 3. 引理 (Lemma) - 薄荷绿 */
         .lemma { margin: 2em 0; padding: 15px 20px; background: rgba(86, 211, 100, 0.05); border-left: 4px solid #56d364; border-radius: 0 4px 4px 0; }
@@ -78,7 +79,7 @@
         /* 5. 备用空块 (Generic Block) - 高级灰，无自动前缀，供自由发挥 */
         .math-block { margin: 2em 0; padding: 15px 20px; background: rgba(139, 148, 158, 0.05); border-left: 4px solid #8b949e; border-radius: 0 4px 4px 0; }
         
-        /* 6. 证明 (Proof) - 斜体与证毕符号 */
+        /* 6. 证明 (Proof) - 专属无背景斜体 + 证毕符号 */
         .proof { margin: 2em 0; padding: 15px 20px; font-style: italic; border-left: 2px solid rgba(255,255,255,0.1); }
         .proof::before { content: "证明 (Proof). "; font-weight: bold; font-style: normal; }
         .proof::after { content: "■"; float: right; color: var(--text-color); }
