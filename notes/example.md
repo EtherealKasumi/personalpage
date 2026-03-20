@@ -82,5 +82,5 @@ $$ |G| = \sum_{i=1}^{k} |a_iH| = k \cdot |H| = [G:H] \cdot |H| $$
 </div>
 
 <div class="block1" markdown="1">
-此为block1, 另有1-4.
+此为block1, 另有1-4, 分别对应定理、定义、引理、命题.
 </div>
