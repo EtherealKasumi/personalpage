@@ -12,16 +12,16 @@ title: Home
         <p class="subtitle">数学爱好者 / 物理爱好者 </p>
         
         <div class="action-buttons">
-            <a href="cv.html" class="btn">📄 查看简历 (CV)</a>
-            <a href="notes.html" class="btn">✍️ 浏览笔记 (Notes)</a>
-            <a href="resources.html" class="btn">📥 其他资源 (Resources)</a>
+            <a href="cv.html" class="btn">📄 查看简历 </a>
+            <a href="notes.html" class="btn">✍️ 浏览笔记 </a>
+            <a href="resources.html" class="btn">📥 其他资源 </a>
         </div>
     </div>
 </div>
 
 ---
 
-## 📖 关于我 (About Me)
+## 📖 关于我
 
 我是[南开大学](https://en.nankai.edu.cn/)[数学科学学院](http://en.math.nankai.edu.cn/)一名2023级的本科生.
 
@@ -34,6 +34,6 @@ title: Home
 > *Je suis d'ailleurs*
 
 
-## 🔬 当前研究 (Current Focus)
+## 🔬 当前研究
 
 探索中...
