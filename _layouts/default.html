@@ -11,7 +11,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <!-- 【新增】引入 Google Fonts 高级设计感字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 
     <style>
         :root { --text-color: #c9d1d9; --accent-color: #58a6ff; --math-font: "Georgia", "Times New Roman", serif; }
@@ -21,13 +21,16 @@
         
         /* 【修改点 1】为 Principia 标志专门设置的高级字体样式 */
         .nav-brand { 
-            font-family: 'Playfair Display', serif; /* 使用优雅的衬线斜体 */
-            font-size: 1.8em; 
-            font-weight: 700; 
-            color: #fff; 
-            letter-spacing: 2px; /* 增加字间距提升高级感 */
-            text-shadow: 0 0 15px rgba(88, 166, 255, 0.4); /* 微光效果 */
-        }
+    /* 👇 当前启用的是【华丽花体】 */
+    /* 如果你想换成【哥特体】，请把这行改成 font-family: 'UnifrakturMaguntia', cursive; */
+    font-family: 'Great Vibes', cursive; 
+    
+    font-size: 2.5em; /* 花体/哥特体通常较细，字号调大才足够震撼 */
+    font-weight: 400; 
+    color: #fff; 
+    letter-spacing: 2px;
+    text-shadow: 0 0 18px rgba(88, 166, 255, 0.6); /* 增强了蓝色的幽光效果 */
+}
         
         .nav-links { display: flex; gap: 20px; transition: all 0.3s ease; }
         .nav-links a { color: var(--text-color); text-decoration: none; padding: 5px 10px; font-size: 1.05em; transition: all 0.3s; font-family: sans-serif; border-radius: 6px; }
