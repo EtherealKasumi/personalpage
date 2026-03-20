@@ -21,7 +21,7 @@ title: Notes
 
 ---
 
-<div class="definition" markdown="1">
+<div class="box glass" markdown="1">
 **💡 提示：**
 如果您在阅读我的 PDF 讲义时发现了任何勘误，欢迎通过我的 Home 页面上的邮箱联系我。
 </div>
