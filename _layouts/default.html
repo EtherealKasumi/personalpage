@@ -57,31 +57,34 @@
         .btn:hover { background: var(--accent-color); color: #05080e; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
         @media (max-width: 650px) { .profile-section { flex-direction: column; text-align: center; } .paper-container { padding: 30px 20px; margin: 20px; } }
         /* === 学术风排版标签 (全套数学区块) === */
-        /* === 学术风排版标签 (全套数学区块统一视觉) === */
         h1, h2, h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
         
         /* 1. 定理 (Theorem) - 主题蓝 */
         .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); border-radius: 0 4px 4px 0; }
-        .theorem::before { content: "定理 (Theorem). "; font-weight: bold; color: var(--accent-color); }
+        .theorem::before { content: "Theorem. "; font-weight: bold; color: var(--accent-color); }
         
         /* 2. 定义 (Definition) - 极客青 (统一风格) */
         .definition { margin: 2em 0; padding: 15px 20px; background: rgba(57, 197, 207, 0.05); border-left: 4px solid #39c5cf; border-radius: 0 4px 4px 0; }
-        .definition::before { content: "定义 (Definition). "; font-weight: bold; color: #39c5cf; }
+        .definition::before { content: "Definition. "; font-weight: bold; color: #39c5cf; }
         
         /* 3. 引理 (Lemma) - 薄荷绿 */
         .lemma { margin: 2em 0; padding: 15px 20px; background: rgba(86, 211, 100, 0.05); border-left: 4px solid #56d364; border-radius: 0 4px 4px 0; }
-        .lemma::before { content: "引理 (Lemma). "; font-weight: bold; color: #56d364; }
+        .lemma::before { content: "Lemma. "; font-weight: bold; color: #56d364; }
         
         /* 4. 命题 (Proposition) - 哥特紫 */
         .proposition { margin: 2em 0; padding: 15px 20px; background: rgba(188, 140, 255, 0.05); border-left: 4px solid #bc8cff; border-radius: 0 4px 4px 0; }
-        .proposition::before { content: "命题 (Proposition). "; font-weight: bold; color: #bc8cff; }
+        .proposition::before { content: "Proposition. "; font-weight: bold; color: #bc8cff; }
 
         /* 5. 备用空块 (Generic Block) - 高级灰，无自动前缀，供自由发挥 */
         .math-block { margin: 2em 0; padding: 15px 20px; background: rgba(139, 148, 158, 0.05); border-left: 4px solid #8b949e; border-radius: 0 4px 4px 0; }
+        .block1 { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); border-radius: 0 4px 4px 0; }
+        .block2 { margin: 2em 0; padding: 15px 20px; background: rgba(57, 197, 207, 0.05); border-left: 4px solid #39c5cf; border-radius: 0 4px 4px 0; }
+        .block3 { margin: 2em 0; padding: 15px 20px; background: rgba(86, 211, 100, 0.05); border-left: 4px solid #56d364; border-radius: 0 4px 4px 0; }
+        .block4 { margin: 2em 0; padding: 15px 20px; background: rgba(188, 140, 255, 0.05); border-left: 4px solid #bc8cff; border-radius: 0 4px 4px 0; }
         
         /* 6. 证明 (Proof) - 专属无背景斜体 + 证毕符号 */
         .proof { margin: 2em 0; padding: 15px 20px; font-style: italic; border-left: 2px solid rgba(255,255,255,0.1); }
-        .proof::before { content: "证明 (Proof). "; font-weight: bold; font-style: normal; }
+        .proof::before { content: "Proof. "; font-weight: bold; font-style: normal; }
         .proof::after { content: "■"; float: right; color: var(--text-color); }
         
         /* 公式防溢出与基本标签 */
