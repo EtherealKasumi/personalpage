@@ -35,13 +35,14 @@
         .btn:hover { background: var(--accent-color); color: #05080e; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); transform: translateY(-3px); }
         @media (max-width: 650px) { .profile-section { flex-direction: column; text-align: center; } .paper-container { padding: 30px 20px; margin: 20px; } }
         h1, h2, h3 { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+        .box.glass { background: rgba(22, 27, 34, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .theorem { margin: 2em 0; padding: 15px 20px; background: rgba(88, 166, 255, 0.05); border-left: 4px solid var(--accent-color); }
-        .theorem::before { content: "定理 (Theorem). "; font-weight: bold; color: var(--accent-color); }
+        .theorem::before { content: "Theorem. "; font-weight: bold; color: var(--accent-color); }
         .proof { margin: 2em 0; padding: 15px 20px; font-style: italic; border-left: 2px solid rgba(255,255,255,0.1); }
-        .proof::before { content: "证明 (Proof). "; font-weight: bold; font-style: normal; }
+        .proof::before { content: "Proof. "; font-weight: bold; font-style: normal; }
         .proof::after { content: "■"; float: right; color: var(--text-color); }
         .definition { margin: 2em 0; padding: 15px 20px; border: 1px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.02); }
-        .definition::before { content: "定义 (Definition). "; font-weight: bold; color: #a5d6ff; }
+        .definition::before { content: "Definition. "; font-weight: bold; color: #a5d6ff; }
         .katex-display { overflow-x: auto; overflow-y: hidden; padding: 5px 0; }
         a { color: var(--accent-color); text-decoration: none; }
         img { max-width: 100%; border-radius: 6px; }
