@@ -6,13 +6,14 @@ title: Home
 <!-- 个人信息与头像卡片区 -->
 <div class="profile-section">
     <img src="assets/images/avatar.jpg" alt="My Avatar" class="profile-avatar">
-    
+
     <div class="profile-info">
         <h1>你好, 我是朧千夏 👋</h1>
         <p class="subtitle">数学爱好者 / 物理爱好者 </p>
         
         <div class="action-buttons">
             <a href="cv.html" class="btn">📄 查看简历 </a>
+            <a href="blogs.html" class="btn">📝 我的博客 </a>
             <a href="notes.html" class="btn">✍️ 浏览笔记 </a>
             <a href="resources.html" class="btn">📥 其他资源 </a>
         </div>
