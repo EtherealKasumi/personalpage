@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Blogs
+permalink: /blogs.html
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">我的博客</h1>
