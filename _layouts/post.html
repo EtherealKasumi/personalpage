@@ -1,0 +1,22 @@
+---
+layout: default
+---
+<!-- 这一行 layout: default 是灵魂，它会让这篇博客自动套上时空网格背景和导航栏 -->
+
+<!-- 文章头部：标题与日期 -->
+<header style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 30px;">
+    <h1 style="font-size: 2.2em; border-bottom: none; margin-bottom: 10px; color: #ffffff;">{{ page.title }}</h1>
+    <p style="color: #8b949e; font-style: italic; margin: 0; font-family: monospace;">
+        📅 发布于：{{ page.date | date: "%Y年%m月%d日" }}
+    </p>
+</header>
+
+<!-- 正文内容区 -->
+<article class="post-content">
+    {{ content }}
+</article>
+
+<!-- 底部返回按钮 -->
+<div style="margin-top: 60px; text-align: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 30px;">
+    <a href="{{ '/blog.html' | relative_url }}" class="btn">⬅ 返回博客列表</a>
+</div>
