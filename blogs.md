@@ -6,7 +6,7 @@ permalink: /blogs.html
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">我的博客</h1>
 <p style="text-align: center; color: #8b949e; margin-bottom: 40px; font-style: italic;">
-  "Mathematics is the art of giving the same name to different things." — Henri Poincaré
+  "行到水穷处, 坐看云起时."
 </p>
 
 <!-- 利用 Jekyll 的 for 循环自动抓取 _posts 里的文章 -->
