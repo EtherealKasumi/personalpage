@@ -28,7 +28,7 @@ title: Home
 
 - 📫 你可以通过以下方式联系我:
   - **QQ** : 3545106377
-  - **Email** : ngc3545106377@qq.com / ngc3545106377@gmail.com
+  - **Email** : 2312022@nankai.edu.cn / ngc3545106377@qq.com / ngc3545106377@gmail.com
 
 
 
