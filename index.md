@@ -32,7 +32,6 @@ title: Home
 
 
 
-> *Je suis d'ailleurs*
 
 
 ## 🔬 当前研究

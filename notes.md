@@ -3,25 +3,27 @@ layout: default
 title: Notes
 ---
 
-# 数学与代码笔记库
+<h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">一些笔记</h1>
+<p style="text-align: center; color: #8b949e; margin-bottom: 40px; font-style: italic;">
+  "Je suis d'ailleurs."
+</p>
 
-欢迎来到我的笔记库。这里既有我在线整理的 Markdown 笔记，也有可以离线阅读的 PDF 原稿。在线笔记的模板为[演示文档](notes/example.html)
 
 ## 📚 在线笔记
 
-这些是我直接写在网页上的系列笔记，包含了大量的推导和代码实现：
+待更新...
 
 
 ---
 
 ## 📥 PDF 下载
 
-如果你喜欢在平板上做批注，可以下载我用 LaTeX 排版的原稿：
+待上传...
 
 
 ---
 
 <div class="box glass" markdown="1">
 **💡 提示：**
-如果您在阅读我的 PDF 讲义时发现了任何勘误，欢迎通过我的 Home 页面上的邮箱联系我。
+如果您在阅读我的 PDF 笔记时发现了任何勘误，欢迎通过我的 Home 页面上的邮箱联系我。
 </div>
