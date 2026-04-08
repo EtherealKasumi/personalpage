@@ -219,35 +219,34 @@ $$
 
 ```mermaid
 flowchart LR
-    
     A["数<br>学<br>问<br>题"]:::box
     B["并行性好的<br>传统数值方法"]:::box
-    
-    %% 定义虚线框分组
-    subgraph Core[" "]
-        D["并行数值方法"]:::box
-        C["并行性差的<br>传统数值方法"]:::box
-        E["并行算法"]:::box
-    end
-    
+    C["并行性差的<br>传统数值方法"]:::box
+    D["并行数值方法"]:::box
+    E["并行算法"]:::box
     F["并行程序设计"]:::box
     G["在<br>并<br>行<br>机<br>上<br>解<br>算"]:::box
 
-    %% 建立逻辑连线
+    %% 正确的逻辑顺序
     A --> B
     A --> C
     B --> D
-    C -- "并行化" --> D
+    C -- "并行化改造" --> D
     D --> E
     E --> F
     F --> G
-    
-    %% 最下方返回起点的长箭头
-    G --> A
-    
-    %% 设置虚线框的具体样式
-    style Core fill:none,stroke:#000,stroke-width:2px,stroke-dasharray: 5 5
+    G --> A   %% 闭环迭代
+
+    subgraph Core[" "]
+        D
+        C
+        E
+    end
+
+    style Core fill:none,stroke:#000,stroke-width:2px,stroke-dasharray:5 5
+    classDef box fill:#f9f9f9,stroke:#333,stroke-width:1px
 ```
+
 虚线所界定的内容构成了一个与并行算法直接相关的相当广泛的研究领域. 为了在并行机上实现给定问题的求解, 需要完成图中所示任务的一个大循环. 对于所要求解的数学问题, 如果传统数值方法已具备良好的和明显的并行性, 则可直接进入并行算法设计; 倘若传统方法没有良好的并行性, 则应对其进行并行性改造和创新.
 
 具备并行性的传统数值方法: 用主元素Gauss消元法解稠密线性代数方程组、矩阵与向量的乘法运算、求解发展方程的显示差分格式、求解线性代数方程组的Jacobi迭代法等.
