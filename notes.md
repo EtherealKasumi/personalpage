@@ -11,14 +11,14 @@ title: Notes
 
 ## 📚 在线笔记
 
-- **[并行数值计算](notes/scientific_parallel_computing/content.md)** 这是我的课程笔记, 授课老师是张胜老师.
+等待更新中...
 
 
 ---
 
-## 📥 PDF 下载
+## 📥 PDF
 
-待上传...
+- **[并行数值计算](notes/scientific_parallel_computing/content.md)** 这是我的课程笔记, 授课老师是张胜老师.
 
 
 ---
