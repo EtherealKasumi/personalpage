@@ -93,6 +93,22 @@
         img { max-width: 100%; border-radius: 6px; }
         code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #a5d6ff; }
         .box.glass { background: rgba(22, 27, 34, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08);}
+
+        /* === Mermaid 矢量图表居中与响应式保护 === */
+        .mermaid {
+            display: flex;           /* 使用弹性盒子 */
+            justify-content: center; /* 水平绝对居中 */
+            margin: 2em 0;           /* 上下留出呼吸感间距 */
+            overflow-x: auto;        /* 如果图表画得太宽，允许横向滚动而不是撑爆页面 */
+            padding: 10px 0;
+        }
+        
+        .mermaid svg {
+            max-width: 100%;         /* 确保在手机小屏幕上图表能自动缩放 */
+            height: auto;
+        }
+    
+    
     </style>
 </head>
 <body>
