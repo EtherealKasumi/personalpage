@@ -283,5 +283,44 @@
             });
         });
     </script>
+
+    <!-- === Mermaid 矢量图表引擎 === -->
+    <script type="module">
+        // 引入最新版 Mermaid (ES Module 格式)
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        document.addEventListener("DOMContentLoaded", async function() {
+            // 1. 深度定制 Mermaid 样式，完美融入你的暗黑哥特极客风
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'dark', // 启用基础暗黑模式
+                themeVariables: {
+                    fontFamily: '"Georgia", "Times New Roman", serif', // 保持和 Principia 一致的学术字体
+                    primaryColor: 'rgba(88, 166, 255, 0.1)',   // 节点背景：极淡的主题蓝
+                    primaryTextColor: '#c9d1d9',               // 节点文字颜色
+                    primaryBorderColor: '#58a6ff',             // 节点边框：主题蓝发光色
+                    lineColor: '#39c5cf',                      // 连线颜色：极客青
+                    tertiaryColor: 'rgba(188, 140, 255, 0.1)', // 备用颜色：哥特紫
+                    tertiaryBorderColor: '#bc8cff'
+                }
+            });
+
+            // 2. 解决 Jekyll 兼容性问题：把 <code> 转换成 Mermaid 能看懂的 <div>
+            const mermaidBlocks = document.querySelectorAll('code.language-mermaid');
+            if (mermaidBlocks.length > 0) {
+                mermaidBlocks.forEach((block) => {
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    // 必须使用 textContent 提取纯文本，避免 > 符号被转义成 &gt;
+                    div.textContent = block.textContent; 
+                    // 替换掉外层多余的 <pre> 标签，避免出现黑色代码块底色
+                    block.parentElement.replaceWith(div); 
+                });
+                
+                // 3. 触发渲染动画
+                await mermaid.run({ querySelector: '.mermaid' });
+            }
+        });
+    </script>
 </body>
 </html>
