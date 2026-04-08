@@ -94,33 +94,21 @@
         code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #a5d6ff; }
         .box.glass { background: rgba(22, 27, 34, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08);}
 
-        /* === Mermaid 图表宽度保护版 === */
+        /* === Mermaid 矢量图表居中与防压缩保护 === */
         .mermaid {
             margin: 2em 0;
-            display: flex;
-            justify-content: center;
-            overflow-x: auto;   /* 横向滚动条作为最终保底 */
-            background: transparent;
+            padding: 15px 0;
+            overflow-x: auto;        /* 图表超出宽度时，开启横向滚动条 */
+            overflow-y: hidden;
+            text-align: center;      /* 图表较小时，完美居中 */
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; /* 让手机端横向滑动像丝绸一样顺滑 */
         }
-
+        
         .mermaid svg {
-             width: 100%;        /* 改：优先占满容器宽度 */
-            max-width: none;    /* 关键：移除 max-width:100% 的限制 */
+            display: inline-block;   /* 配合父级的 text-align: center 实现安全居中 */
+            max-width: none !important; /* 【核心修复】禁止强制压缩！保持它原本清晰的尺寸 */
             height: auto;
-        }
-
-        /* 大屏幕时让图表用实际宽度（不强制缩小） */
-        @media (min-width: 1200px) {
-            .mermaid svg {
-                width: auto;
-                max-width: 90vw;  /* 可选：最多占视口90%，不贴边 */
-            }
-        }
-
-        /* 如果某些图实在太宽，允许浏览器滚动条接管 */
-        .mermaid {
-             overflow-x: auto;
-             white-space: nowrap;
         }
     
     
