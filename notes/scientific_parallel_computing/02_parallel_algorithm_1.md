@@ -3,6 +3,7 @@ layout: default
 title: "并行算法 (1)"
 ---
 
+# 并行算法 (1)
 
 ## 概述
 
