@@ -219,15 +219,14 @@ $$
 
 ```mermaid
 flowchart LR
-    A["数<br>学<br>问<br>题"]:::box
-    B["并行性好的<br>传统数值方法"]:::box
-    C["并行性差的<br>传统数值方法"]:::box
-    D["并行数值方法"]:::box
-    E["并行算法"]:::box
-    F["并行程序设计"]:::box
-    G["在<br>并<br>行<br>机<br>上<br>解<br>算"]:::box
+    A["数<br>学<br>问<br>题"]
+    B["并行性好的<br>传统数值方法"]
+    C["并行性差的<br>传统数值方法"]
+    D["并行数值方法"]
+    E["并行算法"]
+    F["并行程序设计"]
+    G["在<br>并<br>行<br>机<br>上<br>解<br>算"]
 
-    %% 正确的逻辑顺序
     A --> B
     A --> C
     B --> D
@@ -235,16 +234,17 @@ flowchart LR
     D --> E
     E --> F
     F --> G
-    G --> A   %% 闭环迭代
+    G --> A
 
-    subgraph Core[" "]
+    subgraph Core [" "]
         D
         C
         E
     end
 
     style Core fill:none,stroke:#000,stroke-width:2px,stroke-dasharray:5 5
-    classDef box fill:#f9f9f9,stroke:#333,stroke-width:1px
+    classDef box fill:#e8f4f8,stroke:#333,stroke-width:1px
+    class A,B,C,D,E,F,G box
 ```
 
 虚线所界定的内容构成了一个与并行算法直接相关的相当广泛的研究领域. 为了在并行机上实现给定问题的求解, 需要完成图中所示任务的一个大循环. 对于所要求解的数学问题, 如果传统数值方法已具备良好的和明显的并行性, 则可直接进入并行算法设计; 倘若传统方法没有良好的并行性, 则应对其进行并行性改造和创新.

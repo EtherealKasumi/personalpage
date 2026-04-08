@@ -96,20 +96,34 @@
 
         /* === Mermaid 矢量图表居中与防压缩保护 === */
         .mermaid {
-            margin: 2em 0;
-            padding: 15px 0;
-            overflow-x: auto;        /* 图表超出宽度时，开启横向滚动条 */
-            overflow-y: hidden;
-            text-align: center;      /* 图表较小时，完美居中 */
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch; /* 让手机端横向滑动像丝绸一样顺滑 */
-        }
-        
-        .mermaid svg {
-            display: inline-block;   /* 配合父级的 text-align: center 实现安全居中 */
-            max-width: none !important; /* 【核心修复】禁止强制压缩！保持它原本清晰的尺寸 */
-            height: auto;
-        }
+    margin: 2em auto;           /* 上下留白，左右自动 */
+    padding: 15px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    
+    /* 关键：让容器宽度由内容撑开，不强制100% */
+    display: inline-block;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;            /* 不超过父级，避免溢出页面 */
+    text-align: left;           /* 内容左对齐，配合滚动条 */
+}
+
+.mermaid svg {
+    display: block;             /* 去掉 inline-block 间隙 */
+    max-width: none !important;
+    height: auto;
+}
+
+/* 如果想让小图居中（不滚动时） */
+.mermaid:not(:hover) {
+    text-align: center;
+}
+.mermaid:not(:hover) svg {
+    display: inline-block;
+}
     
     
     </style>
