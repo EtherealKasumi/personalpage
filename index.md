@@ -27,8 +27,8 @@ title: Home
 我是[南开大学](https://en.nankai.edu.cn/)[数学科学学院](http://en.math.nankai.edu.cn/)一名2023级的本科生.
 
 - 📫 你可以通过以下方式联系我:
-  - **QQ** : 3545106377
-  - **Email** : 2312022@mail.nankai.edu.cn / ngc3545106377@qq.com / ngc3545106377@gmail.com
+  - **QQ** : 2153412476
+  - **Email** : 17770737055@163.com
 
 
 
