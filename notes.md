@@ -19,6 +19,7 @@ title: Notes
 ## 📥 PDF
 
 - **[并行数值计算](assets/files/psc.pdf)** 这是我的课程笔记, 授课老师是张胜老师.
+- **[Python 科学计算](assets/files/scwp.pdf)**
 
 
 ---
