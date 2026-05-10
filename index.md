@@ -28,7 +28,7 @@ title: Home
 
 - 📫 你可以通过以下方式联系我:
   - **QQ** : 2153412476
-  - **Email** : 17770737055@163.com
+  - **Email** : etherealkasumi@163.com
 
 
 
