@@ -39,9 +39,9 @@
             z-index: 1;
             pointer-events: none;
             background:
-                radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.44), transparent 30%),
-                radial-gradient(circle at 78% 8%, rgba(172, 219, 226, 0.22), transparent 24%),
-                linear-gradient(180deg, rgba(223, 231, 240, 0.08), rgba(209, 219, 231, 0.28));
+                radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.5), transparent 30%),
+                radial-gradient(circle at 78% 8%, rgba(172, 219, 226, 0.24), transparent 24%),
+                linear-gradient(180deg, rgba(223, 231, 240, 0.12), rgba(209, 219, 231, 0.36));
         }
         #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: linear-gradient(135deg, #d9e3ee 0%, #edf2f7 46%, #cfdbe8 100%); }
         .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
@@ -73,7 +73,7 @@
             .nav-links.active { max-height: 420px; padding: 12px; border: 1px solid var(--hairline); }
             .nav-links a { text-align: center; }
         }
-        .paper-container { position: relative; z-index: 2; width: min(1080px, calc(100% - 32px)); margin: 42px auto 72px; padding: clamp(28px, 5vw, 54px); background: rgba(231, 237, 244, 0.42); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border: 1px solid rgba(75, 96, 124, 0.2); border-radius: 30px; box-shadow: 24px 24px 58px rgba(111,126,145,0.26), -18px -18px 48px rgba(255,255,255,0.5), inset 1px 1px 1px rgba(255,255,255,0.66), inset -1px -1px 2px rgba(97,112,132,0.14); animation: surfaceRise 0.8s ease both; }
+        .paper-container { position: relative; z-index: 2; width: min(1080px, calc(100% - 32px)); margin: 42px auto 72px; padding: clamp(28px, 5vw, 54px); background: rgba(231, 237, 244, 0.68); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(75, 96, 124, 0.2); border-radius: 30px; box-shadow: 24px 24px 58px rgba(111,126,145,0.26), -18px -18px 48px rgba(255,255,255,0.58), inset 1px 1px 1px rgba(255,255,255,0.7), inset -1px -1px 2px rgba(97,112,132,0.14); animation: surfaceRise 0.8s ease both; }
         .home-shell { display: grid; gap: clamp(30px, 5vw, 48px); }
         .profile-section { display: grid; grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: clamp(30px, 6vw, 72px); min-height: clamp(360px, calc(100svh - 340px), 520px); }
         .profile-media { position: relative; display: grid; place-items: center; min-height: 280px; }
@@ -106,6 +106,16 @@
         .post-meta { color: #2f78b7; font-family: var(--ui-font); font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
         .post-title { margin: 0 0 12px; border-bottom: none; color: #172337; font-size: clamp(1.45rem, 3vw, 1.85rem); line-height: 1.28; }
         .post-excerpt { margin: 0; color: #46586d; font-size: 1.02rem; line-height: 1.75; }
+        .post-header { text-align: center; padding: clamp(36px, 6vw, 72px) 0 32px; margin-bottom: clamp(28px, 5vw, 48px); border-bottom: 1px solid rgba(75, 96, 124, 0.14); }
+        .post-header h1 { margin: 0 0 14px; border-bottom: none; color: #172337; font-size: clamp(2.2rem, 5vw, 3.35rem); line-height: 1.12; text-shadow: 5px 7px 16px rgba(111,126,145,0.18), -3px -3px 12px rgba(255,255,255,0.72); }
+        .post-date { margin: 0; color: #506175; font-family: var(--ui-font); font-size: 0.95rem; font-weight: 700; }
+        .post-content { color: #2d3d51; font-size: clamp(1.03rem, 1.6vw, 1.12rem); line-height: 1.9; }
+        .post-content h1,
+        .post-content h2,
+        .post-content h3 { color: #172337; }
+        .post-content p,
+        .post-content li { color: #2d3d51; }
+        .post-footer { margin-top: 60px; text-align: center; border-top: 1px dashed rgba(75, 96, 124, 0.22); padding-top: 30px; }
         @media (max-width: 760px) {
             .top-nav { width: min(100% - 22px, 1120px); margin-top: 12px; top: 10px; border-radius: 24px; padding-right: 12px; }
             .profile-section { grid-template-columns: 1fr; min-height: auto; text-align: center; }
