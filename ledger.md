@@ -10,16 +10,59 @@ permalink: /ledger.html
     <p class="blog-quote">dated fragments, kept out of the main current</p>
   </header>
 
-  <div class="blog-list">
+  <div class="ledger-index">
     {% assign entries = site.ledger | sort: "date" | reverse %}
-    {% for entry in entries %}
-      <a href="{{ entry.url | relative_url }}" class="post-card-link">
-        <article class="post-card ledger-card">
-          <div class="post-meta">{{ entry.date | date: "%Y-%m-%d" }}</div>
-          <h2 class="post-title">{{ entry.title }}</h2>
-          <p class="post-excerpt">{{ entry.excerpt | strip_html | truncatewords: 36 }}</p>
-        </article>
-      </a>
-    {% endfor %}
+    {% if entries.size > 0 %}
+      {% assign current_year = "" %}
+      {% assign current_month = "" %}
+
+      {% for entry in entries %}
+        {% assign entry_year = entry.date | date: "%Y" %}
+        {% assign entry_month = entry.date | date: "%m" %}
+        {% assign entry_month_label = entry.date | date: "%B" %}
+
+        {% if entry_year != current_year %}
+          {% unless forloop.first %}
+              </div>
+            </section>
+          </div>
+        </section>
+          {% endunless %}
+
+          <section class="ledger-year" aria-labelledby="ledger-year-{{ entry_year }}">
+            <h2 class="ledger-year-title" id="ledger-year-{{ entry_year }}">{{ entry_year }}</h2>
+            <div class="ledger-months">
+          {% assign current_year = entry_year %}
+          {% assign current_month = "" %}
+        {% endif %}
+
+        {% if entry_month != current_month %}
+          {% unless current_month == "" %}
+              </div>
+            </section>
+          {% endunless %}
+
+            <section class="ledger-month" aria-labelledby="ledger-month-{{ entry_year }}-{{ entry_month }}">
+              <h3 class="ledger-month-title" id="ledger-month-{{ entry_year }}-{{ entry_month }}">
+                {{ entry_month }}<span>{{ entry_month_label }}</span>
+              </h3>
+              <div class="ledger-date-grid">
+          {% assign current_month = entry_month %}
+        {% endif %}
+
+                <a href="{{ entry.url | relative_url }}" class="ledger-date" aria-label="{{ entry.date | date: "%Y-%m-%d" }}">
+                  <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: "%d" }}</time>
+                </a>
+
+        {% if forloop.last %}
+              </div>
+            </section>
+          </div>
+        </section>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <p class="ledger-empty">No dated fragments yet.</p>
+    {% endif %}
   </div>
 </main>
