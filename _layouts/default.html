@@ -32,6 +32,8 @@
         * { box-sizing: border-box; }
         html { margin: 0; padding: 0; background-color: var(--page-bg); min-height: 100vh; }
         body { margin: 0; padding: 0; background-color: transparent; color: var(--text-color); font-family: var(--math-font); line-height: 1.8; overflow-x: hidden; min-height: 100vh; }
+        a:focus:not(:focus-visible),
+        button:focus:not(:focus-visible) { outline: none; }
         body::before {
             content: "";
             position: fixed;
@@ -88,6 +90,9 @@
         .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 22px; background: linear-gradient(145deg, #f3f7fb, #d5e0eb); color: var(--accent-color); border: 1px solid rgba(75, 96, 124, 0.12); border-radius: 999px; text-decoration: none !important; font-weight: 700; font-family: var(--ui-font); transition: transform 0.24s ease, box-shadow 0.24s ease, color 0.24s ease, background 0.24s ease; box-shadow: 12px 12px 24px rgba(105,119,138,0.34), -10px -10px 22px rgba(255,255,255,0.84), inset 1px 1px 1px rgba(255,255,255,0.82), inset -1px -1px 1px rgba(104,120,141,0.12); }
         .btn:hover { background: linear-gradient(145deg, #f8fbfe, #d9e4ee); color: #1e5f9d; box-shadow: 15px 15px 28px rgba(105,119,138,0.3), -12px -12px 26px rgba(255,255,255,0.88), inset 2px 2px 3px rgba(255,255,255,0.78), inset -2px -2px 4px rgba(104,120,141,0.12); transform: translateY(-2px); }
         .btn:active { transform: translateY(1px); box-shadow: inset 8px 8px 16px rgba(105,119,138,0.28), inset -8px -8px 18px rgba(255,255,255,0.82); }
+        .nav-links a:focus-visible,
+        .btn:focus-visible,
+        .menu-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(47,120,183,0.16), 0 0 0 6px rgba(255,255,255,0.46), inset 4px 4px 9px rgba(111,126,145,0.18), inset -4px -4px 10px rgba(255,255,255,0.76); }
         .home-sections { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; }
         .home-panel { padding: clamp(24px, 4vw, 36px); border-radius: 24px; background: linear-gradient(145deg, rgba(241,245,249,0.76), rgba(214,224,235,0.68)); border: 1px solid rgba(75, 96, 124, 0.14); box-shadow: inset 8px 8px 18px rgba(111,126,145,0.15), inset -8px -8px 18px rgba(255,255,255,0.6); }
         .home-panel h2 { margin-top: 0; }
