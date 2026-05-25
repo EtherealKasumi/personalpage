@@ -8,6 +8,11 @@ markdown: kramdown
 kramdown:
   math_engine: null 
 
+collections:
+  ledger:
+    output: true
+    permalink: /ledger/:name/
+
 # 排除不需要生成网页的文件
 exclude:
   - README.md

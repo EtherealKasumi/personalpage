@@ -10,6 +10,11 @@ permalink: /blogs.html
     <p class="blog-quote">"Where the stream ends, I sit and watch the clouds rise."</p>
   </header>
 
+  <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
+    <span>Ledger</span>
+    <small>daily notes, dated fragments</small>
+  </a>
+
   <div class="blog-list">
     {% for post in site.posts %}
       <a href="{{ post.url | relative_url }}" class="post-card-link">
