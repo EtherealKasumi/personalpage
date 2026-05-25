@@ -50,6 +50,7 @@
                 linear-gradient(180deg, rgba(223, 231, 240, 0.12), rgba(209, 219, 231, 0.36));
         }
         #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: linear-gradient(180deg, #f6f9fb 0%, #e7eef4 42%, #d2e0ea 100%); }
+        #pointer-glow { position: fixed; top: 0; left: 0; width: 360px; height: 360px; z-index: 1; pointer-events: none; opacity: 0; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.34) 0%, rgba(72,126,164,0.16) 38%, rgba(72,126,164,0) 70%); transform: translate3d(-50%, -50%, 0); will-change: transform, opacity; transition: opacity 0.08s ease-out; }
         .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
         
         .nav-brand { 
@@ -207,6 +208,7 @@
 <body>
 
     <canvas id="math-canvas"></canvas>
+    <div id="pointer-glow" aria-hidden="true"></div>
 
     <nav class="top-nav">
         <div class="nav-brand">Principia.</div>
@@ -239,6 +241,19 @@
         window.addEventListener('touchstart', function() {
             document.body.classList.add('using-pointer');
         }, { passive: true });
+
+        const pointerGlow = document.getElementById('pointer-glow');
+        function movePointerGlow(x, y) {
+            if (!pointerGlow) return;
+            pointerGlow.style.opacity = '1';
+            pointerGlow.style.transform = `translate3d(${x - 180}px, ${y - 180}px, 0)`;
+        }
+        function hidePointerGlow() {
+            if (pointerGlow) pointerGlow.style.opacity = '0';
+        }
+        const glowMoveEvent = 'onpointerrawupdate' in window ? 'pointerrawupdate' : 'pointermove';
+        window.addEventListener('pointerleave', hidePointerGlow);
+        window.addEventListener('blur', hidePointerGlow);
 
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             const links = document.getElementById('nav-links');
@@ -273,29 +288,31 @@
                 pointer.radius = isCompactViewport() ? 210 : 320;
             }
 
+            function setPointer(x, y) {
+                pointer.x = x;
+                pointer.y = y;
+                movePointerGlow(x, y);
+            }
+
+            function clearPointer() {
+                pointer.x = null;
+                pointer.y = null;
+                hidePointerGlow();
+            }
+
             window.addEventListener('resize', resize);
-            window.addEventListener('pointermove', (event) => {
-                pointer.x = event.clientX;
-                pointer.y = event.clientY;
-            });
+            window.addEventListener(glowMoveEvent, (event) => setPointer(event.clientX, event.clientY), { passive: true });
             window.addEventListener('click', (event) => {
                 addRipple(event.clientX, event.clientY);
             });
             window.addEventListener('touchstart', (event) => {
                 const touch = event.touches[0];
                 if (!touch) return;
-                pointer.x = touch.clientX;
-                pointer.y = touch.clientY;
+                setPointer(touch.clientX, touch.clientY);
                 addRipple(touch.clientX, touch.clientY);
             }, { passive: true });
-            window.addEventListener('mouseout', () => {
-                pointer.x = null;
-                pointer.y = null;
-            });
-            window.addEventListener('touchend', () => {
-                pointer.x = null;
-                pointer.y = null;
-            });
+            window.addEventListener('pointerleave', clearPointer);
+            window.addEventListener('touchend', clearPointer);
 
             function addRipple(x, y) {
                 ripples.push({ x, y, age: 0 });
@@ -510,16 +527,6 @@
                 ctx.fillRect(0, y - 50, width, height * 0.42);
             }
 
-            function drawInteractionGlow() {
-                if (pointer.x == null || pointer.y == null) return;
-                const glow = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, pointer.radius * 0.95);
-                glow.addColorStop(0, 'rgba(255,255,255,0.24)');
-                glow.addColorStop(0.38, 'rgba(72,126,164,0.12)');
-                glow.addColorStop(1, 'rgba(72,126,164,0)');
-                ctx.fillStyle = glow;
-                ctx.fillRect(0, 0, width, height);
-            }
-
             function drawRipples() {
                 for (const ripple of ripples) {
                     const alpha = Math.max(0, 1 - ripple.age);
@@ -551,7 +558,6 @@
                 drawHorizon();
                 drawGrid();
                 drawMist();
-                drawInteractionGlow();
                 drawRipples();
 
                 if (!reducedMotion) {
