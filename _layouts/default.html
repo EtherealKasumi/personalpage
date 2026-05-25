@@ -117,10 +117,10 @@
         .ledger-entry span { font-weight: 800; letter-spacing: 0; }
         .ledger-entry small { color: #66748a; font-size: 0.88rem; text-align: right; }
         .ledger-page { gap: clamp(28px, 5vw, 46px); }
-        .ledger-index { display: grid; gap: clamp(30px, 5vw, 46px); max-width: 680px; margin: -8px auto 0; }
-        .ledger-year { display: grid; gap: 18px; padding-top: 18px; border-top: 1px solid rgba(75, 96, 124, 0.14); }
+        .ledger-index { display: grid; gap: clamp(30px, 5vw, 46px); max-width: 860px; margin: -8px auto 0; }
+        .ledger-year { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: clamp(18px, 4vw, 34px); align-items: start; padding-top: 18px; border-top: 1px solid rgba(75, 96, 124, 0.14); }
         .ledger-year:first-child { border-top: 0; padding-top: 0; }
-        .ledger-year-title { margin: 0; padding: 0 0 9px; border-bottom: 1px solid rgba(75, 96, 124, 0.1); color: #172337; font-family: var(--ui-font); font-size: clamp(1.05rem, 2.2vw, 1.26rem); line-height: 1; letter-spacing: 0; text-shadow: 3px 4px 10px rgba(111,126,145,0.16), -2px -2px 8px rgba(255,255,255,0.7); }
+        .ledger-year-title { margin: 2px 0 0; padding: 0; border-bottom: none; color: #172337; font-family: var(--ui-font); font-size: clamp(1.05rem, 2.2vw, 1.3rem); line-height: 1; letter-spacing: 0; text-shadow: 3px 4px 10px rgba(111,126,145,0.16), -2px -2px 8px rgba(255,255,255,0.7); }
         .ledger-months { display: grid; gap: 15px; }
         .ledger-month { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 14px; align-items: start; }
         .ledger-month-title { margin: 0; padding: 2px 0 0; border-bottom: none; color: #2f78b7; font-family: var(--ui-font); font-size: 1.02rem; line-height: 1.05; font-weight: 800; letter-spacing: 0; }
@@ -160,7 +160,8 @@
             .ledger-entry { align-items: flex-start; flex-direction: column; gap: 3px; border-radius: 18px; margin-top: -10px; }
             .ledger-entry small { text-align: left; }
             .ledger-index { max-width: 100%; margin-top: -4px; }
-            .ledger-year { gap: 16px; }
+            .ledger-year { grid-template-columns: 1fr; gap: 16px; }
+            .ledger-year-title { margin-top: 0; padding-bottom: 8px; border-bottom: 1px solid rgba(75, 96, 124, 0.1); }
             .ledger-month { grid-template-columns: 58px minmax(0, 1fr); gap: 12px; }
             .ledger-date-grid { gap: 8px; }
             .ledger-date { width: 39px; height: 36px; border-radius: 13px; }
