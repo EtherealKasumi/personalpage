@@ -7,7 +7,7 @@ permalink: /ledger.html
 <main class="blog-page ledger-page">
   <header class="blog-hero">
     <h1 class="blog-title">Ledger</h1>
-    <p class="blog-quote">dated fragments, kept out of the main current</p>
+    <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
   <div class="ledger-index">

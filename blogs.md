@@ -7,7 +7,7 @@ permalink: /blogs.html
 <main class="blog-page">
   <header class="blog-hero">
     <h1 class="blog-title">Blog</h1>
-    <p class="blog-quote">"Where the stream ends, I sit and watch the clouds rise."</p>
+    <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
   <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
