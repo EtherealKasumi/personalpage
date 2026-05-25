@@ -233,10 +233,11 @@
             window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
             let time = 0;
-            const gap = 65; 
+            const nearGap = 70;
+            const farGap = 150;
 
-            function getZ(x, y) {
-                let z = Math.sin((x / 120) + time) * Math.cos((y / 120) + time) * 18;
+            function getZ(x, y, scale = 1) {
+                let z = Math.sin((x / (120 * scale)) + time / scale) * Math.cos((y / (120 * scale)) + time / scale) * 18 * scale;
                 if (mouse.x != null && mouse.y != null) {
                     let dx = x - mouse.x; let dy = y - mouse.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
@@ -246,6 +247,14 @@
                     }
                 }
                 return z;
+            }
+
+            function cursorPresence(x, y) {
+                if (mouse.x == null || mouse.y == null) return 0;
+                const dx = x - mouse.x;
+                const dy = y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                return Math.max(0, 1 - dist / mouse.radius);
             }
 
             const symbols =['∫', '∑', '∏', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'μ', 'φ', 'e', 'i', 'Ω', '≈'];
@@ -286,27 +295,30 @@
                 }
 
                 draw() {
-                    ctx.fillStyle = `rgba(55, 92, 135, 0.54)`;
+                    const glow = cursorPresence(this.x, this.y);
+                    ctx.fillStyle = `rgba(55, 92, 135, ${0.2 + glow * 0.34})`;
                     ctx.font = `${this.fontSize}px Georgia`;
                     ctx.fillText(this.char, this.renderX, this.renderY);
                 }
             }
 
             let nodes =[];
-            let nodeCount = Math.floor((width * height) / 18000); 
-            if(nodeCount > 80) nodeCount = 80; 
+            let nodeCount = Math.floor((width * height) / 32000); 
+            if(nodeCount > 42) nodeCount = 42; 
             for(let i=0; i<nodeCount; i++) nodes.push(new MathNode());
 
-            function animate() {
-                ctx.clearRect(0, 0, width, height);
-                
-                // Draw the retained grid sea.
-                ctx.strokeStyle = 'rgba(47, 120, 183, 0.28)';
-                ctx.lineWidth = 1;
+            function drawGrid(gap, zScale, color, lineWidth, parallaxX, parallaxY) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
                 const points =[];
-                for (let x = 0; x <= width + gap; x += gap) {
+                for (let x = -gap; x <= width + gap; x += gap) {
                     let col =[];
-                    for (let y = 0; y <= height + gap; y += gap) { col.push({ cx: x, cy: y - getZ(x, y) }); }
+                    for (let y = -gap; y <= height + gap; y += gap) {
+                        col.push({
+                            cx: x + parallaxX,
+                            cy: y + parallaxY - getZ(x, y, zScale)
+                        });
+                    }
                     points.push(col);
                 }
                 for (let i = 0; i < points.length; i++) {
@@ -325,6 +337,16 @@
                     }
                     ctx.stroke();
                 }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                // Far layer: slow, broad, and soft.
+                drawGrid(farGap, 1.8, 'rgba(47, 120, 183, 0.15)', 0.8, Math.sin(time * 0.28) * 12, Math.cos(time * 0.22) * 8);
+
+                // Near layer: finer lines that move slightly faster.
+                drawGrid(nearGap, 0.9, 'rgba(47, 120, 183, 0.14)', 1, Math.sin(time * 0.8) * 5, Math.cos(time * 0.62) * 4);
 
                 nodes.forEach(node => node.update());
 
@@ -346,9 +368,10 @@
                         let renderDy = nodes[i].renderY - nodes[j].renderY;
                         let renderDist = Math.sqrt(renderDx*renderDx + renderDy*renderDy);
                         
-                        if (renderDist < 130) {
-                            let opacity = 1 - (renderDist / 130);
-                            ctx.strokeStyle = `rgba(55, 92, 135, ${opacity * 0.38})`;
+                        if (renderDist < 120) {
+                            let opacity = 1 - (renderDist / 120);
+                            let glow = Math.max(cursorPresence(nodes[i].x, nodes[i].y), cursorPresence(nodes[j].x, nodes[j].y));
+                            ctx.strokeStyle = `rgba(55, 92, 135, ${opacity * (0.12 + glow * 0.28)})`;
                             ctx.lineWidth = 0.8;
                             ctx.beginPath();
                             ctx.moveTo(nodes[i].renderX, nodes[i].renderY);
