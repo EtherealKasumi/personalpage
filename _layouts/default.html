@@ -116,6 +116,10 @@
         .post-content p,
         .post-content li { color: #2d3d51; }
         .post-footer { margin-top: 60px; text-align: center; border-top: 1px dashed rgba(75, 96, 124, 0.22); padding-top: 30px; }
+        .sea-view { position: relative; z-index: 2; min-height: calc(100svh - 112px); display: grid; place-items: end start; padding: clamp(80px, 12vw, 150px) clamp(28px, 8vw, 120px); pointer-events: none; }
+        .sea-mark { max-width: 520px; color: #172337; text-shadow: 5px 7px 18px rgba(111,126,145,0.24), -3px -3px 14px rgba(255,255,255,0.7); }
+        .sea-mark h1 { margin: 0 0 8px; border-bottom: none; font-size: clamp(3rem, 8vw, 6.4rem); line-height: 0.95; }
+        .sea-mark p { margin: 0; color: #506175; font: 700 clamp(0.9rem, 1.8vw, 1.1rem)/1.6 var(--ui-font); }
         @media (max-width: 760px) {
             .top-nav { width: min(100% - 22px, 1120px); margin-top: 12px; top: 10px; border-radius: 24px; padding-right: 12px; }
             .profile-section { grid-template-columns: 1fr; min-height: auto; text-align: center; }
@@ -127,6 +131,7 @@
             .home-sections { grid-template-columns: 1fr; }
             .blog-hero { padding-top: 36px; }
             .post-card { border-radius: 16px; }
+            .sea-view { min-height: calc(100svh - 96px); align-items: end; padding: 76px 24px 42px; }
             .paper-container { width: min(100% - 22px, 1080px); margin-top: 28px; padding: 24px 18px; border-radius: 24px; }
         }
         @media (max-width: 420px) {
@@ -199,6 +204,7 @@
         </button>
         <div class="nav-links" id="nav-links">
             <a href="{{ '/' | relative_url }}">Home</a>
+            <a href="{{ '/sea.html' | relative_url }}">观海</a>
             <a href="{{ '/cv.html' | relative_url }}">CV</a>
             <a href="{{ '/blogs.html' | relative_url }}">Blogs</a>
             <a href="{{ '/notes.html' | relative_url }}">Notes</a>
@@ -206,9 +212,13 @@
         </div>
     </nav>
 
-    <div class="paper-container">
+    {% if page.full_bleed %}
         {{ content }}
-    </div>
+    {% else %}
+        <div class="paper-container">
+            {{ content }}
+        </div>
+    {% endif %}
 
     <script>
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
