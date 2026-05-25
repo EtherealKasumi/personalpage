@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Sea
+title: Horizon
 permalink: /sea.html
 full_bleed: true
 ---
 
-<main class="sea-view" aria-label="Sea"></main>
+<main class="sea-view" aria-label="Horizon"></main>
