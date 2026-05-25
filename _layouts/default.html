@@ -50,7 +50,7 @@
                 linear-gradient(180deg, rgba(223, 231, 240, 0.12), rgba(209, 219, 231, 0.36));
         }
         #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: linear-gradient(180deg, #f6f9fb 0%, #e7eef4 42%, #d2e0ea 100%); }
-        .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
         
         .nav-brand { 
     font-family: 'Pirata One', cursive; 
@@ -75,11 +75,11 @@
         .menu-toggle span { display: block; width: 18px; height: 2px; border-radius: 999px; background: var(--accent-color); }
         @media (max-width: 768px) {
             .menu-toggle { display: inline-flex; }
-            .nav-links { position: absolute; top: calc(100% + 12px); left: 0; width: 100%; background: rgba(231, 237, 244, 0.96); backdrop-filter: blur(16px); flex-direction: column; align-items: stretch; padding: 0; max-height: 0; overflow: hidden; border: 0; border-radius: 22px; box-shadow: 14px 14px 34px var(--shadow-dark), -10px -10px 26px var(--shadow-light); }
+            .nav-links { position: absolute; top: calc(100% + 12px); left: 0; width: 100%; background: rgba(231, 237, 244, 0.96); backdrop-filter: blur(12px); flex-direction: column; align-items: stretch; padding: 0; max-height: 0; overflow: hidden; border: 0; border-radius: 22px; box-shadow: 14px 14px 34px var(--shadow-dark), -10px -10px 26px var(--shadow-light); }
             .nav-links.active { max-height: 420px; padding: 12px; border: 1px solid var(--hairline); }
             .nav-links a { text-align: center; }
         }
-        .paper-container { position: relative; z-index: 2; width: min(1080px, calc(100% - 32px)); margin: 42px auto 72px; padding: clamp(28px, 5vw, 54px); background: rgba(231, 237, 244, 0.56); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(75, 96, 124, 0.2); border-radius: 30px; box-shadow: 24px 24px 58px rgba(111,126,145,0.26), -18px -18px 48px rgba(255,255,255,0.54), inset 1px 1px 1px rgba(255,255,255,0.68), inset -1px -1px 2px rgba(97,112,132,0.14); animation: surfaceRise 0.8s ease both; }
+        .paper-container { position: relative; z-index: 2; width: min(1080px, calc(100% - 32px)); margin: 42px auto 72px; padding: clamp(28px, 5vw, 54px); background: rgba(231, 237, 244, 0.6); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); border: 1px solid rgba(75, 96, 124, 0.2); border-radius: 30px; box-shadow: 24px 24px 58px rgba(111,126,145,0.26), -18px -18px 48px rgba(255,255,255,0.54), inset 1px 1px 1px rgba(255,255,255,0.68), inset -1px -1px 2px rgba(97,112,132,0.14); animation: surfaceRise 0.8s ease both; }
         .home-shell { display: grid; gap: clamp(30px, 5vw, 48px); }
         .profile-section { display: grid; grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: clamp(30px, 6vw, 72px); min-height: clamp(360px, calc(100svh - 340px), 520px); }
         .profile-media { position: relative; display: grid; place-items: center; min-height: 280px; }
@@ -261,8 +261,6 @@
             document.body.classList.add('using-pointer');
         }, { passive: true });
 
-        const pointerMoveEvent = 'onpointerrawupdate' in window ? 'pointerrawupdate' : 'pointermove';
-
         document.getElementById('mobile-menu-btn').addEventListener('click', function() {
             const links = document.getElementById('nav-links');
             links.classList.toggle('active');
@@ -280,6 +278,11 @@
             let height = 0;
             let dpr = 1;
             let time = 0;
+            let lastFrameTime = 0;
+            let animationId = null;
+            let pendingPointer = null;
+            let pointerTicking = false;
+            let isPageVisible = !document.hidden;
             const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             const pointer = { x: null, y: null, radius: 320 };
             const ripples = [];
@@ -301,24 +304,43 @@
                 pointer.y = y;
             }
 
+            function schedulePointer(x, y) {
+                pendingPointer = { x, y };
+                if (pointerTicking) return;
+                pointerTicking = true;
+                requestAnimationFrame(() => {
+                    pointerTicking = false;
+                    if (!pendingPointer) return;
+                    setPointer(pendingPointer.x, pendingPointer.y);
+                    pendingPointer = null;
+                });
+            }
+
             function clearPointer() {
                 pointer.x = null;
                 pointer.y = null;
             }
 
             window.addEventListener('resize', resize);
-            window.addEventListener(pointerMoveEvent, (event) => setPointer(event.clientX, event.clientY), { passive: true });
+            window.addEventListener('pointermove', (event) => schedulePointer(event.clientX, event.clientY), { passive: true });
             window.addEventListener('click', (event) => {
                 addRipple(event.clientX, event.clientY);
             });
             window.addEventListener('touchstart', (event) => {
                 const touch = event.touches[0];
                 if (!touch) return;
-                setPointer(touch.clientX, touch.clientY);
+                schedulePointer(touch.clientX, touch.clientY);
                 addRipple(touch.clientX, touch.clientY);
             }, { passive: true });
             window.addEventListener('pointerleave', clearPointer);
             window.addEventListener('touchend', clearPointer);
+            document.addEventListener('visibilitychange', () => {
+                isPageVisible = !document.hidden;
+                if (isPageVisible && !reducedMotion && animationId == null) {
+                    lastFrameTime = 0;
+                    animationId = requestAnimationFrame(animate);
+                }
+            });
 
             function addRipple(x, y) {
                 ripples.push({ x, y, age: 0 });
@@ -327,6 +349,14 @@
 
             function isCompactViewport() {
                 return width <= 720 || height > width * 1.25;
+            }
+
+            function isCompactPointer() {
+                return window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 720;
+            }
+
+            function frameInterval() {
+                return 1000 / (isCompactPointer() ? 24 : 30);
             }
 
             function strength() {
@@ -559,24 +589,41 @@
                 }
             }
 
-            function animate() {
+            function drawFrame() {
                 fillAtmosphere();
                 drawHorizon();
                 drawGrid();
                 drawMist();
                 drawRipples();
+            }
+
+            function animate(timestamp = 0) {
+                animationId = null;
+                if (!isPageVisible) return;
+
+                if (!lastFrameTime || timestamp - lastFrameTime >= frameInterval()) {
+                    drawFrame();
+                    lastFrameTime = timestamp;
+                    time += 0.012;
+                }
 
                 if (!reducedMotion) {
-                    time += 0.009;
-                    requestAnimationFrame(animate);
+                    animationId = requestAnimationFrame(animate);
                 }
             }
 
             resize();
-            animate();
+            drawFrame();
+            if (!reducedMotion) {
+                animationId = requestAnimationFrame(animate);
+            }
         });
 
         document.addEventListener("DOMContentLoaded", function() {
+            const pageText = document.body.textContent || "";
+            const hasMath = pageText.includes("$$") || pageText.includes("\\(") || pageText.includes("\\[") || /\$[^$\s][\s\S]*?\$/.test(pageText);
+            if (!hasMath) return;
+
             renderMathInElement(document.body, {
                 delimiters:[
                     {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false},
@@ -588,10 +635,12 @@
 
     <!-- === Mermaid 矢量图表引擎 === -->
     <script type="module">
-        // 引入最新版 Mermaid (ES Module 格式)
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-        
         document.addEventListener("DOMContentLoaded", async function() {
+            const mermaidBlocks = document.querySelectorAll('code.language-mermaid');
+            if (mermaidBlocks.length === 0) return;
+
+            const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs');
+
             mermaid.initialize({
                 startOnLoad: false,
                 theme: 'base',
@@ -606,17 +655,14 @@
                 }
             });
 
-            const mermaidBlocks = document.querySelectorAll('code.language-mermaid');
-            if (mermaidBlocks.length > 0) {
-                mermaidBlocks.forEach((block) => {
-                    const div = document.createElement('div');
-                    div.className = 'mermaid';
-                    div.textContent = block.textContent; 
-                    block.parentElement.replaceWith(div); 
-                });
-                
-                await mermaid.run({ querySelector: '.mermaid' });
-            }
+            mermaidBlocks.forEach((block) => {
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = block.textContent;
+                block.parentElement.replaceWith(div);
+            });
+
+            await mermaid.run({ querySelector: '.mermaid' });
         });
     </script>
 </body>
