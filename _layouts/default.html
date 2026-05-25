@@ -266,7 +266,17 @@
                 pointer.x = event.clientX;
                 pointer.y = event.clientY;
             });
+            window.addEventListener('touchmove', (event) => {
+                const touch = event.touches[0];
+                if (!touch) return;
+                pointer.x = touch.clientX;
+                pointer.y = touch.clientY;
+            }, { passive: true });
             window.addEventListener('mouseout', () => {
+                pointer.x = null;
+                pointer.y = null;
+            });
+            window.addEventListener('touchend', () => {
                 pointer.x = null;
                 pointer.y = null;
             });
@@ -281,7 +291,8 @@
 
             function horizonY() {
                 const compact = isCompactViewport();
-                return height * (isSeaPage ? (compact ? 0.42 : 0.36) : 0.4);
+                const base = height * (isSeaPage ? (compact ? 0.42 : 0.36) : 0.4);
+                return base + Math.sin(time * 0.18) * (isSeaPage ? (compact ? 5 : 9) : 3);
             }
 
             function project(x, depth, lift = 0) {
@@ -291,7 +302,7 @@
                 const perspective = Math.pow(depth, compact ? 1.34 : 1.62);
                 const pull = compact ? 0.18 : 0.34;
                 const centerPull = 1 - depth * pull;
-                const drift = Math.sin(time * 0.22 + depth * 5.2) * (compact ? 3.5 : 8) * depth;
+                const drift = Math.sin(time * 0.28 + depth * 5.2) * (compact ? 5 : 12) * depth;
                 return {
                     x: width / 2 + (x - width / 2) * centerPull + drift,
                     y: horizon + perspective * span - lift
@@ -300,11 +311,12 @@
 
             function wave(x, depth, phase = 0) {
                 const compact = isCompactViewport();
-                const amplitude = (compact ? 5 : 8) * strength();
-                const base = Math.sin(x * 0.0048 + depth * 8.5 + time * 0.48 + phase) * amplitude;
-                const long = Math.sin(depth * 11 - time * 0.34 + phase * 0.4) * amplitude * 0.74;
+                const amplitude = (compact ? 7 : 11) * strength();
+                const base = Math.sin(x * 0.0048 + depth * 8.5 + time * 0.72 + phase) * amplitude;
+                const cross = Math.sin(x * 0.009 + depth * 3.2 - time * 0.46 + phase) * amplitude * 0.38;
+                const long = Math.sin(depth * 11 - time * 0.52 + phase * 0.4) * amplitude * 0.72;
                 const cursor = cursorWake(x, depth);
-                return (base + long + cursor) * (0.22 + depth * 0.82);
+                return (base + cross + long + cursor) * (0.22 + depth * 0.82);
             }
 
             function cursorWake(x, depth) {
@@ -315,7 +327,8 @@
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist > pointer.radius) return 0;
                 const pull = 1 - dist / pointer.radius;
-                return Math.sin(pull * Math.PI) * (isSeaPage ? 10 : 5);
+                const ripple = Math.sin(pull * Math.PI * 3 - time * 2.2) * 0.35 + 0.65;
+                return Math.sin(pull * Math.PI) * ripple * (isSeaPage ? 18 : 7);
             }
 
             function fillAtmosphere() {
@@ -366,6 +379,29 @@
                 ctx.stroke();
             }
 
+            function drawCurrent(depth, phase, alpha) {
+                const compact = isCompactViewport();
+                const steps = compact ? 72 : 120;
+                const widthScale = compact ? 0.7 : 0.56;
+                const center = width * (0.5 + Math.sin(time * 0.08 + phase) * 0.12);
+                ctx.beginPath();
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const x = center + (t - 0.5) * width * widthScale;
+                    const localDepth = depth + Math.sin(t * Math.PI + phase) * 0.018;
+                    const p = project(x, localDepth, wave(x, localDepth, phase) + Math.sin(t * Math.PI) * (compact ? 4 : 7));
+                    if (i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                const gradient = ctx.createLinearGradient(width * 0.18, 0, width * 0.82, 0);
+                gradient.addColorStop(0, 'rgba(255,255,255,0)');
+                gradient.addColorStop(0.48, `rgba(255,255,255,${alpha * strength()})`);
+                gradient.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = compact ? 1 : 1.4;
+                ctx.stroke();
+            }
+
             function drawGrid() {
                 const depths = [];
                 const compact = isCompactViewport();
@@ -405,10 +441,16 @@
                     ctx.stroke();
                 }
 
-                const ribbonCount = compact ? 3 : 5;
+                const ribbonCount = compact ? 4 : 6;
                 for (let i = 0; i < ribbonCount; i++) {
                     const depth = 0.28 + i * (compact ? 0.16 : 0.12) + Math.sin(time * 0.12 + i) * 0.008;
                     drawRibbon(depth, 0.18 * (1 - i * 0.12), i * 0.8);
+                }
+
+                const currentCount = compact ? 2 : 4;
+                for (let i = 0; i < currentCount; i++) {
+                    const depth = 0.34 + i * (compact ? 0.2 : 0.13);
+                    drawCurrent(depth, i * 1.7, 0.16 - i * 0.018);
                 }
             }
 
@@ -429,7 +471,7 @@
                 drawMist();
 
                 if (!reducedMotion) {
-                    time += isSeaPage ? 0.01 : 0.005;
+                    time += isSeaPage ? 0.018 : 0.009;
                     requestAnimationFrame(animate);
                 }
             }
