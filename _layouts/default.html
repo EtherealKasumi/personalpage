@@ -50,12 +50,6 @@
                 linear-gradient(180deg, rgba(223, 231, 240, 0.12), rgba(209, 219, 231, 0.36));
         }
         #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: linear-gradient(180deg, #f6f9fb 0%, #e7eef4 42%, #d2e0ea 100%); }
-        body.sea-page::before {
-            background:
-                radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.42), transparent 32%),
-                linear-gradient(180deg, rgba(244, 248, 251, 0.12), rgba(126, 154, 178, 0.1));
-        }
-        body.sea-page .top-nav { background: rgba(231, 237, 244, 0.52); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
         .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
         
         .nav-brand { 
@@ -131,7 +125,6 @@
         .post-content p,
         .post-content li { color: #2d3d51; }
         .post-footer { margin-top: 60px; text-align: center; border-top: 1px dashed rgba(75, 96, 124, 0.22); padding-top: 30px; }
-        .sea-view { position: relative; z-index: 2; min-height: calc(100svh - 112px); display: grid; place-items: end start; padding: clamp(80px, 12vw, 150px) clamp(28px, 8vw, 120px); pointer-events: none; }
         @media (max-width: 760px) {
             .top-nav { width: min(100% - 22px, 1120px); margin-top: 12px; top: 10px; border-radius: 24px; padding-right: 12px; }
             .profile-section { grid-template-columns: 1fr; min-height: auto; text-align: center; }
@@ -143,7 +136,6 @@
             .home-sections { grid-template-columns: 1fr; }
             .blog-hero { padding-top: 36px; }
             .post-card { border-radius: 16px; }
-            .sea-view { min-height: calc(100svh - 96px); align-items: end; padding: 76px 24px 42px; }
             .paper-container { width: min(100% - 22px, 1080px); margin-top: 28px; padding: 24px 18px; border-radius: 24px; }
         }
         @media (max-width: 420px) {
@@ -203,7 +195,7 @@
     
     </style>
 </head>
-<body class="{% if page.full_bleed %}sea-page{% endif %}">
+<body>
 
     <canvas id="math-canvas"></canvas>
 
@@ -220,17 +212,12 @@
             <a href="{{ '/blogs.html' | relative_url }}">Blogs</a>
             <a href="{{ '/notes.html' | relative_url }}">Notes</a>
             <a href="{{ '/resources.html' | relative_url }}">Resources</a>
-            <a href="{{ '/sea.html' | relative_url }}">Horizon</a>
         </div>
     </nav>
 
-    {% if page.full_bleed %}
+    <div class="paper-container">
         {{ content }}
-    {% else %}
-        <div class="paper-container">
-            {{ content }}
-        </div>
-    {% endif %}
+    </div>
 
     <script>
         document.body.classList.add('using-pointer');
@@ -261,7 +248,6 @@
             let height = 0;
             let dpr = 1;
             let time = 0;
-            const isSeaPage = document.body.classList.contains('sea-page');
             const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             const pointer = { x: null, y: null, radius: 320 };
 
@@ -302,13 +288,13 @@
             }
 
             function strength() {
-                return isSeaPage ? 1 : 0.42;
+                return 0.42;
             }
 
             function horizonY() {
                 const compact = isCompactViewport();
-                const base = height * (isSeaPage ? (compact ? 0.42 : 0.36) : 0.4);
-                return base + Math.sin(time * 0.18) * (isSeaPage ? (compact ? 5 : 9) : 3);
+                const base = height * (compact ? 0.42 : 0.4);
+                return base + Math.sin(time * 0.18) * 3;
             }
 
             function project(x, depth, lift = 0) {
@@ -344,20 +330,20 @@
                 if (dist > pointer.radius) return 0;
                 const pull = 1 - dist / pointer.radius;
                 const ripple = Math.sin(pull * Math.PI * 3 - time * 2.2) * 0.35 + 0.65;
-                return Math.sin(pull * Math.PI) * ripple * (isSeaPage ? 18 : 7);
+                return Math.sin(pull * Math.PI) * ripple * 7;
             }
 
             function fillAtmosphere() {
                 const sky = ctx.createLinearGradient(0, 0, 0, height);
-                sky.addColorStop(0, isSeaPage ? '#f9fbfc' : '#f5f8fb');
-                sky.addColorStop(0.4, isSeaPage ? '#e6eef4' : '#e8eef4');
-                sky.addColorStop(0.72, isSeaPage ? '#d2e0e9' : '#dce6ee');
-                sky.addColorStop(1, isSeaPage ? '#bccfdc' : '#d4e0e9');
+                sky.addColorStop(0, '#f5f8fb');
+                sky.addColorStop(0.4, '#e8eef4');
+                sky.addColorStop(0.72, '#dce6ee');
+                sky.addColorStop(1, '#d4e0e9');
                 ctx.fillStyle = sky;
                 ctx.fillRect(0, 0, width, height);
 
                 const glow = ctx.createRadialGradient(width * 0.52, height * 0.28, 0, width * 0.52, height * 0.28, Math.max(width, height) * 0.72);
-                glow.addColorStop(0, `rgba(255,255,255,${isSeaPage ? 0.68 : 0.48})`);
+                glow.addColorStop(0, 'rgba(255,255,255,0.48)');
                 glow.addColorStop(0.48, 'rgba(218,232,238,0.22)');
                 glow.addColorStop(1, 'rgba(110,138,163,0)');
                 ctx.fillStyle = glow;
@@ -365,8 +351,8 @@
 
                 const veil = ctx.createLinearGradient(0, horizonY() - 40, 0, height);
                 veil.addColorStop(0, 'rgba(255,255,255,0)');
-                veil.addColorStop(0.48, `rgba(255,255,255,${isSeaPage ? 0.16 : 0.3})`);
-                veil.addColorStop(1, `rgba(118,143,166,${isSeaPage ? 0.16 : 0.08})`);
+                veil.addColorStop(0.48, 'rgba(255,255,255,0.3)');
+                veil.addColorStop(1, 'rgba(118,143,166,0.08)');
                 ctx.fillStyle = veil;
                 ctx.fillRect(0, 0, width, height);
             }
@@ -375,7 +361,7 @@
                 const y = horizonY();
                 const gradient = ctx.createLinearGradient(0, y - 24, 0, y + 44);
                 gradient.addColorStop(0, 'rgba(255,255,255,0)');
-                gradient.addColorStop(0.42, `rgba(255,255,255,${isSeaPage ? 0.58 : 0.28})`);
+                gradient.addColorStop(0.42, 'rgba(255,255,255,0.28)');
                 gradient.addColorStop(1, 'rgba(120,145,166,0)');
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, y - 24, width, 68);
@@ -474,7 +460,7 @@
                 const y = horizonY();
                 const mist = ctx.createLinearGradient(0, y - 50, 0, y + height * 0.34);
                 mist.addColorStop(0, 'rgba(255,255,255,0)');
-                mist.addColorStop(0.42, `rgba(247,250,252,${isSeaPage ? 0.44 : 0.58})`);
+                mist.addColorStop(0.42, 'rgba(247,250,252,0.58)');
                 mist.addColorStop(1, 'rgba(255,255,255,0)');
                 ctx.fillStyle = mist;
                 ctx.fillRect(0, y - 50, width, height * 0.42);
@@ -487,7 +473,7 @@
                 drawMist();
 
                 if (!reducedMotion) {
-                    time += isSeaPage ? 0.018 : 0.009;
+                    time += 0.009;
                     requestAnimationFrame(animate);
                 }
             }
