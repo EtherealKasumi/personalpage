@@ -24,7 +24,7 @@ Updating...
 
 ---
 
-<div class="box glass" markdown="1">
-**Note:**
+<div class="notes-correction-note" markdown="1">
+<span>Errata</span>
 If you find any mistakes in my PDF notes, feel free to contact me through the email address on the Home page.
 </div>
