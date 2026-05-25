@@ -117,12 +117,12 @@
         .ledger-entry span { font-weight: 800; letter-spacing: 0; }
         .ledger-entry small { color: #66748a; font-size: 0.88rem; text-align: right; }
         .ledger-page { gap: clamp(28px, 5vw, 46px); }
-        .ledger-index { display: grid; gap: clamp(28px, 5vw, 44px); max-width: 760px; margin: -8px auto 0; }
-        .ledger-year { display: grid; grid-template-columns: minmax(82px, 0.28fr) minmax(0, 1fr); gap: clamp(18px, 4vw, 34px); align-items: start; padding-top: 4px; border-top: 1px solid rgba(75, 96, 124, 0.14); }
+        .ledger-index { display: grid; gap: clamp(30px, 5vw, 46px); max-width: 680px; margin: -8px auto 0; }
+        .ledger-year { display: grid; gap: 18px; padding-top: 18px; border-top: 1px solid rgba(75, 96, 124, 0.14); }
         .ledger-year:first-child { border-top: 0; padding-top: 0; }
-        .ledger-year-title { position: sticky; top: 112px; margin: 0; padding: 0; border-bottom: none; color: #172337; font-family: var(--ui-font); font-size: clamp(1.05rem, 2.2vw, 1.36rem); line-height: 1; letter-spacing: 0; text-shadow: 3px 4px 10px rgba(111,126,145,0.16), -2px -2px 8px rgba(255,255,255,0.7); }
-        .ledger-months { display: grid; gap: 18px; }
-        .ledger-month { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; align-items: start; }
+        .ledger-year-title { margin: 0; padding: 0 0 9px; border-bottom: 1px solid rgba(75, 96, 124, 0.1); color: #172337; font-family: var(--ui-font); font-size: clamp(1.05rem, 2.2vw, 1.26rem); line-height: 1; letter-spacing: 0; text-shadow: 3px 4px 10px rgba(111,126,145,0.16), -2px -2px 8px rgba(255,255,255,0.7); }
+        .ledger-months { display: grid; gap: 15px; }
+        .ledger-month { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 14px; align-items: start; }
         .ledger-month-title { margin: 0; padding: 2px 0 0; border-bottom: none; color: #2f78b7; font-family: var(--ui-font); font-size: 1.02rem; line-height: 1.05; font-weight: 800; letter-spacing: 0; }
         .ledger-month-title span { display: block; margin-top: 5px; color: #66748a; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
         .ledger-date-grid { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; padding: 2px 0 13px; border-bottom: 1px dashed rgba(75, 96, 124, 0.16); }
@@ -160,8 +160,7 @@
             .ledger-entry { align-items: flex-start; flex-direction: column; gap: 3px; border-radius: 18px; margin-top: -10px; }
             .ledger-entry small { text-align: left; }
             .ledger-index { max-width: 100%; margin-top: -4px; }
-            .ledger-year { grid-template-columns: 1fr; gap: 16px; }
-            .ledger-year-title { position: static; }
+            .ledger-year { gap: 16px; }
             .ledger-month { grid-template-columns: 58px minmax(0, 1fr); gap: 12px; }
             .ledger-date-grid { gap: 8px; }
             .ledger-date { width: 39px; height: 36px; border-radius: 13px; }
