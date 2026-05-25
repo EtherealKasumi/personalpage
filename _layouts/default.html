@@ -45,12 +45,11 @@
                 radial-gradient(circle at 78% 8%, rgba(172, 219, 226, 0.24), transparent 24%),
                 linear-gradient(180deg, rgba(223, 231, 240, 0.12), rgba(209, 219, 231, 0.36));
         }
-        #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: radial-gradient(circle at 50% 22%, #f7fbff 0%, #dbeaf5 34%, #bed3e7 68%, #a8c2db 100%); }
+        #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: linear-gradient(180deg, #f6f9fb 0%, #e7eef4 42%, #d2e0ea 100%); }
         body.sea-page::before {
             background:
-                radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.36), transparent 28%),
-                radial-gradient(circle at 18% 72%, rgba(101, 187, 191, 0.2), transparent 26%),
-                linear-gradient(180deg, rgba(234, 244, 251, 0.08), rgba(109, 151, 185, 0.2));
+                radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.42), transparent 32%),
+                linear-gradient(180deg, rgba(244, 248, 251, 0.12), rgba(126, 154, 178, 0.1));
         }
         body.sea-page .top-nav { background: rgba(231, 237, 244, 0.52); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
         .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
@@ -129,9 +128,6 @@
         .post-content li { color: #2d3d51; }
         .post-footer { margin-top: 60px; text-align: center; border-top: 1px dashed rgba(75, 96, 124, 0.22); padding-top: 30px; }
         .sea-view { position: relative; z-index: 2; min-height: calc(100svh - 112px); display: grid; place-items: end start; padding: clamp(80px, 12vw, 150px) clamp(28px, 8vw, 120px); pointer-events: none; }
-        .sea-mark { max-width: 520px; color: #172337; text-shadow: 0 14px 38px rgba(62,96,132,0.34), -3px -3px 18px rgba(255,255,255,0.82), 0 0 34px rgba(116,188,202,0.28); }
-        .sea-mark h1 { margin: 0 0 8px; border-bottom: none; font-size: clamp(3rem, 8vw, 6.4rem); line-height: 0.95; }
-        .sea-mark p { margin: 0; color: #506175; font: 700 clamp(0.9rem, 1.8vw, 1.1rem)/1.6 var(--ui-font); }
         @media (max-width: 760px) {
             .top-nav { width: min(100% - 22px, 1120px); margin-top: 12px; top: 10px; border-radius: 24px; padding-right: 12px; }
             .profile-section { grid-template-columns: 1fr; min-height: auto; text-align: center; }
@@ -239,7 +235,7 @@
             this.setAttribute('aria-expanded', links.classList.contains('active'));
         });
 
-        // Background grid sea and floating math symbols.
+        // Quiet horizon field.
         document.addEventListener("DOMContentLoaded", function() {
             const canvas = document.getElementById('math-canvas');
             if (!canvas) return;
@@ -249,11 +245,9 @@
             let height = 0;
             let dpr = 1;
             let time = 0;
-            let symbols = [];
             const isSeaPage = document.body.classList.contains('sea-page');
             const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const mouse = { x: null, y: null, radius: 260 };
-            const glyphs = ['∫', '∑', '∞', 'π', 'Δ', '∇', 'θ', 'λ', 'φ', 'Ω', '≈', 'ζ', '∂'];
+            const pointer = { x: null, y: null, radius: 320 };
 
             function resize() {
                 dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -264,116 +258,102 @@
                 canvas.style.width = `${width}px`;
                 canvas.style.height = `${height}px`;
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                mouse.radius = isSeaPage ? (isCompactViewport() ? 220 : 360) : 260;
-                createSymbols();
+                pointer.radius = isCompactViewport() ? 210 : 320;
             }
 
             window.addEventListener('resize', resize);
             window.addEventListener('mousemove', (event) => {
-                mouse.x = event.clientX;
-                mouse.y = event.clientY;
+                pointer.x = event.clientX;
+                pointer.y = event.clientY;
             });
             window.addEventListener('mouseout', () => {
-                mouse.x = null;
-                mouse.y = null;
+                pointer.x = null;
+                pointer.y = null;
             });
 
             function isCompactViewport() {
                 return width <= 720 || height > width * 1.25;
             }
 
+            function strength() {
+                return isSeaPage ? 1 : 0.42;
+            }
+
+            function horizonY() {
+                const compact = isCompactViewport();
+                return height * (isSeaPage ? (compact ? 0.42 : 0.36) : 0.4);
+            }
+
             function project(x, depth, lift = 0) {
                 const compact = isCompactViewport();
-                const horizon = height * (isSeaPage ? (compact ? 0.38 : 0.28) : 0.34);
-                const span = height * (isSeaPage ? (compact ? 0.72 : 0.9) : 0.82);
-                const perspective = Math.pow(depth, compact ? 1.42 : 1.78);
-                const centerPull = 1 - depth * (compact ? 0.26 : 0.58);
-                const sway = Math.sin(time * 0.42 + depth * 8.0) * (compact ? 7 : 18) * depth;
+                const horizon = horizonY();
+                const span = height * (compact ? 0.58 : 0.66);
+                const perspective = Math.pow(depth, compact ? 1.34 : 1.62);
+                const pull = compact ? 0.18 : 0.34;
+                const centerPull = 1 - depth * pull;
+                const drift = Math.sin(time * 0.22 + depth * 5.2) * (compact ? 3.5 : 8) * depth;
                 return {
-                    x: width / 2 + (x - width / 2) * centerPull + sway,
+                    x: width / 2 + (x - width / 2) * centerPull + drift,
                     y: horizon + perspective * span - lift
                 };
             }
 
             function wave(x, depth, phase = 0) {
-                const scale = isSeaPage ? (isCompactViewport() ? 0.72 : 1.18) : 0.82;
-                const base = Math.sin(x * 0.006 + depth * 15 + time * 1.25 + phase) * 15;
-                const cross = Math.cos(x * 0.012 - depth * 9 + time * 0.72) * 8;
-                const long = Math.sin(depth * 24 - time * 0.92) * 12;
+                const compact = isCompactViewport();
+                const amplitude = (compact ? 5 : 8) * strength();
+                const base = Math.sin(x * 0.0048 + depth * 8.5 + time * 0.48 + phase) * amplitude;
+                const long = Math.sin(depth * 11 - time * 0.34 + phase * 0.4) * amplitude * 0.74;
                 const cursor = cursorWake(x, depth);
-                return (base + cross + long + cursor) * scale * (0.3 + depth * 0.95);
+                return (base + long + cursor) * (0.22 + depth * 0.82);
             }
 
             function cursorWake(x, depth) {
-                if (mouse.x == null || mouse.y == null) return 0;
+                if (pointer.x == null || pointer.y == null) return 0;
                 const p = project(x, depth, 0);
-                const dx = p.x - mouse.x;
-                const dy = p.y - mouse.y;
+                const dx = p.x - pointer.x;
+                const dy = p.y - pointer.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist > mouse.radius) return 0;
-                const pull = 1 - dist / mouse.radius;
-                return Math.sin(pull * Math.PI) * (isSeaPage ? (isCompactViewport() ? 24 : 58) : 30);
-            }
-
-            function cursorPresence(x, y) {
-                if (mouse.x == null || mouse.y == null) return 0;
-                const dx = x - mouse.x;
-                const dy = y - mouse.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                return Math.max(0, 1 - dist / mouse.radius);
-            }
-
-            function createSymbols() {
-                const compact = isCompactViewport();
-                const maxCount = isSeaPage ? (compact ? 18 : 46) : 24;
-                const density = isSeaPage ? (compact ? 52000 : 26000) : 52000;
-                const count = Math.min(maxCount, Math.max(compact ? 8 : 14, Math.floor(width * height / density)));
-                symbols = Array.from({ length: count }, () => ({
-                    lane: Math.random(),
-                    depth: Math.random(),
-                    drift: Math.random() * Math.PI * 2,
-                    speed: 0.00045 + Math.random() * 0.001,
-                    char: glyphs[Math.floor(Math.random() * glyphs.length)],
-                    size: 13 + Math.random() * (isSeaPage ? (compact ? 7 : 13) : 8)
-                }));
+                if (dist > pointer.radius) return 0;
+                const pull = 1 - dist / pointer.radius;
+                return Math.sin(pull * Math.PI) * (isSeaPage ? 10 : 5);
             }
 
             function fillAtmosphere() {
                 const sky = ctx.createLinearGradient(0, 0, 0, height);
-                sky.addColorStop(0, '#f8fcff');
-                sky.addColorStop(0.26, isSeaPage ? '#dcebf5' : '#e9f2f8');
-                sky.addColorStop(0.58, isSeaPage ? '#b7d1e7' : '#d8e6f1');
-                sky.addColorStop(1, isSeaPage ? '#7ea8cb' : '#c9d9e8');
+                sky.addColorStop(0, isSeaPage ? '#f9fbfc' : '#f5f8fb');
+                sky.addColorStop(0.4, isSeaPage ? '#e6eef4' : '#e8eef4');
+                sky.addColorStop(0.72, isSeaPage ? '#d2e0e9' : '#dce6ee');
+                sky.addColorStop(1, isSeaPage ? '#bccfdc' : '#d4e0e9');
                 ctx.fillStyle = sky;
                 ctx.fillRect(0, 0, width, height);
 
-                const glow = ctx.createRadialGradient(width * 0.52, height * 0.22, 0, width * 0.52, height * 0.22, Math.max(width, height) * 0.62);
-                glow.addColorStop(0, isSeaPage ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.46)');
-                glow.addColorStop(0.42, 'rgba(160,213,224,0.24)');
-                glow.addColorStop(1, 'rgba(64,110,157,0)');
+                const glow = ctx.createRadialGradient(width * 0.52, height * 0.28, 0, width * 0.52, height * 0.28, Math.max(width, height) * 0.72);
+                glow.addColorStop(0, `rgba(255,255,255,${isSeaPage ? 0.68 : 0.48})`);
+                glow.addColorStop(0.48, 'rgba(218,232,238,0.22)');
+                glow.addColorStop(1, 'rgba(110,138,163,0)');
                 ctx.fillStyle = glow;
                 ctx.fillRect(0, 0, width, height);
 
-                const veil = ctx.createLinearGradient(0, height * 0.24, 0, height);
+                const veil = ctx.createLinearGradient(0, horizonY() - 40, 0, height);
                 veil.addColorStop(0, 'rgba(255,255,255,0)');
-                veil.addColorStop(0.72, isSeaPage ? 'rgba(255,255,255,0.06)' : 'rgba(223,231,240,0.26)');
-                veil.addColorStop(1, isSeaPage ? 'rgba(19,70,114,0.18)' : 'rgba(223,231,240,0.38)');
+                veil.addColorStop(0.48, `rgba(255,255,255,${isSeaPage ? 0.16 : 0.3})`);
+                veil.addColorStop(1, `rgba(118,143,166,${isSeaPage ? 0.16 : 0.08})`);
                 ctx.fillStyle = veil;
                 ctx.fillRect(0, 0, width, height);
             }
 
             function drawHorizon() {
-                const y = height * (isSeaPage ? (isCompactViewport() ? 0.4 : 0.31) : 0.37);
-                const gradient = ctx.createLinearGradient(0, y - 16, 0, y + 34);
+                const y = horizonY();
+                const gradient = ctx.createLinearGradient(0, y - 24, 0, y + 44);
                 gradient.addColorStop(0, 'rgba(255,255,255,0)');
-                gradient.addColorStop(0.45, isSeaPage ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.28)');
-                gradient.addColorStop(1, 'rgba(83,139,178,0)');
+                gradient.addColorStop(0.42, `rgba(255,255,255,${isSeaPage ? 0.58 : 0.28})`);
+                gradient.addColorStop(1, 'rgba(120,145,166,0)');
                 ctx.fillStyle = gradient;
-                ctx.fillRect(0, y - 18, width, 58);
+                ctx.fillRect(0, y - 24, width, 68);
             }
 
             function drawRibbon(depth, alpha, offset) {
-                const steps = isSeaPage ? (isCompactViewport() ? 96 : 150) : 110;
+                const steps = isCompactViewport() ? 80 : 130;
                 ctx.beginPath();
                 for (let i = 0; i <= steps; i++) {
                     const x = (i / steps) * width;
@@ -381,112 +361,75 @@
                     if (i === 0) ctx.moveTo(p.x, p.y);
                     else ctx.lineTo(p.x, p.y);
                 }
-                ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-                ctx.lineWidth = 1.2 + depth * 2.2;
-                ctx.shadowColor = `rgba(111,207,220,${alpha * 0.8})`;
-                ctx.shadowBlur = isSeaPage ? 16 : 8;
+                ctx.strokeStyle = `rgba(255,255,255,${alpha * strength()})`;
+                ctx.lineWidth = 0.8 + depth * 1.2;
                 ctx.stroke();
-                ctx.shadowBlur = 0;
             }
 
             function drawGrid() {
                 const depths = [];
                 const compact = isCompactViewport();
-                const depthCount = isSeaPage ? (compact ? 18 : 30) : 22;
+                const depthCount = compact ? 13 : 20;
                 for (let i = 0; i < depthCount; i++) depths.push(i / (depthCount - 1));
 
                 depths.forEach((depth, index) => {
-                    const alpha = (0.05 + depth * (isSeaPage ? (compact ? 0.2 : 0.28) : 0.13)) * (index % 4 === 0 ? 1.35 : 1);
+                    const alpha = (0.035 + depth * 0.16) * strength() * (index % 5 === 0 ? 1.24 : 1);
                     ctx.beginPath();
-                    const samples = compact ? 96 : 150;
+                    const samples = compact ? 76 : 128;
                     for (let i = 0; i <= samples; i++) {
                         const x = (i / samples) * width;
                         const p = project(x, depth, wave(x, depth));
                         if (i === 0) ctx.moveTo(p.x, p.y);
                         else ctx.lineTo(p.x, p.y);
                     }
-                    ctx.strokeStyle = `rgba(34,100,153,${alpha})`;
-                    ctx.lineWidth = index % 4 === 0 ? 1.2 : 0.8;
+                    ctx.strokeStyle = `rgba(55,86,116,${alpha})`;
+                    ctx.lineWidth = index % 5 === 0 ? 0.9 : 0.55;
                     ctx.stroke();
                 });
 
-                const laneCount = isSeaPage ? (compact ? 9 : 21) : 15;
+                const laneCount = compact ? 7 : 13;
                 for (let lane = 0; lane < laneCount; lane++) {
                     const xBase = (lane / (laneCount - 1)) * width;
                     ctx.beginPath();
-                    const samples = compact ? 78 : 120;
+                    const samples = compact ? 56 : 96;
                     for (let i = 0; i <= samples; i++) {
                         const depth = i / samples;
-                        const x = xBase + Math.sin(depth * 8 + time * 0.32 + lane) * (compact ? 7 : 16) * depth;
+                        const x = xBase + Math.sin(depth * 5 + time * 0.18 + lane) * (compact ? 2 : 5) * depth;
                         const p = project(x, depth, wave(x, depth, lane * 0.18));
                         if (i === 0) ctx.moveTo(p.x, p.y);
                         else ctx.lineTo(p.x, p.y);
                     }
                     const edge = Math.abs(lane / (laneCount - 1) - 0.5);
-                    ctx.strokeStyle = `rgba(30,91,143,${(isSeaPage ? (compact ? 0.13 : 0.2) : 0.1) * (1 - edge * 0.72)})`;
-                    ctx.lineWidth = 0.9;
+                    ctx.strokeStyle = `rgba(55,86,116,${0.09 * strength() * (1 - edge * 0.8)})`;
+                    ctx.lineWidth = 0.55;
                     ctx.stroke();
                 }
 
-                const ribbonCount = isSeaPage ? (compact ? 4 : 7) : 4;
+                const ribbonCount = compact ? 3 : 5;
                 for (let i = 0; i < ribbonCount; i++) {
-                    const depth = 0.22 + i * (compact ? 0.13 : 0.1) + Math.sin(time * 0.16 + i) * 0.012;
-                    drawRibbon(depth, (isSeaPage ? (compact ? 0.13 : 0.2) : 0.08) * (1 - i * 0.07), i * 0.9);
+                    const depth = 0.28 + i * (compact ? 0.16 : 0.12) + Math.sin(time * 0.12 + i) * 0.008;
+                    drawRibbon(depth, 0.18 * (1 - i * 0.12), i * 0.8);
                 }
             }
 
-            function drawCaustics() {
-                const compact = isCompactViewport();
-                const bands = isSeaPage ? (compact ? 8 : 18) : 9;
-                ctx.globalCompositeOperation = 'screen';
-                for (let i = 0; i < bands; i++) {
-                    const y = height * (0.42 + i * 0.035) + Math.sin(time * 0.58 + i) * 18;
-                    const gradient = ctx.createLinearGradient(width * 0.2, y, width * 0.82, y + 24);
-                    gradient.addColorStop(0, 'rgba(255,255,255,0)');
-                    gradient.addColorStop(0.5, `rgba(210,250,255,${isSeaPage ? (compact ? 0.05 : 0.08) : 0.035})`);
-                    gradient.addColorStop(1, 'rgba(255,255,255,0)');
-                    ctx.strokeStyle = gradient;
-                    ctx.lineWidth = 1 + (i % 3);
-                    ctx.beginPath();
-                    ctx.moveTo(width * 0.12, y);
-                    ctx.bezierCurveTo(width * 0.32, y - 34, width * 0.62, y + 48, width * 0.92, y + Math.sin(i) * 22);
-                    ctx.stroke();
-                }
-                ctx.globalCompositeOperation = 'source-over';
-            }
-
-            function drawSymbols() {
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                symbols.forEach((symbol) => {
-                    symbol.depth += symbol.speed;
-                    if (symbol.depth > 1.04) {
-                        symbol.depth = -0.04;
-                        symbol.lane = Math.random();
-                    }
-                    const x = symbol.lane * width + Math.sin(time * 0.42 + symbol.drift) * 56 * symbol.depth;
-                    const lift = wave(x, symbol.depth, symbol.drift) + 22 * Math.sin(time + symbol.drift);
-                    const p = project(x, symbol.depth, lift);
-                    const presence = cursorPresence(p.x, p.y);
-                    const alpha = (0.06 + symbol.depth * (isSeaPage ? 0.32 : 0.14) + presence * 0.28) * (symbol.depth > 0 ? 1 : 0);
-                    ctx.font = `${symbol.size * (0.62 + symbol.depth * 0.78)}px Georgia, serif`;
-                    ctx.fillStyle = `rgba(25,77,126,${alpha})`;
-                    ctx.shadowColor = `rgba(202,244,255,${alpha})`;
-                    ctx.shadowBlur = isSeaPage ? 14 : 4;
-                    ctx.fillText(symbol.char, p.x, p.y);
-                });
-                ctx.shadowBlur = 0;
+            function drawMist() {
+                const y = horizonY();
+                const mist = ctx.createLinearGradient(0, y - 50, 0, y + height * 0.34);
+                mist.addColorStop(0, 'rgba(255,255,255,0)');
+                mist.addColorStop(0.42, `rgba(247,250,252,${isSeaPage ? 0.44 : 0.58})`);
+                mist.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = mist;
+                ctx.fillRect(0, y - 50, width, height * 0.42);
             }
 
             function animate() {
                 fillAtmosphere();
                 drawHorizon();
-                drawCaustics();
                 drawGrid();
-                drawSymbols();
+                drawMist();
 
                 if (!reducedMotion) {
-                    time += isSeaPage ? 0.012 : 0.007;
+                    time += isSeaPage ? 0.01 : 0.005;
                     requestAnimationFrame(animate);
                 }
             }
