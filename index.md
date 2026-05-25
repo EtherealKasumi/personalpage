@@ -10,6 +10,7 @@ title: Home
         </div>
 
         <div class="profile-info">
+            <p class="home-kicker">the 1000th summer ——</p>
             <h1><span>你好, 我是</span><span>朧千夏</span></h1>
             <p class="subtitle">数学科学学院 2023 级本科生，持续记录数学、物理与学习中的清晰时刻。</p>
             
