@@ -11,7 +11,7 @@ title: Home
 
         <div class="profile-info">
             <p class="home-kicker">the 1000th summer ——</p>
-            <h1><span>Hello, I am</span><span>Liu Yuxuan</span></h1>
+            <h1><span>Hello, I am</span><span>Yuxuan Liu</span></h1>
             <p class="subtitle">An undergraduate student in mathematics at Nankai University, class of 2023, writing about mathematics, physics, and moments of clarity in learning.</p>
             
             <div class="action-buttons">
