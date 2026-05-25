@@ -1,13 +1,13 @@
 ---
 layout: default
-title: 观海
+title: Sea
 permalink: /sea.html
 full_bleed: true
 ---
 
-<main class="sea-view" aria-label="观海">
+<main class="sea-view" aria-label="Sea">
     <div class="sea-mark">
-        <h1>观海</h1>
+        <h1>Sea</h1>
         <p>the 1000th summer</p>
     </div>
 </main>
