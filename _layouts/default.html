@@ -304,7 +304,7 @@
             }
 
             function strength() {
-                return 0.42;
+                return 0.62;
             }
 
             function horizonY() {
@@ -346,7 +346,7 @@
                 if (dist > pointer.radius) return 0;
                 const pull = 1 - dist / pointer.radius;
                 const ripple = Math.sin(pull * Math.PI * 3 - time * 2.2) * 0.35 + 0.65;
-                return Math.sin(pull * Math.PI) * ripple * 7;
+                return Math.sin(pull * Math.PI) * ripple * 18;
             }
 
             function ripplePresence(x, y) {
@@ -452,8 +452,8 @@
                     const mid = project(width / 2, depth, 0);
                     const pointerGlow = pointer.x == null ? 0 : Math.max(0, 1 - Math.hypot(mid.x - pointer.x, mid.y - pointer.y) / pointer.radius);
                     const rippleGlow = ripplePresence(mid.x, mid.y);
-                    ctx.strokeStyle = `rgba(55,86,116,${alpha + pointerGlow * 0.035 + rippleGlow * 0.08})`;
-                    ctx.lineWidth = index % 5 === 0 ? 0.9 : 0.55;
+                    ctx.strokeStyle = `rgba(55,86,116,${alpha + pointerGlow * 0.11 + rippleGlow * 0.18})`;
+                    ctx.lineWidth = (index % 5 === 0 ? 0.9 : 0.55) + pointerGlow * 0.45 + rippleGlow * 0.55;
                     ctx.stroke();
                 });
 
@@ -498,26 +498,36 @@
                 ctx.fillRect(0, y - 50, width, height * 0.42);
             }
 
+            function drawInteractionGlow() {
+                if (pointer.x == null || pointer.y == null) return;
+                const glow = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, pointer.radius * 0.95);
+                glow.addColorStop(0, 'rgba(255,255,255,0.24)');
+                glow.addColorStop(0.38, 'rgba(72,126,164,0.12)');
+                glow.addColorStop(1, 'rgba(72,126,164,0)');
+                ctx.fillStyle = glow;
+                ctx.fillRect(0, 0, width, height);
+            }
+
             function drawRipples() {
                 for (const ripple of ripples) {
                     const alpha = Math.max(0, 1 - ripple.age);
-                    const radius = 28 + ripple.age * (isCompactViewport() ? 105 : 150);
+                    const radius = 32 + ripple.age * (isCompactViewport() ? 150 : 230);
                     const verticalScale = isCompactViewport() ? 0.36 : 0.42;
                     ctx.save();
                     ctx.translate(ripple.x, ripple.y);
                     ctx.scale(1, verticalScale);
                     ctx.beginPath();
                     ctx.arc(0, 0, radius, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(78,112,145,${0.08 * alpha})`;
-                    ctx.lineWidth = 1.2;
+                    ctx.strokeStyle = `rgba(58,100,139,${0.24 * alpha})`;
+                    ctx.lineWidth = 1.8;
                     ctx.stroke();
                     ctx.beginPath();
                     ctx.arc(0, 0, radius * 0.58, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(255,255,255,${0.16 * alpha})`;
-                    ctx.lineWidth = 0.8;
+                    ctx.strokeStyle = `rgba(255,255,255,${0.42 * alpha})`;
+                    ctx.lineWidth = 1.2;
                     ctx.stroke();
                     ctx.restore();
-                    ripple.age += reducedMotion ? 1 : 0.016;
+                    ripple.age += reducedMotion ? 1 : 0.013;
                 }
                 for (let i = ripples.length - 1; i >= 0; i--) {
                     if (ripples[i].age >= 1) ripples.splice(i, 1);
@@ -528,8 +538,9 @@
                 fillAtmosphere();
                 drawHorizon();
                 drawGrid();
-                drawRipples();
                 drawMist();
+                drawInteractionGlow();
+                drawRipples();
 
                 if (!reducedMotion) {
                     time += 0.009;
