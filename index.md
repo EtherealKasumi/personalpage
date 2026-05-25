@@ -11,22 +11,22 @@ title: Home
 
         <div class="profile-info">
             <p class="home-kicker">the 1000th summer ——</p>
-            <h1><span>你好, 我是</span><span>朧千夏</span></h1>
-            <p class="subtitle">数学科学学院 2023 级本科生，持续记录数学、物理与学习中的清晰时刻。</p>
+            <h1><span>Hello, I am</span><span>Liu Yuxuan</span></h1>
+            <p class="subtitle">An undergraduate student in mathematics at Nankai University, class of 2023, writing about mathematics, physics, and moments of clarity in learning.</p>
             
             <div class="action-buttons">
-                <a href="cv.html" class="btn">查看简历</a>
-                <a href="blogs.html" class="btn">我的博客</a>
-                <a href="notes.html" class="btn">浏览笔记</a>
-                <a href="resources.html" class="btn">其他资源</a>
+                <a href="cv.html" class="btn">CV</a>
+                <a href="blogs.html" class="btn">Blog</a>
+                <a href="notes.html" class="btn">Notes</a>
+                <a href="resources.html" class="btn">Resources</a>
             </div>
         </div>
     </section>
 
     <div class="home-sections">
         <section class="home-panel">
-            <h2>关于我</h2>
-            <p>我是 <a href="https://en.nankai.edu.cn/">南开大学</a> <a href="http://en.math.nankai.edu.cn/">数学科学学院</a> 一名 2023 级本科生。</p>
+            <h2>About</h2>
+            <p>I am a 2023 undergraduate student at the <a href="https://en.nankai.edu.cn/">Nankai University</a> <a href="http://en.math.nankai.edu.cn/">School of Mathematical Sciences</a>.</p>
             <ul class="contact-list">
                 <li><strong>QQ</strong><span>2153412476</span></li>
                 <li><strong>Email</strong><span>etherealkasumi@163.com</span></li>
@@ -34,8 +34,8 @@ title: Home
         </section>
 
         <section class="home-panel">
-            <h2>当前研究</h2>
-            <p class="research-note">探索中...</p>
+            <h2>Current Work</h2>
+            <p class="research-note">In progress...</p>
         </section>
     </div>
 </main>

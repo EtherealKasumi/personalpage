@@ -6,8 +6,8 @@ permalink: /blogs.html
 
 <main class="blog-page">
   <header class="blog-hero">
-    <h1 class="blog-title">我的博客</h1>
-    <p class="blog-quote">"行到水穷处, 坐看云起时."</p>
+    <h1 class="blog-title">Blog</h1>
+    <p class="blog-quote">"Where the stream ends, I sit and watch the clouds rise."</p>
   </header>
 
   <div class="blog-list">
