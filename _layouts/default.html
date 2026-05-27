@@ -16,7 +16,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }} | {{ site.title }}</title>
+    {% assign browser_title = page.title | default: "" | strip %}
+    <title>{% if browser_title != "" %}{{ browser_title }} | {% endif %}{{ site.title }}</title>
 
     <!-- 引入 KaTeX 用于极速公式渲染 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
