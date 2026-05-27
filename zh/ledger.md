@@ -8,7 +8,7 @@ permalink: /zh/ledger.html
 
 <main class="blog-page ledger-page">
   <header class="blog-hero">
-    <h1 class="blog-title">Ledger</h1>
+    <h1 class="blog-title">流水账</h1>
     <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
@@ -51,7 +51,7 @@ permalink: /zh/ledger.html
           {% assign current_month = entry_month %}
         {% endif %}
 
-                <a href="{{ entry.url | relative_url }}" class="ledger-date" aria-label="{{ entry.date | date: "%Y-%m-%d" }}">
+                <a href="{{ entry.url | relative_url }}?ui=zh" class="ledger-date" aria-label="{{ entry.date | date: "%Y-%m-%d" }}">
                   <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: "%d" }}</time>
                 </a>
 

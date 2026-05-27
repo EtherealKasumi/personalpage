@@ -18,7 +18,7 @@ permalink: /zh/
             <p class="subtitle">南开大学数学科学学院 2023 级本科生。这里存放一些关于数学、物理、学习笔记和日常片段的文字。</p>
 
             <div class="action-buttons">
-                <a href="{{ '/zh/cv.html' | relative_url }}" class="btn">CV</a>
+                <a href="{{ '/zh/cv.html' | relative_url }}" class="btn">简历</a>
                 <a href="{{ '/zh/blogs.html' | relative_url }}" class="btn">博客</a>
                 <a href="{{ '/zh/notes.html' | relative_url }}" class="btn">笔记</a>
                 <a href="{{ '/zh/resources.html' | relative_url }}" class="btn">资源</a>

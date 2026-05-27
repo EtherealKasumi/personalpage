@@ -2,20 +2,23 @@
 layout: default
 ---
 
-{% assign current_lang = page.lang | default: "zh" %}
+{% assign current_lang = page.lang | default: "en" %}
 {% assign is_zh = false %}
 {% if current_lang == "zh" %}
     {% assign is_zh = true %}
 {% endif %}
+{% assign en_date = page.date | date: "%B %-d, %Y" %}
+{% assign zh_date = page.date | date: "%Y年%m月%d日" %}
 
 <header class="post-header">
     <h1>{{ page.title }}</h1>
     <p class="post-date">
-        {% if is_zh %}
-            {% if page.collection == "ledger" %}记于{% else %}发布于{% endif %} {{ page.date | date: "%Y年%m月%d日" }}
+        {% if page.collection == "ledger" %}
+            <span data-i18n-en="Noted on" data-i18n-zh="记于">{% if is_zh %}记于{% else %}Noted on{% endif %}</span>
         {% else %}
-            {% if page.collection == "ledger" %}Noted on{% else %}Published on{% endif %} {{ page.date | date: "%B %-d, %Y" }}
+            <span data-i18n-en="Published on" data-i18n-zh="发布于">{% if is_zh %}发布于{% else %}Published on{% endif %}</span>
         {% endif %}
+        <time data-i18n-en="{{ en_date }}" data-i18n-zh="{{ zh_date }}">{% if is_zh %}{{ zh_date }}{% else %}{{ en_date }}{% endif %}</time>
     </p>
 </header>
 
@@ -25,8 +28,8 @@ layout: default
 
 <div class="post-footer">
     {% if page.collection == "ledger" %}
-        <a href="{% if is_zh %}{{ '/zh/ledger.html' | relative_url }}{% else %}{{ '/ledger.html' | relative_url }}{% endif %}" class="btn">{% if is_zh %}返回流水账{% else %}Back to Ledger{% endif %}</a>
+        <a href="{% if is_zh %}{{ '/zh/ledger.html' | relative_url }}{% else %}{{ '/ledger.html' | relative_url }}{% endif %}" class="btn" data-i18n-en="Back to Ledger" data-i18n-zh="返回流水账" data-en-href="{{ '/ledger.html' | relative_url }}" data-zh-href="{{ '/zh/ledger.html' | relative_url }}">{% if is_zh %}返回流水账{% else %}Back to Ledger{% endif %}</a>
     {% else %}
-        <a href="{% if is_zh %}{{ '/zh/blogs.html' | relative_url }}{% else %}{{ '/blogs.html' | relative_url }}{% endif %}" class="btn">{% if is_zh %}返回博客列表{% else %}Back to Blogs{% endif %}</a>
+        <a href="{% if is_zh %}{{ '/zh/blogs.html' | relative_url }}{% else %}{{ '/blogs.html' | relative_url }}{% endif %}" class="btn" data-i18n-en="Back to Blogs" data-i18n-zh="返回博客列表" data-en-href="{{ '/blogs.html' | relative_url }}" data-zh-href="{{ '/zh/blogs.html' | relative_url }}">{% if is_zh %}返回博客列表{% else %}Back to Blogs{% endif %}</a>
     {% endif %}
 </div>

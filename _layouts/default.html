@@ -1,4 +1,4 @@
-{% assign current_lang = page.lang | default: "zh" %}
+{% assign current_lang = page.lang | default: "en" %}
 {% assign is_zh = false %}
 {% if current_lang == "zh" %}
     {% assign is_zh = true %}
@@ -247,27 +247,21 @@
 
     <nav class="top-nav">
         <div class="nav-brand">Principia.</div>
-        <button class="menu-toggle" id="mobile-menu-btn" type="button" aria-label="{% if is_zh %}打开导航菜单{% else %}Open navigation menu{% endif %}" aria-expanded="false" aria-controls="nav-links">
+        <button class="menu-toggle" id="mobile-menu-btn" type="button" aria-label="{% if is_zh %}打开导航菜单{% else %}Open navigation menu{% endif %}" aria-expanded="false" aria-controls="nav-links" data-en-label="Open navigation menu" data-zh-label="打开导航菜单">
             <span></span>
             <span></span>
             <span></span>
         </button>
         <div class="nav-links" id="nav-links">
-            {% if is_zh %}
-                <a href="{{ '/zh/' | relative_url }}">主页</a>
-                <a href="{{ '/zh/cv.html' | relative_url }}">CV</a>
-                <a href="{{ '/zh/blogs.html' | relative_url }}">博客</a>
-                <a href="{{ '/zh/notes.html' | relative_url }}">笔记</a>
-                <a href="{{ '/zh/resources.html' | relative_url }}">资源</a>
-            {% else %}
-                <a href="{{ '/' | relative_url }}">Home</a>
-                <a href="{{ '/cv.html' | relative_url }}">CV</a>
-                <a href="{{ '/blogs.html' | relative_url }}">Blogs</a>
-                <a href="{{ '/notes.html' | relative_url }}">Notes</a>
-                <a href="{{ '/resources.html' | relative_url }}">Resources</a>
-            {% endif %}
+            <a href="{% if is_zh %}{{ '/zh/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Home" data-zh-label="主页" data-en-href="{{ '/' | relative_url }}" data-zh-href="{{ '/zh/' | relative_url }}">{% if is_zh %}主页{% else %}Home{% endif %}</a>
+            <a href="{% if is_zh %}{{ '/zh/cv.html' | relative_url }}{% else %}{{ '/cv.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="CV" data-zh-label="简历" data-en-href="{{ '/cv.html' | relative_url }}" data-zh-href="{{ '/zh/cv.html' | relative_url }}">{% if is_zh %}简历{% else %}CV{% endif %}</a>
+            <a href="{% if is_zh %}{{ '/zh/blogs.html' | relative_url }}{% else %}{{ '/blogs.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Blogs" data-zh-label="博客" data-en-href="{{ '/blogs.html' | relative_url }}" data-zh-href="{{ '/zh/blogs.html' | relative_url }}">{% if is_zh %}博客{% else %}Blogs{% endif %}</a>
+            <a href="{% if is_zh %}{{ '/zh/notes.html' | relative_url }}{% else %}{{ '/notes.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Notes" data-zh-label="笔记" data-en-href="{{ '/notes.html' | relative_url }}" data-zh-href="{{ '/zh/notes.html' | relative_url }}">{% if is_zh %}笔记{% else %}Notes{% endif %}</a>
+            <a href="{% if is_zh %}{{ '/zh/resources.html' | relative_url }}{% else %}{{ '/resources.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Resources" data-zh-label="资源" data-en-href="{{ '/resources.html' | relative_url }}" data-zh-href="{{ '/zh/resources.html' | relative_url }}">{% if is_zh %}资源{% else %}Resources{% endif %}</a>
             {% if alternate %}
                 <a href="{{ alternate.url | relative_url }}" class="lang-switch">{% if is_zh %}English{% else %}中文{% endif %}</a>
+            {% else %}
+                <a href="{{ page.url | relative_url }}?ui={% if is_zh %}en{% else %}zh{% endif %}" class="lang-switch" data-toggle-ui-lang="true">{% if is_zh %}English{% else %}中文{% endif %}</a>
             {% endif %}
         </div>
     </nav>
@@ -294,6 +288,44 @@
             this.setAttribute('aria-expanded', links.classList.contains('active'));
             this.blur();
         });
+
+        (function() {
+            const pageLang = "{{ page.lang }}";
+            const params = new URLSearchParams(window.location.search);
+            const queryLang = params.get("ui");
+            const validQueryLang = queryLang === "zh" || queryLang === "en" ? queryLang : "";
+            let lang = pageLang || validQueryLang || "en";
+            if (lang !== "zh" && lang !== "en") lang = "en";
+
+            document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+
+            const menuButton = document.getElementById("mobile-menu-btn");
+            if (menuButton) {
+                menuButton.setAttribute("aria-label", lang === "zh" ? menuButton.dataset.zhLabel : menuButton.dataset.enLabel);
+            }
+
+            document.querySelectorAll(".i18n-nav-link").forEach((link) => {
+                link.textContent = lang === "zh" ? link.dataset.zhLabel : link.dataset.enLabel;
+                link.href = lang === "zh" ? link.dataset.zhHref : link.dataset.enHref;
+            });
+
+            document.querySelectorAll("[data-i18n-en][data-i18n-zh]").forEach((element) => {
+                element.textContent = lang === "zh" ? element.dataset.i18nZh : element.dataset.i18nEn;
+            });
+
+            document.querySelectorAll("[data-en-href][data-zh-href]").forEach((link) => {
+                link.href = lang === "zh" ? link.dataset.zhHref : link.dataset.enHref;
+            });
+
+            const toggle = document.querySelector("[data-toggle-ui-lang]");
+            if (toggle) {
+                const nextLang = lang === "zh" ? "en" : "zh";
+                const nextUrl = new URL(window.location.href);
+                nextUrl.searchParams.set("ui", nextLang);
+                toggle.textContent = nextLang === "zh" ? "中文" : "English";
+                toggle.href = nextUrl.pathname + nextUrl.search + nextUrl.hash;
+            }
+        })();
 
         // Quiet horizon field.
         document.addEventListener("DOMContentLoaded", function() {

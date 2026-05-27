@@ -6,7 +6,7 @@ ref: notes
 permalink: /zh/notes.html
 ---
 
-<h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">Notes</h1>
+<h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">笔记</h1>
 <p style="text-align: center; color: #8b949e; margin-bottom: 40px; font-style: italic;">
   "Je suis d'ailleurs."
 </p>
@@ -21,7 +21,7 @@ permalink: /zh/notes.html
 
 ## PDF
 
-- **[Parallel Numerical Computing]({{ '/assets/files/psc.pdf' | relative_url }})** Course notes from Prof. Sheng Zhang's class.
+- **[Parallel Numerical Computing]({{ '/assets/files/psc.pdf' | relative_url }})** 张晟老师课程的课堂笔记。
 - **[Scientific Computing with Python]({{ '/assets/files/scwp.pdf' | relative_url }})**
 
 
