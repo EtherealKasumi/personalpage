@@ -12,10 +12,16 @@ permalink: /zh/blogs.html
     <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
-  <a href="{{ '/zh/ledger.html' | relative_url }}" class="ledger-entry">
-    <span>流水账</span>
-    <small>日常记录，按日期收纳的片段</small>
-  </a>
+  <nav class="blog-quick-links" aria-label="博客快捷入口">
+    <a href="{{ '/zh/ledger.html' | relative_url }}" class="ledger-entry">
+      <span>流水账</span>
+      <small>日常记录，按日期收纳的片段</small>
+    </a>
+
+    <a href="{{ '/zh/archive.html' | relative_url }}" class="archive-entry" aria-label="打开博客归档">
+      归档
+    </a>
+  </nav>
 
   <div class="blog-list">
     {% for post in site.posts %}

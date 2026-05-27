@@ -12,10 +12,16 @@ permalink: /blogs.html
     <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
-  <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
-    <span>Ledger</span>
-    <small>daily notes, dated fragments</small>
-  </a>
+  <nav class="blog-quick-links" aria-label="Blog shortcuts">
+    <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
+      <span>Ledger</span>
+      <small>daily notes, dated fragments</small>
+    </a>
+
+    <a href="{{ '/archive.html' | relative_url }}" class="archive-entry" aria-label="Open blog archive">
+      Archive
+    </a>
+  </nav>
 
   <div class="blog-list">
     {% for post in site.posts %}
