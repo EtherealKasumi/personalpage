@@ -21,7 +21,7 @@ permalink: /zh/notes.html
 
 ## PDF
 
-- **[Parallel Numerical Computing]({{ '/assets/files/psc.pdf' | relative_url }})** 张晟老师课程的课堂笔记。
+- **[Parallel Numerical Computing]({{ '/assets/files/psc.pdf' | relative_url }})** 张胜老师课程的课堂笔记。
 - **[Scientific Computing with Python]({{ '/assets/files/scwp.pdf' | relative_url }})**
 
 
