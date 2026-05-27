@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Blogs
-lang: en
+title: 博客
+lang: zh
 ref: blogs
-permalink: /blogs.html
+permalink: /zh/blogs.html
 ---
 
 <main class="blog-page">
@@ -12,8 +12,8 @@ permalink: /blogs.html
     <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
-  <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
-    <span>Ledger</span>
+  <a href="{{ '/zh/ledger.html' | relative_url }}" class="ledger-entry">
+    <span>流水账</span>
     <small>daily notes, dated fragments</small>
   </a>
 

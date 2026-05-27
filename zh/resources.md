@@ -1,8 +1,9 @@
 ---
 layout: default
-title: Resources
-lang: en
+title: 资源
+lang: zh
 ref: resources
+permalink: /zh/resources.html
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">Resources</h1>
@@ -10,4 +11,4 @@ ref: resources
   "Je suis d'ailleurs."
 </p>
 
-The resource list is under construction...
+资源列表正在建设中...

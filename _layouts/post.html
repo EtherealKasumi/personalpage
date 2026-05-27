@@ -2,9 +2,21 @@
 layout: default
 ---
 
+{% assign current_lang = page.lang | default: "zh" %}
+{% assign is_zh = false %}
+{% if current_lang == "zh" %}
+    {% assign is_zh = true %}
+{% endif %}
+
 <header class="post-header">
     <h1>{{ page.title }}</h1>
-    <p class="post-date">{% if page.collection == "ledger" %}记于{% else %}发布于{% endif %} {{ page.date | date: "%Y年%m月%d日" }}</p>
+    <p class="post-date">
+        {% if is_zh %}
+            {% if page.collection == "ledger" %}记于{% else %}发布于{% endif %} {{ page.date | date: "%Y年%m月%d日" }}
+        {% else %}
+            {% if page.collection == "ledger" %}Noted on{% else %}Published on{% endif %} {{ page.date | date: "%B %-d, %Y" }}
+        {% endif %}
+    </p>
 </header>
 
 <article class="post-content">
@@ -13,8 +25,8 @@ layout: default
 
 <div class="post-footer">
     {% if page.collection == "ledger" %}
-        <a href="{{ '/ledger.html' | relative_url }}" class="btn">返回流水账</a>
+        <a href="{% if is_zh %}{{ '/zh/ledger.html' | relative_url }}{% else %}{{ '/ledger.html' | relative_url }}{% endif %}" class="btn">{% if is_zh %}返回流水账{% else %}Back to Ledger{% endif %}</a>
     {% else %}
-        <a href="{{ '/blogs.html' | relative_url }}" class="btn">返回博客列表</a>
+        <a href="{% if is_zh %}{{ '/zh/blogs.html' | relative_url }}{% else %}{{ '/blogs.html' | relative_url }}{% endif %}" class="btn">{% if is_zh %}返回博客列表{% else %}Back to Blogs{% endif %}</a>
     {% endif %}
 </div>

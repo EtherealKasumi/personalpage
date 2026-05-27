@@ -1,5 +1,18 @@
+{% assign current_lang = page.lang | default: "zh" %}
+{% assign is_zh = false %}
+{% if current_lang == "zh" %}
+    {% assign is_zh = true %}
+{% endif %}
+{% assign target_lang = "zh" %}
+{% if is_zh %}
+    {% assign target_lang = "en" %}
+{% endif %}
+{% assign alternate = nil %}
+{% if page.ref %}
+    {% assign alternate = site.pages | where: "ref", page.ref | where: "lang", target_lang | first %}
+{% endif %}
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="{% if is_zh %}zh-CN{% else %}en{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,6 +84,7 @@
         .nav-links { display: flex; gap: 8px; transition: all 0.3s ease; }
         .nav-links a { color: var(--muted-color); text-decoration: none; padding: 8px 13px; font-size: 0.95rem; background-color: transparent; transition: color 0.035s linear, background-color 0.035s linear, box-shadow 0.04s linear; font-family: var(--ui-font); border-radius: 999px; }
         .nav-links a:hover { color: #18263a; background-color: var(--surface-soft); box-shadow: inset 5px 5px 10px rgba(111,126,145,0.22), inset -5px -5px 12px rgba(255,255,255,0.72); }
+        .nav-links a.lang-switch { color: #1f5f95; font-weight: 800; }
         .menu-toggle { display: none; cursor: pointer; width: 44px; height: 44px; flex: 0 0 auto; align-items: center; justify-content: center; gap: 4px; flex-direction: column; background: var(--surface); border: 1px solid rgba(75, 96, 124, 0.1); border-radius: 50%; box-shadow: 7px 7px 15px rgba(111,126,145,0.3), -5px -5px 14px rgba(255,255,255,0.76); }
         .menu-toggle span { display: block; width: 18px; height: 2px; border-radius: 999px; background: var(--accent-color); }
         @media (max-width: 768px) {
@@ -233,17 +247,28 @@
 
     <nav class="top-nav">
         <div class="nav-brand">Principia.</div>
-        <button class="menu-toggle" id="mobile-menu-btn" type="button" aria-label="打开导航菜单" aria-expanded="false" aria-controls="nav-links">
+        <button class="menu-toggle" id="mobile-menu-btn" type="button" aria-label="{% if is_zh %}打开导航菜单{% else %}Open navigation menu{% endif %}" aria-expanded="false" aria-controls="nav-links">
             <span></span>
             <span></span>
             <span></span>
         </button>
         <div class="nav-links" id="nav-links">
-            <a href="{{ '/' | relative_url }}">Home</a>
-            <a href="{{ '/cv.html' | relative_url }}">CV</a>
-            <a href="{{ '/blogs.html' | relative_url }}">Blogs</a>
-            <a href="{{ '/notes.html' | relative_url }}">Notes</a>
-            <a href="{{ '/resources.html' | relative_url }}">Resources</a>
+            {% if is_zh %}
+                <a href="{{ '/zh/' | relative_url }}">主页</a>
+                <a href="{{ '/zh/cv.html' | relative_url }}">CV</a>
+                <a href="{{ '/zh/blogs.html' | relative_url }}">博客</a>
+                <a href="{{ '/zh/notes.html' | relative_url }}">笔记</a>
+                <a href="{{ '/zh/resources.html' | relative_url }}">资源</a>
+            {% else %}
+                <a href="{{ '/' | relative_url }}">Home</a>
+                <a href="{{ '/cv.html' | relative_url }}">CV</a>
+                <a href="{{ '/blogs.html' | relative_url }}">Blogs</a>
+                <a href="{{ '/notes.html' | relative_url }}">Notes</a>
+                <a href="{{ '/resources.html' | relative_url }}">Resources</a>
+            {% endif %}
+            {% if alternate %}
+                <a href="{{ alternate.url | relative_url }}" class="lang-switch">{% if is_zh %}English{% else %}中文{% endif %}</a>
+            {% endif %}
         </div>
     </nav>
 

@@ -1,8 +1,9 @@
 ---
 layout: default
-title: Notes
-lang: en
+title: 笔记
+lang: zh
 ref: notes
+permalink: /zh/notes.html
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">Notes</h1>
@@ -11,9 +12,9 @@ ref: notes
 </p>
 
 
-## Online Notes
+## 在线笔记
 
-Updating...
+正在更新中...
 
 
 ---
@@ -27,6 +28,6 @@ Updating...
 ---
 
 <div class="notes-correction-note" markdown="1">
-<span>Errata</span>
-If you find any mistakes in my PDF notes, feel free to contact me through the email address on the Home page.
+<span>勘误</span>
+如果你在 PDF 笔记里发现错误，欢迎通过主页上的邮箱联系我。
 </div>

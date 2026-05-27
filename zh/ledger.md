@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Ledger
-lang: en
+title: 流水账
+lang: zh
 ref: ledger
-permalink: /ledger.html
+permalink: /zh/ledger.html
 ---
 
 <main class="blog-page ledger-page">
@@ -21,7 +21,6 @@ permalink: /ledger.html
       {% for entry in entries %}
         {% assign entry_year = entry.date | date: "%Y" %}
         {% assign entry_month = entry.date | date: "%m" %}
-        {% assign entry_month_label = entry.date | date: "%B" %}
 
         {% if entry_year != current_year %}
           {% unless forloop.first %}
@@ -46,7 +45,7 @@ permalink: /ledger.html
 
             <section class="ledger-month" aria-labelledby="ledger-month-{{ entry_year }}-{{ entry_month }}">
               <h3 class="ledger-month-title" id="ledger-month-{{ entry_year }}-{{ entry_month }}">
-                {{ entry_month }}<span>{{ entry_month_label }}</span>
+                {{ entry_month }}<span>月</span>
               </h3>
               <div class="ledger-date-grid">
           {% assign current_month = entry_month %}
@@ -64,7 +63,7 @@ permalink: /ledger.html
         {% endif %}
       {% endfor %}
     {% else %}
-      <p class="ledger-empty">No dated fragments yet.</p>
+      <p class="ledger-empty">还没有流水账。</p>
     {% endif %}
   </div>
 </main>
