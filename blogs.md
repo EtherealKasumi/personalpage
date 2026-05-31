@@ -9,7 +9,7 @@ parent: home
 
 <main class="blog-page">
   <header class="blog-hero">
-    <h1 class="blog-title">Blog</h1>
+    <h1 class="blog-title">Blogs</h1>
     <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
