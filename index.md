@@ -8,7 +8,78 @@ ref: home
 <main class="home-shell">
     <section class="profile-section" aria-label="Home hero">
         <div class="profile-media">
-            <img src="{{ '/assets/images/avatar.jpg' | relative_url }}" alt="My Avatar" class="profile-avatar">
+            <svg class="profile-orbital-portrait" viewBox="0 0 320 320" role="img" aria-labelledby="avatar-title-en">
+                <title id="avatar-title-en">My Avatar</title>
+                <defs>
+                    <clipPath id="avatar-clip-en">
+                        <circle cx="160" cy="160" r="82"></circle>
+                    </clipPath>
+                </defs>
+                <g class="svg-orbits" aria-hidden="true">
+                    <g transform="rotate(-18 160 178)">
+                        <path id="orbit-path-a-en" class="svg-orbit orbit-a" d="M28 178 C28 154 87 135 160 135 C233 135 292 154 292 178 C292 202 233 221 160 221 C87 221 28 202 28 178"></path>
+                    </g>
+                    <g transform="rotate(34 160 178)">
+                        <path id="orbit-path-b-en" class="svg-orbit orbit-b" d="M48 178 C48 159 98 144 160 144 C222 144 272 159 272 178 C272 197 222 212 160 212 C98 212 48 197 48 178"></path>
+                    </g>
+                </g>
+                <g class="orbiting-objects orbiting-objects-back" aria-hidden="true">
+                    <g transform="rotate(-18 160 178)">
+                        <g class="orbital-body body-a">
+                            <ellipse class="planet-ring" cx="0" cy="0" rx="10.4" ry="3.7" transform="rotate(-18)"></ellipse>
+                            <circle class="planet-core" cx="0" cy="0" r="6.1"></circle>
+                            <circle class="planet-glint" cx="-2.1" cy="-2.3" r="1.65"></circle>
+                            <animateMotion dur="54s" begin="-14s" repeatCount="indefinite" rotate="0">
+                                <mpath href="#orbit-path-a-en"></mpath>
+                            </animateMotion>
+                            <animate attributeName="opacity" dur="54s" begin="-14s" repeatCount="indefinite" values="1;1;0;0;1" keyTimes="0;0.48;0.5;0.98;1"></animate>
+                        </g>
+                    </g>
+                    <g transform="rotate(34 160 178)">
+                        <g class="orbital-body body-b">
+                            <circle class="planet-core" cx="0" cy="0" r="5.2"></circle>
+                            <circle class="tiny-moon" cx="9" cy="-4.5" r="1.85"></circle>
+                            <animateMotion dur="68s" begin="-34s" repeatCount="indefinite" rotate="0" keyPoints="1;0" keyTimes="0;1" calcMode="linear">
+                                <mpath href="#orbit-path-b-en"></mpath>
+                            </animateMotion>
+                            <animate attributeName="opacity" dur="68s" begin="-34s" repeatCount="indefinite" values="0;0;1;1;0" keyTimes="0;0.48;0.5;0.98;1"></animate>
+                        </g>
+                    </g>
+                </g>
+                <image class="avatar-svg-image" href="{{ '/assets/images/avatar.jpg' | relative_url }}" x="78" y="78" width="164" height="164" preserveAspectRatio="xMidYMid slice" clip-path="url(#avatar-clip-en)"></image>
+                <circle class="avatar-rim" cx="160" cy="160" r="88"></circle>
+                <g class="svg-orbits-front" aria-hidden="true">
+                    <g transform="rotate(-18 160 178)">
+                        <path class="svg-orbit-front orbit-a" d="M292 178 C292 202 233 221 160 221 C87 221 28 202 28 178"></path>
+                    </g>
+                    <g transform="rotate(34 160 178)">
+                        <path class="svg-orbit-front orbit-b" d="M272 178 C272 197 222 212 160 212 C98 212 48 197 48 178"></path>
+                    </g>
+                </g>
+                <g class="orbiting-objects orbiting-objects-front" aria-hidden="true">
+                    <g transform="rotate(-18 160 178)">
+                        <g class="orbital-body body-a">
+                            <ellipse class="planet-ring" cx="0" cy="0" rx="10.4" ry="3.7" transform="rotate(-18)"></ellipse>
+                            <circle class="planet-core" cx="0" cy="0" r="6.1"></circle>
+                            <circle class="planet-glint" cx="-2.1" cy="-2.3" r="1.65"></circle>
+                            <animateMotion dur="54s" begin="-14s" repeatCount="indefinite" rotate="0">
+                                <mpath href="#orbit-path-a-en"></mpath>
+                            </animateMotion>
+                            <animate attributeName="opacity" dur="54s" begin="-14s" repeatCount="indefinite" values="0;0;1;1;0" keyTimes="0;0.48;0.5;0.98;1"></animate>
+                        </g>
+                    </g>
+                    <g transform="rotate(34 160 178)">
+                        <g class="orbital-body body-b">
+                            <circle class="planet-core" cx="0" cy="0" r="5.2"></circle>
+                            <circle class="tiny-moon" cx="9" cy="-4.5" r="1.85"></circle>
+                            <animateMotion dur="68s" begin="-34s" repeatCount="indefinite" rotate="0" keyPoints="1;0" keyTimes="0;1" calcMode="linear">
+                                <mpath href="#orbit-path-b-en"></mpath>
+                            </animateMotion>
+                            <animate attributeName="opacity" dur="68s" begin="-34s" repeatCount="indefinite" values="1;1;0;0;1" keyTimes="0;0.48;0.5;0.98;1"></animate>
+                        </g>
+                    </g>
+                </g>
+            </svg>
         </div>
 
         <div class="profile-info">
