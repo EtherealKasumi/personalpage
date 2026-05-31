@@ -13,7 +13,7 @@ parent: home
     <p class="blog-quote">"Je suis d'ailleurs."</p>
   </header>
 
-  <nav class="blog-quick-links" aria-label="Blog shortcuts">
+  <nav class="blog-quick-links" aria-label="Blogs page shortcuts">
     <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
       <span>Ledger</span>
       <small>daily notes, dated fragments</small>

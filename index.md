@@ -18,7 +18,7 @@ ref: home
             
             <div class="action-buttons">
                 <a href="{{ '/cv.html' | relative_url }}" class="btn">CV</a>
-                <a href="{{ '/blogs.html' | relative_url }}" class="btn">Blog</a>
+                <a href="{{ '/blogs.html' | relative_url }}" class="btn">Blogs</a>
                 <a href="{{ '/notes.html' | relative_url }}" class="btn">Notes</a>
                 <a href="{{ '/resources.html' | relative_url }}" class="btn">Resources</a>
             </div>
