@@ -48,7 +48,7 @@
             --code-font: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
         }
         * { box-sizing: border-box; }
-        html { margin: 0; padding: 0; background-color: var(--page-bg); min-height: 100vh; }
+        html { margin: 0; padding: 0; background-color: #e8eef4; min-height: 100vh; }
         body { margin: 0; padding: 0; background-color: transparent; color: var(--text-color); font-family: var(--math-font); line-height: 1.8; overflow-x: hidden; min-height: 100vh; }
         a,
         button { -webkit-tap-highlight-color: transparent; }
@@ -60,15 +60,29 @@
             content: "";
             position: fixed;
             inset: 0;
-            z-index: 1;
+            z-index: 0;
             pointer-events: none;
             background:
-                radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.5), transparent 30%),
-                radial-gradient(circle at 78% 8%, rgba(172, 219, 226, 0.24), transparent 24%),
-                linear-gradient(180deg, rgba(223, 231, 240, 0.12), rgba(209, 219, 231, 0.36));
+                radial-gradient(circle at 16% 12%, rgba(255, 255, 255, 0.95), transparent 34%),
+                radial-gradient(circle at 86% 10%, rgba(210, 234, 230, 0.42), transparent 30%),
+                radial-gradient(circle at 18% 86%, rgba(236, 225, 212, 0.28), transparent 34%),
+                linear-gradient(180deg, #f8fafc 0%, #edf3f7 44%, #dbe5ee 100%);
         }
-        #math-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; background: linear-gradient(180deg, #f6f9fb 0%, #e7eef4 42%, #d2e0ea 100%); }
-        .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
+        .paper-background {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.72;
+            mix-blend-mode: multiply;
+            background-image:
+                radial-gradient(circle at 72% 22%, rgba(134, 190, 198, 0.12), transparent 26%),
+                radial-gradient(circle at 32% 74%, rgba(180, 168, 210, 0.08), transparent 30%),
+                linear-gradient(125deg, rgba(255,255,255,0.18), rgba(118,143,166,0.06));
+            background-size: 100% 100%;
+            background-position: center;
+        }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 28px; width: min(1120px, calc(100% - 32px)); margin: 18px auto 0; padding: 12px 16px 12px 22px; background: rgba(231, 237, 244, 0.92); border: 1px solid var(--hairline); border-radius: 999px; position: sticky; top: 14px; z-index: 100; box-shadow: 14px 14px 34px var(--shadow-dark), -12px -12px 30px var(--shadow-light), inset 1px 1px 1px rgba(255,255,255,0.72), inset -1px -1px 1px rgba(97,112,132,0.18); }
         
         .nav-brand {
             font-family: var(--brand-font);
@@ -96,7 +110,7 @@
             .nav-links.active { max-height: 420px; padding: 12px; border: 1px solid var(--hairline); }
             .nav-links a { text-align: center; }
         }
-        .paper-container { position: relative; z-index: 2; width: min(1080px, calc(100% - 32px)); margin: 42px auto 72px; padding: clamp(28px, 5vw, 54px); background: rgba(231, 237, 244, 0.6); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); border: 1px solid rgba(75, 96, 124, 0.2); border-radius: 30px; box-shadow: 24px 24px 58px rgba(111,126,145,0.26), -18px -18px 48px rgba(255,255,255,0.54), inset 1px 1px 1px rgba(255,255,255,0.68), inset -1px -1px 2px rgba(97,112,132,0.14); animation: surfaceRise 0.8s ease both; }
+        .paper-container { position: relative; z-index: 2; width: min(1080px, calc(100% - 32px)); margin: 42px auto 72px; padding: clamp(28px, 5vw, 54px); background: linear-gradient(145deg, rgba(240,246,250,0.92), rgba(219,229,238,0.88)); border: 1px solid rgba(75, 96, 124, 0.2); border-radius: 30px; box-shadow: 24px 24px 58px rgba(111,126,145,0.26), -18px -18px 48px rgba(255,255,255,0.54), inset 1px 1px 1px rgba(255,255,255,0.68), inset -1px -1px 2px rgba(97,112,132,0.14); animation: surfaceRise 0.8s ease both; }
         .home-shell { display: grid; gap: clamp(30px, 5vw, 48px); }
         .profile-section { display: grid; grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: clamp(30px, 6vw, 72px); min-height: clamp(360px, calc(100svh - 340px), 520px); }
         .profile-media { position: relative; display: grid; place-items: center; min-height: 280px; }
@@ -136,7 +150,7 @@
         body:not(.using-pointer) .btn:focus-visible,
         body:not(.using-pointer) .menu-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(47,120,183,0.16), 0 0 0 6px rgba(255,255,255,0.46), inset 4px 4px 9px rgba(111,126,145,0.18), inset -4px -4px 10px rgba(255,255,255,0.76); }
         .home-sections { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; }
-        .home-panel { padding: clamp(24px, 4vw, 36px); border-radius: 24px; background: linear-gradient(145deg, rgba(241,245,249,0.76), rgba(214,224,235,0.68)); border: 1px solid rgba(75, 96, 124, 0.14); box-shadow: inset 8px 8px 18px rgba(111,126,145,0.15), inset -8px -8px 18px rgba(255,255,255,0.6); }
+        .home-panel { padding: clamp(24px, 4vw, 36px); border-radius: 24px; background: linear-gradient(145deg, rgba(242,247,250,0.82), rgba(214,224,235,0.72)); border: 1px solid rgba(75, 96, 124, 0.14); box-shadow: inset 8px 8px 18px rgba(111,126,145,0.15), inset -8px -8px 18px rgba(255,255,255,0.6); }
         .home-panel h2 { margin-top: 0; }
         .contact-list { list-style: none; padding: 0; margin: 18px 0 0; font-family: var(--ui-font); }
         .contact-list li { display: flex; gap: 10px; flex-wrap: wrap; padding: 9px 0; border-top: 1px solid rgba(75, 96, 124, 0.12); }
@@ -284,7 +298,7 @@
 </head>
 <body>
 
-    <canvas id="math-canvas"></canvas>
+    <div class="paper-background" aria-hidden="true"></div>
 
     <nav class="top-nav">
         <div class="nav-brand">Principia.</div>
@@ -439,357 +453,6 @@
                 window.history.back();
             } else {
                 window.location.replace(targetUrl.href);
-            }
-        });
-
-        // Quiet horizon field.
-        document.addEventListener("DOMContentLoaded", function() {
-            const canvas = document.getElementById('math-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            let width = 0;
-            let height = 0;
-            let dpr = 1;
-            let time = 0;
-            let lastFrameTime = 0;
-            let animationId = null;
-            let pendingPointer = null;
-            let pointerTicking = false;
-            let isPageVisible = !document.hidden;
-            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const pointer = { x: null, y: null, radius: 320 };
-            const ripples = [];
-
-            function resize() {
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = Math.floor(width * dpr);
-                canvas.height = Math.floor(height * dpr);
-                canvas.style.width = `${width}px`;
-                canvas.style.height = `${height}px`;
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                pointer.radius = isCompactViewport() ? 210 : 320;
-            }
-
-            function setPointer(x, y) {
-                pointer.x = x;
-                pointer.y = y;
-            }
-
-            function schedulePointer(x, y) {
-                pendingPointer = { x, y };
-                if (pointerTicking) return;
-                pointerTicking = true;
-                requestAnimationFrame(() => {
-                    pointerTicking = false;
-                    if (!pendingPointer) return;
-                    setPointer(pendingPointer.x, pendingPointer.y);
-                    pendingPointer = null;
-                });
-            }
-
-            function clearPointer() {
-                pointer.x = null;
-                pointer.y = null;
-            }
-
-            window.addEventListener('resize', resize);
-            window.addEventListener('pointermove', (event) => schedulePointer(event.clientX, event.clientY), { passive: true });
-            window.addEventListener('click', (event) => {
-                addRipple(event.clientX, event.clientY);
-            });
-            window.addEventListener('touchstart', (event) => {
-                const touch = event.touches[0];
-                if (!touch) return;
-                schedulePointer(touch.clientX, touch.clientY);
-                addRipple(touch.clientX, touch.clientY);
-            }, { passive: true });
-            window.addEventListener('pointerleave', clearPointer);
-            window.addEventListener('touchend', clearPointer);
-            document.addEventListener('visibilitychange', () => {
-                isPageVisible = !document.hidden;
-                if (isPageVisible && !reducedMotion && animationId == null) {
-                    lastFrameTime = 0;
-                    animationId = requestAnimationFrame(animate);
-                }
-            });
-
-            function addRipple(x, y) {
-                ripples.push({ x, y, age: 0 });
-                if (ripples.length > 6) ripples.shift();
-            }
-
-            function isCompactViewport() {
-                return width <= 720 || height > width * 1.25;
-            }
-
-            function isCompactPointer() {
-                return window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 720;
-            }
-
-            function frameInterval() {
-                return 1000 / (isCompactPointer() ? 24 : 30);
-            }
-
-            function strength() {
-                return 0.62;
-            }
-
-            function horizonY() {
-                const compact = isCompactViewport();
-                const base = height * (compact ? 0.42 : 0.4);
-                return base + Math.sin(time * 0.18) * 3;
-            }
-
-            function project(x, depth, lift = 0) {
-                const compact = isCompactViewport();
-                const horizon = horizonY();
-                const span = height * (compact ? 0.58 : 0.66);
-                const perspective = Math.pow(depth, compact ? 1.34 : 1.62);
-                const pull = compact ? 0.18 : 0.34;
-                const centerPull = 1 - depth * pull;
-                const drift = Math.sin(time * 0.28 + depth * 5.2) * (compact ? 5 : 12) * depth;
-                return {
-                    x: width / 2 + (x - width / 2) * centerPull + drift,
-                    y: horizon + perspective * span - lift
-                };
-            }
-
-            function wave(x, depth, phase = 0) {
-                const compact = isCompactViewport();
-                const amplitude = (compact ? 7 : 11) * strength();
-                const base = Math.sin(x * 0.0048 + depth * 8.5 + time * 0.72 + phase) * amplitude;
-                const cross = Math.sin(x * 0.009 + depth * 3.2 - time * 0.46 + phase) * amplitude * 0.38;
-                const long = Math.sin(depth * 11 - time * 0.52 + phase * 0.4) * amplitude * 0.72;
-                const cursor = cursorWake(x, depth);
-                return (base + cross + long + cursor) * (0.22 + depth * 0.82);
-            }
-
-            function cursorWake(x, depth) {
-                if (pointer.x == null || pointer.y == null) return 0;
-                const p = project(x, depth, 0);
-                const dx = p.x - pointer.x;
-                const dy = p.y - pointer.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist > pointer.radius) return 0;
-                const pull = 1 - dist / pointer.radius;
-                const ripple = Math.sin(pull * Math.PI * 3 - time * 2.2) * 0.35 + 0.65;
-                return Math.sin(pull * Math.PI) * ripple * 18;
-            }
-
-            function pointerPresence(x, y) {
-                if (pointer.x == null || pointer.y == null) return 0;
-                const dist = Math.hypot(x - pointer.x, y - pointer.y);
-                return Math.max(0, 1 - dist / pointer.radius);
-            }
-
-            function ripplePresence(x, y) {
-                let presence = 0;
-                for (const ripple of ripples) {
-                    const radius = 28 + ripple.age * (isCompactViewport() ? 105 : 150);
-                    const dx = x - ripple.x;
-                    const dy = y - ripple.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const ring = Math.max(0, 1 - Math.abs(dist - radius) / 34);
-                    presence += ring * Math.max(0, 1 - ripple.age);
-                }
-                return Math.min(1, presence);
-            }
-
-            function fillAtmosphere() {
-                const sky = ctx.createLinearGradient(0, 0, 0, height);
-                sky.addColorStop(0, '#f5f8fb');
-                sky.addColorStop(0.4, '#e8eef4');
-                sky.addColorStop(0.72, '#dce6ee');
-                sky.addColorStop(1, '#d4e0e9');
-                ctx.fillStyle = sky;
-                ctx.fillRect(0, 0, width, height);
-
-                const glow = ctx.createRadialGradient(width * 0.52, height * 0.28, 0, width * 0.52, height * 0.28, Math.max(width, height) * 0.72);
-                glow.addColorStop(0, 'rgba(255,255,255,0.48)');
-                glow.addColorStop(0.48, 'rgba(218,232,238,0.22)');
-                glow.addColorStop(1, 'rgba(110,138,163,0)');
-                ctx.fillStyle = glow;
-                ctx.fillRect(0, 0, width, height);
-
-                const veil = ctx.createLinearGradient(0, horizonY() - 40, 0, height);
-                veil.addColorStop(0, 'rgba(255,255,255,0)');
-                veil.addColorStop(0.48, 'rgba(255,255,255,0.3)');
-                veil.addColorStop(1, 'rgba(118,143,166,0.08)');
-                ctx.fillStyle = veil;
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            function drawHorizon() {
-                const y = horizonY();
-                const gradient = ctx.createLinearGradient(0, y - 24, 0, y + 44);
-                gradient.addColorStop(0, 'rgba(255,255,255,0)');
-                gradient.addColorStop(0.42, 'rgba(255,255,255,0.28)');
-                gradient.addColorStop(1, 'rgba(120,145,166,0)');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, y - 24, width, 68);
-            }
-
-            function drawRibbon(depth, alpha, offset) {
-                const steps = isCompactViewport() ? 80 : 130;
-                ctx.beginPath();
-                for (let i = 0; i <= steps; i++) {
-                    const x = (i / steps) * width;
-                    const p = project(x, depth, wave(x, depth, offset));
-                    if (i === 0) ctx.moveTo(p.x, p.y);
-                    else ctx.lineTo(p.x, p.y);
-                }
-                ctx.strokeStyle = `rgba(255,255,255,${alpha * strength()})`;
-                ctx.lineWidth = 0.8 + depth * 1.2;
-                ctx.stroke();
-            }
-
-            function drawCurrent(depth, phase, alpha) {
-                const compact = isCompactViewport();
-                const steps = compact ? 72 : 120;
-                const widthScale = compact ? 0.7 : 0.56;
-                const center = width * (0.5 + Math.sin(time * 0.08 + phase) * 0.12);
-                ctx.beginPath();
-                for (let i = 0; i <= steps; i++) {
-                    const t = i / steps;
-                    const x = center + (t - 0.5) * width * widthScale;
-                    const localDepth = depth + Math.sin(t * Math.PI + phase) * 0.018;
-                    const p = project(x, localDepth, wave(x, localDepth, phase) + Math.sin(t * Math.PI) * (compact ? 4 : 7));
-                    if (i === 0) ctx.moveTo(p.x, p.y);
-                    else ctx.lineTo(p.x, p.y);
-                }
-                const gradient = ctx.createLinearGradient(width * 0.18, 0, width * 0.82, 0);
-                gradient.addColorStop(0, 'rgba(255,255,255,0)');
-                gradient.addColorStop(0.48, `rgba(255,255,255,${alpha * strength()})`);
-                gradient.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.strokeStyle = gradient;
-                ctx.lineWidth = compact ? 1 : 1.4;
-                ctx.stroke();
-            }
-
-            function drawGrid() {
-                const depths = [];
-                const compact = isCompactViewport();
-                const depthCount = compact ? 13 : 20;
-                for (let i = 0; i < depthCount; i++) depths.push(i / (depthCount - 1));
-
-                depths.forEach((depth, index) => {
-                    const alpha = (0.035 + depth * 0.16) * strength() * (index % 5 === 0 ? 1.24 : 1);
-                    ctx.beginPath();
-                    const samples = compact ? 76 : 128;
-                    let pointerGlow = 0;
-                    let rippleGlow = 0;
-                    for (let i = 0; i <= samples; i++) {
-                        const x = (i / samples) * width;
-                        const p = project(x, depth, wave(x, depth));
-                        const localPointer = pointerPresence(p.x, p.y);
-                        const localRipple = ripplePresence(p.x, p.y);
-                        pointerGlow = Math.max(pointerGlow, localPointer);
-                        rippleGlow = Math.max(rippleGlow, localRipple);
-                        if (i === 0) ctx.moveTo(p.x, p.y);
-                        else ctx.lineTo(p.x, p.y);
-                    }
-                    ctx.strokeStyle = `rgba(55,86,116,${alpha + pointerGlow * 0.11 + rippleGlow * 0.18})`;
-                    ctx.lineWidth = (index % 5 === 0 ? 0.9 : 0.55) + pointerGlow * 0.45 + rippleGlow * 0.55;
-                    ctx.stroke();
-                });
-
-                const laneCount = compact ? 7 : 13;
-                for (let lane = 0; lane < laneCount; lane++) {
-                    const xBase = (lane / (laneCount - 1)) * width;
-                    ctx.beginPath();
-                    const samples = compact ? 56 : 96;
-                    for (let i = 0; i <= samples; i++) {
-                        const depth = i / samples;
-                        const x = xBase + Math.sin(depth * 5 + time * 0.18 + lane) * (compact ? 2 : 5) * depth;
-                        const p = project(x, depth, wave(x, depth, lane * 0.18));
-                        if (i === 0) ctx.moveTo(p.x, p.y);
-                        else ctx.lineTo(p.x, p.y);
-                    }
-                    const edge = Math.abs(lane / (laneCount - 1) - 0.5);
-                    ctx.strokeStyle = `rgba(55,86,116,${0.09 * strength() * (1 - edge * 0.8)})`;
-                    ctx.lineWidth = 0.55;
-                    ctx.stroke();
-                }
-
-                const ribbonCount = compact ? 4 : 6;
-                for (let i = 0; i < ribbonCount; i++) {
-                    const depth = 0.28 + i * (compact ? 0.16 : 0.12) + Math.sin(time * 0.12 + i) * 0.008;
-                    drawRibbon(depth, 0.18 * (1 - i * 0.12), i * 0.8);
-                }
-
-                const currentCount = compact ? 2 : 4;
-                for (let i = 0; i < currentCount; i++) {
-                    const depth = 0.34 + i * (compact ? 0.2 : 0.13);
-                    drawCurrent(depth, i * 1.7, 0.16 - i * 0.018);
-                }
-            }
-
-            function drawMist() {
-                const y = horizonY();
-                const mist = ctx.createLinearGradient(0, y - 50, 0, y + height * 0.34);
-                mist.addColorStop(0, 'rgba(255,255,255,0)');
-                mist.addColorStop(0.42, 'rgba(247,250,252,0.58)');
-                mist.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = mist;
-                ctx.fillRect(0, y - 50, width, height * 0.42);
-            }
-
-            function drawRipples() {
-                for (const ripple of ripples) {
-                    const alpha = Math.max(0, 1 - ripple.age);
-                    const radius = 32 + ripple.age * (isCompactViewport() ? 150 : 230);
-                    const verticalScale = isCompactViewport() ? 0.36 : 0.42;
-                    ctx.save();
-                    ctx.translate(ripple.x, ripple.y);
-                    ctx.scale(1, verticalScale);
-                    ctx.beginPath();
-                    ctx.arc(0, 0, radius, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(58,100,139,${0.24 * alpha})`;
-                    ctx.lineWidth = 1.8;
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(0, 0, radius * 0.58, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(255,255,255,${0.42 * alpha})`;
-                    ctx.lineWidth = 1.2;
-                    ctx.stroke();
-                    ctx.restore();
-                    ripple.age += reducedMotion ? 1 : 0.013;
-                }
-                for (let i = ripples.length - 1; i >= 0; i--) {
-                    if (ripples[i].age >= 1) ripples.splice(i, 1);
-                }
-            }
-
-            function drawFrame() {
-                fillAtmosphere();
-                drawHorizon();
-                drawGrid();
-                drawMist();
-                drawRipples();
-            }
-
-            function animate(timestamp = 0) {
-                animationId = null;
-                if (!isPageVisible) return;
-
-                if (!lastFrameTime || timestamp - lastFrameTime >= frameInterval()) {
-                    drawFrame();
-                    lastFrameTime = timestamp;
-                    time += 0.012;
-                }
-
-                if (!reducedMotion) {
-                    animationId = requestAnimationFrame(animate);
-                }
-            }
-
-            resize();
-            drawFrame();
-            if (!reducedMotion) {
-                animationId = requestAnimationFrame(animate);
             }
         });
 
