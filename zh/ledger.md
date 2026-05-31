@@ -4,6 +4,7 @@ title: 流水账
 lang: zh
 ref: ledger
 permalink: /zh/ledger.html
+parent: blogs
 ---
 
 <main class="blog-page ledger-page">
@@ -51,7 +52,7 @@ permalink: /zh/ledger.html
           {% assign current_month = entry_month %}
         {% endif %}
 
-                <a href="{{ entry.url | relative_url }}?ui=zh" class="ledger-date" aria-label="{{ entry.date | date: "%Y-%m-%d" }}">
+                <a href="{{ entry.url | relative_url }}?ui=zh&from=ledger" class="ledger-date" aria-label="{{ entry.date | date: "%Y-%m-%d" }}">
                   <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: "%d" }}</time>
                 </a>
 

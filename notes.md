@@ -3,6 +3,7 @@ layout: default
 title: Notes
 lang: en
 ref: notes
+parent: home
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">Notes</h1>

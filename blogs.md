@@ -4,6 +4,7 @@ title: Blogs
 lang: en
 ref: blogs
 permalink: /blogs.html
+parent: home
 ---
 
 <main class="blog-page">
@@ -25,7 +26,7 @@ permalink: /blogs.html
 
   <div class="blog-list">
     {% for post in site.posts %}
-      <a href="{{ post.url | relative_url }}" class="post-card-link">
+      <a href="{{ post.url | relative_url }}?from=blogs" class="post-card-link">
         <article class="post-card">
           <div class="post-meta">{{ post.date | date: "%Y-%m-%d" }}</div>
           <h2 class="post-title">{{ post.title }}</h2>

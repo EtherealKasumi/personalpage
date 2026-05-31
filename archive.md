@@ -4,6 +4,7 @@ title: Archive
 lang: en
 ref: archive
 permalink: /archive.html
+parent: blogs
 ---
 
 <main class="blog-page ledger-page archive-page">
@@ -52,7 +53,7 @@ permalink: /archive.html
           {% assign current_month = post_month %}
         {% endif %}
 
-                <a href="{{ post.url | relative_url }}" class="archive-post">
+                <a href="{{ post.url | relative_url }}?from=archive" class="archive-post">
                   <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
                   <span>{{ post.title }}</span>
                 </a>

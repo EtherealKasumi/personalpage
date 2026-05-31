@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "群论基础：拉格朗日定理的美学"
+parent: notes
 ---
 
 # 群论基础：拉格朗日定理的美学

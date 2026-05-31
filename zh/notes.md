@@ -4,6 +4,7 @@ title: 笔记
 lang: zh
 ref: notes
 permalink: /zh/notes.html
+parent: home
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">笔记</h1>

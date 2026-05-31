@@ -173,7 +173,8 @@
         .post-content h3 { color: #172337; }
         .post-content p,
         .post-content li { color: #2d3d51; }
-        .post-footer { margin-top: 60px; text-align: center; border-top: 1px dashed rgba(75, 96, 124, 0.22); padding-top: 30px; }
+        .post-footer,
+        .page-footer { margin-top: 60px; text-align: center; border-top: 1px dashed rgba(75, 96, 124, 0.22); padding-top: 30px; }
         @media (max-width: 760px) {
             .top-nav { width: min(100% - 22px, 1120px); margin-top: 12px; top: 10px; border-radius: 24px; padding-right: 12px; }
             .profile-section { grid-template-columns: 1fr; min-height: auto; text-align: center; }
@@ -285,6 +286,41 @@
 
     <div class="paper-container">
         {{ content }}
+        {% assign parent_key = page.parent | default: "" %}
+        {% if parent_key != "" %}
+            {% if parent_key == "home" %}
+                {% assign parent_en_label = "Back to Home" %}
+                {% assign parent_zh_label = "返回主页" %}
+                {% assign parent_en_href = "/" | relative_url %}
+                {% assign parent_zh_href = "/zh/" | relative_url %}
+            {% elsif parent_key == "blogs" %}
+                {% assign parent_en_label = "Back to Blogs" %}
+                {% assign parent_zh_label = "返回博客列表" %}
+                {% assign parent_en_href = "/blogs.html" | relative_url %}
+                {% assign parent_zh_href = "/zh/blogs.html" | relative_url %}
+            {% elsif parent_key == "ledger" %}
+                {% assign parent_en_label = "Back to Ledger" %}
+                {% assign parent_zh_label = "返回流水账" %}
+                {% assign parent_en_href = "/ledger.html" | relative_url %}
+                {% assign parent_zh_href = "/zh/ledger.html" | relative_url %}
+            {% elsif parent_key == "notes" %}
+                {% assign parent_en_label = "Back to Notes" %}
+                {% assign parent_zh_label = "返回笔记" %}
+                {% assign parent_en_href = "/notes.html" | relative_url %}
+                {% assign parent_zh_href = "/zh/notes.html" | relative_url %}
+            {% elsif parent_key == "archive" %}
+                {% assign parent_en_label = "Back to Archive" %}
+                {% assign parent_zh_label = "返回归档" %}
+                {% assign parent_en_href = "/archive.html" | relative_url %}
+                {% assign parent_zh_href = "/zh/archive.html" | relative_url %}
+            {% endif %}
+
+            {% if parent_en_href and parent_zh_href %}
+                <div class="page-footer">
+                    <a href="{% if is_zh %}{{ parent_zh_href }}{% else %}{{ parent_en_href }}{% endif %}" class="btn parent-return-link" data-parent-return data-parent-key="{{ parent_key }}" data-i18n-en="{{ parent_en_label }}" data-i18n-zh="{{ parent_zh_label }}" data-en-href="{{ parent_en_href }}" data-zh-href="{{ parent_zh_href }}" data-{{ parent_key }}-en-label="{{ parent_en_label }}" data-{{ parent_key }}-zh-label="{{ parent_zh_label }}" data-{{ parent_key }}-en-href="{{ parent_en_href }}" data-{{ parent_key }}-zh-href="{{ parent_zh_href }}">{% if is_zh %}{{ parent_zh_label }}{% else %}{{ parent_en_label }}{% endif %}</a>
+                </div>
+            {% endif %}
+        {% endif %}
     </div>
 
     <script>
@@ -342,7 +378,46 @@
                 toggle.textContent = nextLang === "zh" ? "中文" : "English";
                 toggle.href = nextUrl.pathname + nextUrl.search + nextUrl.hash;
             }
+
+            document.querySelectorAll("[data-parent-return]").forEach((link) => {
+                let parentKey = link.dataset.parentKey || "";
+                if (link.dataset.parentContext === "post" && params.get("from") === "archive") {
+                    parentKey = "archive";
+                }
+
+                const label = link.getAttribute(`data-${parentKey}-${lang}-label`);
+                const href = link.getAttribute(`data-${parentKey}-${lang}-href`);
+                if (label) link.textContent = label;
+                if (href) link.href = href;
+            });
         })();
+
+        function referrerMatchesParent(targetUrl) {
+            if (!document.referrer || window.history.length <= 1) return false;
+
+            try {
+                const referrerUrl = new URL(document.referrer);
+                return referrerUrl.origin === targetUrl.origin && referrerUrl.pathname === targetUrl.pathname;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        document.addEventListener("click", function(event) {
+            const target = event.target instanceof Element ? event.target : null;
+            const link = target ? target.closest("[data-parent-return]") : null;
+            if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            event.preventDefault();
+            const targetUrl = new URL(link.href, window.location.href);
+            if (referrerMatchesParent(targetUrl)) {
+                window.history.back();
+            } else {
+                window.location.replace(targetUrl.href);
+            }
+        });
 
         // Quiet horizon field.
         document.addEventListener("DOMContentLoaded", function() {

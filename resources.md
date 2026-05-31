@@ -3,6 +3,7 @@ layout: default
 title: Resources
 lang: en
 ref: resources
+parent: home
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">Resources</h1>

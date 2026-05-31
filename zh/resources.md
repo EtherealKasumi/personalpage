@@ -4,6 +4,7 @@ title: 资源
 lang: zh
 ref: resources
 permalink: /zh/resources.html
+parent: home
 ---
 
 <h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">资源</h1>
