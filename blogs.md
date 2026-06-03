@@ -14,10 +14,12 @@ parent: home
   </header>
 
   <nav class="blog-quick-links" aria-label="Blogs page shortcuts">
+    <!--
     <a href="{{ '/ledger.html' | relative_url }}" class="ledger-entry">
       <span>Ledger</span>
       <small>daily notes, dated fragments</small>
     </a>
+    -->
 
     <a href="{{ '/archive.html' | relative_url }}" class="archive-entry" aria-label="Open blog archive">
       Archive
