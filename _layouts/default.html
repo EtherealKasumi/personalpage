@@ -499,7 +499,7 @@
         .contact-list li {
             border-top: 1px solid rgba(15, 48, 79, 0.14);
         }
-        .blog-page { gap: clamp(28px, 5vw, 48px); }
+        .blog-page { position: relative; gap: clamp(28px, 5vw, 48px); }
         .blog-hero {
             position: relative;
             padding: clamp(32px, 7vw, 82px) 0 clamp(10px, 3vw, 22px);
@@ -528,7 +528,11 @@
         }
         .blog-title { margin-bottom: 12px; }
         .blog-quick-links {
-            justify-content: center;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: auto;
+            justify-content: flex-end;
             margin: 0;
         }
         .ledger-entry,
@@ -562,13 +566,28 @@
             transform: translateX(4px);
         }
         .archive-entry {
-            min-height: 34px;
-            border: 1px solid rgba(59, 110, 165, 0.22);
-            border-radius: 999px;
+            min-width: 0;
+            min-height: auto;
+            padding: 4px 0 4px 18px;
+            border: 0;
+            border-bottom: 1px solid rgba(59, 110, 165, 0.24);
+            border-radius: 0;
+            font-size: 0.78rem;
+        }
+        .archive-entry::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            transform: translateY(-50%);
+            background: rgba(148, 160, 47, 0.58);
         }
         .archive-entry:hover {
-            color: #f8faf7;
-            background: var(--ink-deep);
+            color: var(--lake-blue);
+            background: transparent;
+            border-bottom-color: rgba(148, 160, 47, 0.58);
             box-shadow: none;
         }
         .ledger-date {
@@ -683,7 +702,11 @@
             }
             .btn { width: auto; }
             .blog-hero { text-align: center; }
-            .blog-quick-links { justify-content: center; }
+            .blog-quick-links {
+                position: static;
+                justify-content: center;
+                margin-top: -8px;
+            }
         }
         @keyframes surfaceRise {
             from { opacity: 0; transform: translateY(18px) scale(0.985); }
