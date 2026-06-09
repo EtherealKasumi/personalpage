@@ -363,31 +363,14 @@
         }
         .paper-container > * { position: static; z-index: auto; }
         .profile-section {
-            position: relative;
             grid-template-columns: minmax(190px, 0.62fr) minmax(0, 1.38fr);
             gap: clamp(34px, 7vw, 92px);
             min-height: clamp(420px, calc(100svh - 220px), 620px);
-            padding-bottom: clamp(34px, 7vw, 76px);
+            padding-bottom: clamp(44px, 8vw, 92px);
             border-bottom: 0;
         }
-        .profile-section::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: min(68%, 720px);
-            height: 1px;
-            background: rgba(59, 110, 165, 0.2);
-        }
-        .profile-section::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 1px;
-            height: 64px;
-            background: rgba(59, 110, 165, 0.2);
-        }
+        .profile-section::before,
+        .profile-section::after { content: none; }
         .profile-orbital-portrait { width: clamp(220px, 31vw, 330px); }
         .svg-orbit,
         .svg-orbit-front,
@@ -452,47 +435,28 @@
         }
         .home-sections {
             grid-template-columns: 1fr 1fr;
-            gap: clamp(36px, 7vw, 88px);
+            gap: clamp(34px, 7vw, 78px);
         }
         .home-panel {
             position: relative;
-            padding: clamp(24px, 4vw, 40px) 0 0 clamp(18px, 3vw, 28px);
-            background: transparent;
+            padding: clamp(24px, 4vw, 38px);
+            background: rgba(238, 243, 244, 0.58);
             border: 0;
             border-radius: 0;
             box-shadow: none;
             overflow: visible;
         }
-        .home-panel::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: min(44%, 120px);
-            height: 1px;
-            background: rgba(59, 110, 165, 0.24);
+        .home-panel:nth-child(2) {
+            background: rgba(241, 243, 231, 0.62);
         }
-        .home-panel::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 1px;
-            height: 48px;
-            background: rgba(59, 110, 165, 0.24);
-        }
+        .home-panel::before,
+        .home-panel::after { content: none; }
         .home-panel h2 {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            display: block;
+            margin-bottom: 18px;
             color: var(--ink-deep);
         }
-        .home-panel h2::after {
-            content: "";
-            flex: 1 1 auto;
-            height: 1px;
-            background: rgba(15, 48, 79, 0.12);
-        }
+        .home-panel h2::after { content: none; }
         .contact-list li {
             border-top: 1px solid rgba(15, 48, 79, 0.14);
         }
@@ -503,7 +467,7 @@
         .blog-hero {
             padding: clamp(32px, 7vw, 82px) 0 clamp(10px, 3vw, 22px);
             text-align: center;
-            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
+            border-bottom: 0;
         }
         .blog-title { margin-bottom: 12px; }
         .blog-quick-links {
@@ -573,28 +537,13 @@
         }
         .post-card {
             position: relative;
-            padding: clamp(22px, 4vw, 34px) 0 clamp(22px, 4vw, 34px) clamp(18px, 3vw, 28px);
+            padding: clamp(22px, 4vw, 34px) 0;
             border: 0;
+            border-top: 1px solid rgba(59, 110, 165, 0.14);
             border-radius: 0;
         }
-        .post-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: min(34%, 132px);
-            height: 1px;
-            background: rgba(59, 110, 165, 0.22);
-        }
-        .post-card::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 1px;
-            height: 44px;
-            background: rgba(59, 110, 165, 0.22);
-        }
+        .post-card::before,
+        .post-card::after { content: none; }
         .post-card-link:hover .post-card {
             background: #eef3f4;
             border-color: rgba(59, 110, 165, 0.44);
@@ -610,7 +559,7 @@
             color: rgba(57, 70, 16, 0.72);
         }
         .post-header {
-            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
+            border-bottom: 0;
         }
         .post-content,
         .post-content p,
