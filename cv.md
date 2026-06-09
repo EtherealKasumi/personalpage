@@ -6,7 +6,7 @@ ref: cv
 parent: home
 ---
 
-<h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">CV</h1>
+<h1 class="page-heading">CV</h1>
 
 
 Updating...

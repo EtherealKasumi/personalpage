@@ -177,6 +177,51 @@
         .blog-quote,
         .page-tagline { margin: 0; color: #4f6472; font-family: var(--script-font); font-size: clamp(1.35rem, 2.5vw, 1.72rem); font-style: normal; line-height: 1.35; }
         .page-tagline { text-align: center; color: #7a8275; margin-bottom: 40px; }
+        .page-heading {
+            width: min(760px, 100%);
+            margin: clamp(30px, 7vw, 76px) auto 12px;
+            padding-bottom: 0;
+            border-bottom: 0;
+            color: var(--ink-deep);
+            font-size: clamp(2.35rem, 5vw, 3.7rem);
+            line-height: 1.05;
+            text-align: center;
+            text-shadow: none;
+        }
+        .paper-container > .page-tagline,
+        .paper-container > h2,
+        .paper-container > p,
+        .paper-container > ul,
+        .paper-container > hr,
+        .paper-container > .notes-correction-note {
+            width: min(760px, 100%);
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .paper-container > h2 {
+            margin-top: clamp(38px, 6vw, 58px);
+            margin-bottom: 12px;
+            padding-bottom: 0;
+            border-bottom: 0;
+            color: var(--ink-deep);
+            font-size: clamp(1.28rem, 2.5vw, 1.72rem);
+            line-height: 1.28;
+            text-shadow: none;
+        }
+        .paper-container > p,
+        .paper-container > li,
+        .paper-container > ul {
+            color: rgba(15, 48, 79, 0.78);
+        }
+        .paper-container > ul {
+            padding-left: 1.2rem;
+        }
+        .paper-container > hr {
+            margin-top: clamp(30px, 5vw, 48px);
+            margin-bottom: 0;
+            border: 0;
+            border-top: 1px solid rgba(59, 110, 165, 0.12);
+        }
         .blog-list { display: grid; gap: 22px; }
         .blog-quick-links { display: flex; align-items: stretch; justify-content: center; gap: 12px; width: min(720px, 100%); margin: -18px auto 10px; }
         .ledger-entry { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 18px; width: min(720px, 100%); margin: -18px auto 10px; padding: 14px 20px; border-radius: 999px; color: #2b475d; background: linear-gradient(145deg, rgba(250,247,235,0.58), rgba(224,220,202,0.52)); border: 1px solid rgba(15, 48, 79, 0.1); box-shadow: inset 6px 6px 14px rgba(15,48,79,0.08), inset -6px -6px 16px rgba(255,253,244,0.56); font-family: var(--ui-font); text-decoration: none; transition: transform 0.06s linear, box-shadow 0.07s linear, color 0.06s linear; }

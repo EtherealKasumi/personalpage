@@ -6,7 +6,7 @@ ref: notes
 parent: home
 ---
 
-<h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">Notes</h1>
+<h1 class="page-heading">Notes</h1>
 <p class="page-tagline">
   "Je suis d'ailleurs."
 </p>

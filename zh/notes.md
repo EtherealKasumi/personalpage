@@ -7,7 +7,7 @@ permalink: /zh/notes.html
 parent: home
 ---
 
-<h1 style="text-align: center; border-bottom: none; margin-bottom: 5px;">笔记</h1>
+<h1 class="page-heading">笔记</h1>
 <p class="page-tagline">
   "Je suis d'ailleurs."
 </p>
