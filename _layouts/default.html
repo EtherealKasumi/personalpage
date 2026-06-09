@@ -517,6 +517,7 @@
         .blog-list {
             width: min(760px, 100%);
             margin: 0 auto;
+            gap: 16px;
         }
         .blog-hero {
             padding: clamp(32px, 7vw, 82px) 0 clamp(10px, 3vw, 22px);
@@ -537,20 +538,19 @@
         .ledger-date,
         .archive-post,
         .post-card {
-            background: transparent;
+            background: rgba(238, 243, 244, 0.58);
             box-shadow: none;
         }
         .ledger-entry {
             border: 0;
-            border-top: 1px solid rgba(59, 110, 165, 0.16);
-            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
             border-radius: 0;
-            padding-inline: 0;
+            padding: 14px 18px;
         }
         .ledger-entry:hover {
             color: var(--lake-blue);
             box-shadow: none;
-            transform: translateX(4px);
+            background: rgba(241, 243, 231, 0.72);
+            transform: translateX(3px);
         }
         .archive-entry {
             min-width: 0;
@@ -564,13 +564,13 @@
         .archive-entry::before { content: none; }
         .archive-entry:hover {
             color: var(--lake-blue);
-            background: #eef3f4;
+            background: rgba(238, 243, 244, 0.78);
             border-bottom-color: rgba(148, 160, 47, 0.58);
             box-shadow: none;
         }
         .ledger-date {
-            border: 1px solid rgba(59, 110, 165, 0.2);
-            border-radius: 10px;
+            border: 0;
+            border-radius: 0;
         }
         .ledger-date:hover {
             color: #f8faf7;
@@ -578,34 +578,29 @@
             box-shadow: none;
         }
         .archive-post {
-            padding: 12px 0;
+            padding: 13px 16px;
             border: 0;
-            border-bottom: 1px solid rgba(59, 110, 165, 0.12);
             border-radius: 0;
         }
         .archive-post:hover {
             color: var(--lake-blue);
-            background: #eef3f4;
+            background: rgba(241, 243, 231, 0.72);
             box-shadow: none;
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
         .post-card {
             position: relative;
-            padding: clamp(22px, 4vw, 34px) 0;
+            padding: clamp(22px, 4vw, 34px);
             border: 0;
-            border-top: 1px solid rgba(59, 110, 165, 0.14);
             border-radius: 0;
-        }
-        .blog-list .post-card:first-child {
-            border-top: 0;
         }
         .post-card::before,
         .post-card::after { content: none; }
         .post-card-link:hover .post-card {
-            background: #eef3f4;
+            background: rgba(241, 243, 231, 0.72);
             border-color: rgba(59, 110, 165, 0.44);
             box-shadow: none;
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
         .post-meta,
         .ledger-month-title {
@@ -649,7 +644,7 @@
         .paper-container > h2 {
             color: #123451;
             font-weight: 700;
-            margin-top: clamp(44px, 7vw, 72px);
+            margin-top: clamp(30px, 5vw, 48px);
             margin-bottom: 14px;
         }
         .paper-container > h2:first-of-type {
@@ -660,10 +655,39 @@
         .paper-container > li {
             color: rgba(15, 48, 79, 0.84);
         }
+        .paper-container > h2,
+        .paper-container > h2 + p,
+        .paper-container > h2 + ul {
+            width: min(720px, 100%);
+            padding-left: clamp(18px, 3vw, 28px);
+            padding-right: clamp(18px, 3vw, 28px);
+            background: rgba(238, 243, 244, 0.58);
+        }
+        .paper-container > h2 {
+            padding-top: clamp(18px, 3vw, 28px);
+            padding-bottom: 0;
+        }
+        .paper-container > h2 + p,
+        .paper-container > h2 + ul {
+            margin-top: -14px;
+            padding-top: 20px;
+            padding-bottom: clamp(18px, 3vw, 28px);
+        }
+        .paper-container > h2:nth-of-type(even),
+        .paper-container > h2:nth-of-type(even) + p,
+        .paper-container > h2:nth-of-type(even) + ul {
+            background: rgba(241, 243, 231, 0.62);
+        }
+        .paper-container > .page-tagline + p,
+        .paper-container > .page-heading + p:not(.page-tagline) {
+            width: min(720px, 100%);
+            padding: clamp(18px, 3vw, 28px);
+            background: rgba(238, 243, 244, 0.46);
+        }
         .paper-container > ul {
             display: grid;
             gap: 8px;
-            padding-left: 1.05rem;
+            padding-left: calc(clamp(18px, 3vw, 28px) + 1.05rem);
         }
         .paper-container > hr {
             height: clamp(36px, 7vw, 64px);
