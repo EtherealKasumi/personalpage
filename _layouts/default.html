@@ -304,16 +304,30 @@
         .box.glass { background: rgba(248, 245, 232, 0.5); backdrop-filter: blur(8px); border: 1px solid rgba(15, 48, 79, 0.1);}
 
         /* Minimalist theme */
-        html { background-color: #f7f6f0; }
-        body::before { background: #f7f6f0; }
-        .paper-background { display: none; }
+        html { background-color: #f8faf7; }
+        body::before {
+            background:
+                radial-gradient(circle at 14% 18%, rgba(199, 218, 229, 0.54), transparent 34%),
+                radial-gradient(circle at 88% 12%, rgba(232, 224, 239, 0.48), transparent 30%),
+                radial-gradient(circle at 22% 86%, rgba(227, 224, 203, 0.5), transparent 32%),
+                linear-gradient(180deg, #fbfcf8 0%, #f4f8f6 52%, #eef4f1 100%);
+        }
+        .paper-background {
+            display: block;
+            opacity: 0.34;
+            mix-blend-mode: multiply;
+            background-image:
+                radial-gradient(circle at 18% 28%, rgba(59, 110, 165, 0.08), transparent 24%),
+                radial-gradient(circle at 82% 76%, rgba(148, 160, 47, 0.06), transparent 28%),
+                repeating-linear-gradient(115deg, rgba(15, 48, 79, 0.025) 0 1px, transparent 1px 12px);
+        }
         .top-nav {
             width: min(1040px, calc(100% - 36px));
             margin-top: 22px;
             padding: 0 0 14px;
             background: transparent;
             border: 0;
-            border-bottom: 1px solid rgba(15, 48, 79, 0.14);
+            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
             border-radius: 0;
             box-shadow: none;
             overflow: visible;
@@ -334,7 +348,7 @@
         }
         .nav-links { gap: 4px; }
         .nav-links a {
-            color: rgba(15, 48, 79, 0.68);
+            color: rgba(15, 48, 79, 0.62);
             padding: 6px 9px;
             border-radius: 0;
             background: transparent;
@@ -376,12 +390,12 @@
         .avatar-svg-image,
         .avatar-rim { filter: none; }
         .svg-orbit.orbit-a,
-        .svg-orbit-front.orbit-a { stroke: rgba(59, 110, 165, 0.42); }
+        .svg-orbit-front.orbit-a { stroke: rgba(59, 110, 165, 0.36); }
         .svg-orbit.orbit-b,
-        .svg-orbit-front.orbit-b { stroke: rgba(57, 70, 16, 0.34); }
+        .svg-orbit-front.orbit-b { stroke: rgba(148, 160, 47, 0.28); }
         .avatar-rim { stroke: rgba(15, 48, 79, 0.18); stroke-width: 3; }
         .home-kicker {
-            color: var(--ink-olive);
+            color: rgba(57, 70, 16, 0.78);
             font-size: 1.18rem;
         }
         .profile-info h1,
@@ -396,6 +410,9 @@
             font-size: clamp(3rem, 8vw, 6.2rem);
             letter-spacing: 0;
         }
+        .profile-info h1 span:last-child {
+            color: #2f6498;
+        }
         .profile-info .subtitle,
         .post-excerpt,
         .post-date,
@@ -403,14 +420,14 @@
         .ledger-empty,
         .page-tagline,
         .blog-quote {
-            color: rgba(15, 48, 79, 0.72);
+            color: rgba(15, 48, 79, 0.66);
         }
         .btn {
             min-height: 40px;
             padding: 7px 0;
             background: transparent;
             border: 0;
-            border-bottom: 1px solid rgba(59, 110, 165, 0.42);
+            border-bottom: 1px solid rgba(59, 110, 165, 0.34);
             border-radius: 0;
             color: var(--lake-blue);
             box-shadow: none;
@@ -418,6 +435,7 @@
         .btn:hover {
             background: transparent;
             color: var(--ink-deep);
+            border-bottom-color: rgba(148, 160, 47, 0.56);
             box-shadow: none;
             transform: translateY(-1px);
         }
@@ -435,7 +453,7 @@
             padding: clamp(24px, 4vw, 40px) 0 0;
             background: transparent;
             border: 0;
-            border-top: 1px solid rgba(15, 48, 79, 0.18);
+            border-top: 1px solid rgba(59, 110, 165, 0.16);
             border-radius: 0;
             box-shadow: none;
             overflow: visible;
@@ -448,7 +466,7 @@
         .blog-hero {
             padding: clamp(32px, 7vw, 82px) 0 clamp(10px, 3vw, 22px);
             text-align: center;
-            border-bottom: 1px solid rgba(15, 48, 79, 0.16);
+            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
         }
         .blog-title { margin-bottom: 12px; }
         .blog-quick-links {
@@ -465,8 +483,8 @@
         }
         .ledger-entry {
             border: 0;
-            border-top: 1px solid rgba(15, 48, 79, 0.16);
-            border-bottom: 1px solid rgba(15, 48, 79, 0.16);
+            border-top: 1px solid rgba(59, 110, 165, 0.16);
+            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
             border-radius: 0;
             padding-inline: 0;
         }
@@ -477,27 +495,27 @@
         }
         .archive-entry {
             min-height: 34px;
-            border: 1px solid rgba(15, 48, 79, 0.22);
+            border: 1px solid rgba(59, 110, 165, 0.22);
             border-radius: 999px;
         }
         .archive-entry:hover {
-            color: #f7f6f0;
+            color: #f8faf7;
             background: var(--ink-deep);
             box-shadow: none;
         }
         .ledger-date {
-            border: 1px solid rgba(15, 48, 79, 0.18);
+            border: 1px solid rgba(59, 110, 165, 0.2);
             border-radius: 10px;
         }
         .ledger-date:hover {
-            color: #f7f6f0;
+            color: #f8faf7;
             background: var(--lake-blue);
             box-shadow: none;
         }
         .archive-post {
             padding: 12px 0;
             border: 0;
-            border-bottom: 1px solid rgba(15, 48, 79, 0.12);
+            border-bottom: 1px solid rgba(59, 110, 165, 0.12);
             border-radius: 0;
         }
         .archive-post:hover {
@@ -509,11 +527,11 @@
         .post-card {
             padding: clamp(22px, 4vw, 34px) 0;
             border: 0;
-            border-top: 1px solid rgba(15, 48, 79, 0.16);
+            border-top: 1px solid rgba(59, 110, 165, 0.16);
             border-radius: 0;
         }
         .post-card-link:hover .post-card {
-            background: transparent;
+            background: rgba(227, 224, 203, 0.18);
             border-color: rgba(59, 110, 165, 0.44);
             box-shadow: none;
             transform: translateX(4px);
@@ -523,12 +541,12 @@
             color: var(--lake-blue);
         }
         .post-header {
-            border-bottom: 1px solid rgba(15, 48, 79, 0.16);
+            border-bottom: 1px solid rgba(59, 110, 165, 0.16);
         }
         .post-content,
         .post-content p,
         .post-content li {
-            color: rgba(15, 48, 79, 0.88);
+            color: rgba(15, 48, 79, 0.86);
         }
         .theorem,
         .definition,
