@@ -86,6 +86,38 @@
     return node;
   }
 
+  var gooDisp = null;
+  function buildGooFilter() {
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
+    var filter = document.createElementNS(NS, 'filter');
+    filter.setAttribute('id', 'ae-goo');
+    filter.setAttribute('x', '-30%');
+    filter.setAttribute('y', '-30%');
+    filter.setAttribute('width', '160%');
+    filter.setAttribute('height', '160%');
+    filter.setAttribute('color-interpolation-filters', 'sRGB');
+    var noise = document.createElementNS(NS, 'feTurbulence');
+    noise.setAttribute('type', 'fractalNoise');
+    noise.setAttribute('baseFrequency', '0.016');
+    noise.setAttribute('numOctaves', '2');
+    noise.setAttribute('seed', '11');
+    noise.setAttribute('result', 'noise');
+    gooDisp = document.createElementNS(NS, 'feDisplacementMap');
+    gooDisp.setAttribute('in', 'SourceGraphic');
+    gooDisp.setAttribute('in2', 'noise');
+    gooDisp.setAttribute('scale', '0');
+    gooDisp.setAttribute('xChannelSelector', 'R');
+    gooDisp.setAttribute('yChannelSelector', 'G');
+    filter.appendChild(noise);
+    filter.appendChild(gooDisp);
+    svg.appendChild(filter);
+    document.body.appendChild(svg);
+  }
+  buildGooFilter();
+
   function measureAvatar() {
     var rect = avatarSvg.getBoundingClientRect();
     return {
@@ -409,6 +441,10 @@
   function implodeTick() {
     if (!implodeTickOn) return;
     implodeAge += 0.02;
+    if (gooDisp) {
+      var warp = 4 + 52 * Math.min(1, implodeAge / 1.15) * (0.85 + Math.random() * 0.3);
+      gooDisp.setAttribute('scale', warp.toFixed(1));
+    }
     for (var i = 0; i < implodeLock.length; i++) {
       var item = implodeLock[i];
       if (!item.node || !item.node.parentNode) continue;
@@ -434,19 +470,18 @@
     if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
     var size = geo.photoSide;
 
-    // gravity vortex behind the avatar
     var vortex = el('div', 'ae-vortex', stage);
-    vortex.style.width = size * 2.2 + 'px';
-    vortex.style.height = size * 2.2 + 'px';
-    vortex.style.left = (geo.cx - size * 1.1) + 'px';
-    vortex.style.top = (geo.cy - size * 1.1) + 'px';
-    gsap.set(vortex, { scale: 0.35, opacity: 0, rotation: 0 });
-    gsap.to(vortex, { scale: 1.25, opacity: 0.9, rotation: 220, duration: 1.15, ease: 'power2.in' });
-    gsap.to(vortex, { opacity: 0, duration: 0.25, delay: 1.0 });
+    vortex.style.width = size * 2 + 'px';
+    vortex.style.height = size * 2 + 'px';
+    vortex.style.left = (geo.cx - size) + 'px';
+    vortex.style.top = (geo.cy - size) + 'px';
+    gsap.set(vortex, { scale: 0.4, opacity: 0 });
+    gsap.to(vortex, { scale: 1.2, opacity: 0.55, rotation: 160, duration: 1.1, ease: 'power2.in' });
+    gsap.to(vortex, { opacity: 0, duration: 0.25, delay: 0.95 });
 
     implodeLock = [];
+    var layers = 2;
     var wrappers = [];
-    var layers = 3;
     for (var i = 0; i < layers; i++) {
       var wrap = el('div', 'ae-implode-wrap', stage);
       wrap.style.width = size + 'px';
@@ -455,15 +490,16 @@
       wrap.style.top = (geo.cy - size / 2) + 'px';
       var inner = el('div', 'ae-implode-core', wrap);
       inner.style.backgroundImage = 'url("' + src + '")';
-      implodeLock.push({ node: inner, amp: 1.4 + i * 0.6 });
+      inner.style.filter = 'url(#ae-goo)';
+      implodeLock.push({ node: inner, amp: 1.3 + i * 0.5 });
       gsap.set(wrap, {
-        x: shakeX + rand(-2, 2),
-        y: shakeY + rand(-2, 2),
+        x: shakeX,
+        y: shakeY,
         rotation: shakeR,
-        scale: i === 0 ? 1 : 0.94 - i * 0.05,
-        opacity: i === 0 ? 1 : 0.4 - i * 0.1
+        scale: i === 0 ? 1 : 0.95,
+        opacity: i === 0 ? 1 : 0.3
       });
-      wrappers.push({ wrap: wrap, inner: inner, index: i });
+      wrappers.push({ wrap: wrap, index: i });
     }
 
     implodeAge = 0;
@@ -472,36 +508,38 @@
 
     for (var w = 0; w < wrappers.length; w++) {
       (function (item) {
-        var lag = item.index * 0.045;
-        var spin = 280 + item.index * 55;
+        var lag = item.index * 0.07;
         var tl = gsap.timeline({ delay: lag });
-        // tremble grows while it is being pulled in: uneven stretch first
         tl.to(item.wrap, {
-          scaleX: 1.14,
-          scaleY: 0.9,
-          rotation: shakeR + spin * 0.25,
-          duration: 0.22,
-          ease: 'power1.out'
+          scale: 1.06,
+          rotation: shakeR + 14,
+          duration: 0.3,
+          ease: 'power2.out'
         }, 0);
         tl.to(item.wrap, {
-          scaleX: 0.4,
-          scaleY: 2.0,
           x: 0,
           y: 0,
-          rotation: shakeR + spin * 0.75,
+          scale: 0.92,
+          rotation: shakeR + 46,
+          duration: 0.5,
+          ease: 'power1.inOut',
+          filter: 'blur(1px)'
+        }, 0.3);
+        tl.to(item.wrap, {
+          scale: 0.34,
+          rotation: shakeR + 112,
+          duration: 0.45,
+          ease: 'power1.in',
+          filter: 'blur(3px)'
+        }, 0.8);
+        tl.to(item.wrap, {
+          scale: 0.02,
+          rotation: shakeR + 190,
           duration: 0.5,
           ease: 'power2.in',
-          filter: 'blur(' + (item.index === 0 ? 3 : 4 + item.index * 2) + 'px)'
-        }, 0.22);
-        tl.to(item.wrap, {
-          scaleX: 0.02,
-          scaleY: 0.22,
-          rotation: shakeR + spin,
-          duration: 0.45,
-          ease: 'power3.in',
-          filter: 'blur(' + (item.index === 0 ? 14 : 10 + item.index * 3) + 'px)'
-        }, 0.72);
-        tl.to(item.wrap, { opacity: 0, duration: 0.14, ease: 'power1.in' }, 1.02);
+          filter: 'blur(8px)'
+        }, 1.25);
+        tl.to(item.wrap, { opacity: 0, duration: 0.18, ease: 'power1.in' }, 1.6);
       })(wrappers[w]);
     }
   }
@@ -813,7 +851,7 @@
       gsap.to(holeEl, { opacity: 1, duration: 0.2, ease: 'power1.out' });
       startHole();
       gsap.ticker.add(vibrate);
-    }, null, CHARGE_TIME + 0.22);
+    }, null, CHARGE_TIME + 0.78);
     tl.to(holeEl, {
       scale: 1.35,
       duration: 1.45,
@@ -826,7 +864,7 @@
         if (dimEl) dimEl.style.opacity = String(0.55 * holeProgress);
         if (voidEl) voidEl.style.opacity = String(Math.max(0, 1 - holeProgress * 3.2));
       }
-    }, CHARGE_TIME + 0.22);
+    }, CHARGE_TIME + 0.78);
 
     tl.then(function () { return suction(geo); })
       .then(function () { return collapseHole(); })
