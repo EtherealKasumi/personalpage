@@ -109,11 +109,11 @@ body.ae-running .nav-pill::before {
   border-radius: 50%;
   z-index: 0;
   background: radial-gradient(circle,
-    rgba(255, 244, 220, 0.62) 0%,
-    rgba(255, 206, 150, 0.32) 12%,
-    rgba(170, 200, 255, 0.14) 26%,
-    rgba(90, 130, 220, 0.04) 42%,
-    rgba(70, 110, 200, 0) 60%);
+    rgba(255, 206, 130, 0.62) 0%,
+    rgba(255, 166, 78, 0.34) 12%,
+    rgba(255, 132, 40, 0.14) 26%,
+    rgba(255, 110, 30, 0.05) 42%,
+    rgba(255, 90, 20, 0) 60%);
   filter: blur(20px);
   mix-blend-mode: screen;
 }
@@ -137,11 +137,11 @@ body.ae-running .nav-pill::before {
   border-radius: 50%;
   z-index: 1;
   background: radial-gradient(circle,
-    rgba(255, 238, 210, 0) 36%,
-    rgba(255, 238, 210, 0.18) 46%,
+    rgba(255, 190, 100, 0) 36%,
+    rgba(255, 190, 100, 0.2) 46%,
     rgba(255, 226, 184, 0.28) 55%,
-    rgba(255, 212, 164, 0.12) 70%,
-    rgba(255, 212, 164, 0) 86%);
+    rgba(255, 150, 60, 0.13) 70%,
+    rgba(255, 150, 60, 0) 86%);
   filter: blur(24px);
   mix-blend-mode: screen;
 }
@@ -150,9 +150,9 @@ body.ae-running .nav-pill::before {
   background: radial-gradient(circle,
     rgba(255, 248, 230, 0) 54%,
     rgba(255, 248, 230, 0.16) 60%,
-    rgba(255, 240, 208, 0.22) 66%,
-    rgba(255, 236, 200, 0.08) 78%,
-    rgba(255, 236, 200, 0) 90%);
+    rgba(255, 196, 118, 0.26) 66%,
+    rgba(255, 184, 96, 0.1) 78%,
+    rgba(255, 184, 96, 0) 90%);
   filter: blur(16px);
 }
 
@@ -162,7 +162,7 @@ body.ae-running .nav-pill::before {
   border-radius: 50%;
   z-index: 2;
   background: repeating-conic-gradient(from 0deg,
-    rgba(255, 244, 222, 0.28) 0deg 0.45deg,
+    rgba(255, 214, 150, 0.3) 0deg 0.45deg,
     rgba(255, 244, 222, 0) 0.45deg 1.6deg);
   -webkit-mask: radial-gradient(circle, transparent 46%, #000 50%, #000 66%, transparent 74%);
   mask: radial-gradient(circle, transparent 46%, #000 50%, #000 66%, transparent 74%);
@@ -176,21 +176,21 @@ body.ae-running .nav-pill::before {
   inset: -40%;
   border-radius: 50%;
   z-index: 1;
-  border: 1px solid rgba(255, 240, 208, 0.4);
-  box-shadow: 0 0 26px rgba(255, 226, 180, 0.28), inset 0 0 26px rgba(160, 200, 255, 0.2);
+  border: 1px solid rgba(255, 214, 150, 0.4);
+  box-shadow: 0 0 26px rgba(255, 186, 100, 0.26), inset 0 0 26px rgba(160, 200, 255, 0.2);
   filter: blur(7px);
   opacity: 0.45;
 }
 .ae-hole__lens--b {
   inset: -66%;
-  border-color: rgba(160, 200, 255, 0.28);
-  box-shadow: 0 0 44px rgba(140, 180, 255, 0.12);
+  border-color: rgba(255, 176, 92, 0.26);
+  box-shadow: 0 0 44px rgba(255, 150, 70, 0.12);
   opacity: 0.22;
 }
 .ae-hole__lens--c {
   inset: -92%;
-  border-color: rgba(255, 250, 235, 0.16);
-  box-shadow: 0 0 60px rgba(255, 230, 190, 0.1);
+  border-color: rgba(255, 224, 170, 0.16);
+  box-shadow: 0 0 60px rgba(255, 186, 100, 0.1);
   opacity: 0.16;
 }
 
@@ -200,7 +200,7 @@ body.ae-running .nav-pill::before {
   border-radius: 50%;
   z-index: 2;
   background: repeating-conic-gradient(from 0deg,
-    rgba(255, 248, 226, 0.55) 0deg 0.6deg,
+    rgba(255, 214, 150, 0.5) 0deg 0.6deg,
     rgba(255, 248, 226, 0) 0.6deg 6deg);
   -webkit-mask: radial-gradient(circle, transparent 30%, #000 34%, #000 48%, transparent 56%);
   mask: radial-gradient(circle, transparent 30%, #000 34%, #000 48%, transparent 56%);
@@ -215,13 +215,13 @@ body.ae-running .nav-pill::before {
   border-radius: 50%;
   z-index: 3;
   background: conic-gradient(from 0deg,
-    rgba(255, 232, 190, 0) 0%,
-    rgba(255, 226, 170, 0.95) 10%,
-    rgba(255, 248, 224, 0.65) 18%,
-    rgba(140, 185, 255, 0) 32%,
-    rgba(255, 232, 190, 0) 50%,
-    rgba(160, 198, 255, 0.85) 64%,
-    rgba(255, 240, 206, 0) 80%);
+    rgba(255, 180, 90, 0) 0%,
+    rgba(255, 196, 120, 0.95) 10%,
+    rgba(255, 236, 196, 0.6) 18%,
+    rgba(255, 150, 60, 0) 32%,
+    rgba(255, 180, 90, 0) 50%,
+    rgba(255, 168, 84, 0.8) 64%,
+    rgba(255, 190, 110, 0) 80%);
   -webkit-mask: radial-gradient(circle, transparent 57%, #000 60%, #000 80%, transparent 86%);
   mask: radial-gradient(circle, transparent 57%, #000 60%, #000 80%, transparent 86%);
   filter: blur(8px);
@@ -235,64 +235,20 @@ body.ae-running .nav-pill::before {
   mask: radial-gradient(circle, transparent 62%, #000 66%, #000 78%, transparent 86%);
   background: conic-gradient(from 120deg,
     rgba(255, 236, 196, 0) 0%,
-    rgba(170, 205, 255, 0.8) 15%,
-    rgba(255, 240, 210, 0) 36%,
-    rgba(255, 226, 176, 0.6) 58%,
+    rgba(255, 180, 96, 0.75) 15%,
+    rgba(255, 200, 130, 0) 36%,
+    rgba(255, 186, 100, 0.55) 58%,
     rgba(140, 180, 255, 0) 80%);
 }
 
 /* tilted accretion disk: behind, plus a front half that crosses the horizon */
-.ae-hole__disk {
-  left: -110%;
-  top: 15%;
-  width: 320%;
-  height: 15%;
-  z-index: 4;
-  border-radius: 50%;
-  background:
-    linear-gradient(to right,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(255, 255, 255, 0) 30%,
-      rgba(255, 255, 255, 0) 70%,
-      rgba(255, 255, 255, 0.14) 100%),
-    linear-gradient(to bottom,
-      rgba(255, 196, 120, 0) 0%,
-      rgba(255, 170, 96, 0.3) 26%,
-      rgba(255, 244, 220, 0.9) 47%,
-      rgba(255, 214, 150, 0.7) 55%,
-      rgba(255, 150, 80, 0.22) 74%,
-      rgba(120, 170, 255, 0) 100%);
-  filter: blur(10px) saturate(1.25);
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  transform: rotate(-6deg);
-  overflow: hidden;
-}
-.ae-hole__disk::after {
-  content: "";
-  position: absolute;
-  inset: -30% -20%;
-  border-radius: 50%;
-  background: linear-gradient(100deg,
-    rgba(255, 255, 255, 0) 32%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0) 68%);
-  mix-blend-mode: screen;
-  animation: aeDiskFlow 3.4s linear infinite;
-}
+
+
 @keyframes aeDiskFlow {
   from { transform: translateX(-38%); }
   to { transform: translateX(38%); }
 }
-.ae-hole__disk--front {
-  top: 60%;
-  height: 21%;
-  z-index: 7;
-  opacity: 0.95;
-  transform: rotate(-5deg);
-  -webkit-clip-path: none;
-  clip-path: none;
-}
+
 
 /* polar relativistic jets */
 .ae-hole__jet {
@@ -325,17 +281,12 @@ body.ae-running .nav-pill::before {
 
 /* the horizon itself */
 .ae-hole__core {
-  inset: -1%;
+  inset: -6%;
   z-index: 6;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 47%,
-    #000 0%,
-    #000 90%,
-    rgba(0, 0, 0, 0.99) 94%,
-    rgba(0, 0, 0, 0.86) 97%,
-    rgba(0, 0, 0, 0.4) 99.2%,
-    rgba(0, 0, 0, 0) 100%);
-  filter: blur(2.5px);
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(1.5px);
 }
 .ae-hole__core::after {
   content: "";
@@ -357,35 +308,16 @@ body.ae-running .nav-pill::before {
 }
 
 /* wobbling chromatic halo (deliberately weird) */
-.ae-hole__chroma {
-  inset: -8%;
-  z-index: 8;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg,
-    rgba(255, 96, 88, 0.34) 0%,
-    rgba(255, 244, 220, 0.2) 20%,
-    rgba(96, 210, 255, 0.34) 40%,
-    rgba(255, 244, 220, 0.16) 60%,
-    rgba(255, 96, 88, 0.3) 80%,
-    rgba(96, 210, 255, 0.24) 100%);
-  -webkit-mask: radial-gradient(circle, transparent 44%, #000 47%, #000 53%, transparent 57%);
-  mask: radial-gradient(circle, transparent 44%, #000 47%, #000 53%, transparent 57%);
-  filter: blur(7px);
-  mix-blend-mode: screen;
-  opacity: 0.5;
-}
+
 
 /* photon sphere + chromatic fringing */
 .ae-hole__photon {
-  inset: 1%;
+  inset: -6%;
   z-index: 8;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 253, 246, 0.98);
-  box-shadow:
-    0 0 12px 3px rgba(255, 250, 232, 0.9),
-    0 0 34px 10px rgba(255, 220, 160, 0.45),
-    0 0 80px 26px rgba(255, 200, 130, 0.18);
-  filter: blur(2.5px);
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(3px);
   mix-blend-mode: screen;
   opacity: 1;
 }
@@ -419,11 +351,8 @@ body.ae-running .nav-pill::before {
   mask: radial-gradient(circle, #000 0 46%, rgba(0, 0, 0, 0) 74%);
   mix-blend-mode: soft-light;
   opacity: 0.6;
-  animation: aeGrain 0.55s steps(3) infinite;
   pointer-events: none;
 }
-@keyframes aeGrain {
-  0% { background-position: 0 0; }
   33% { background-position: -40px 26px; }
   66% { background-position: 32px -34px; }
   100% { background-position: -18px -12px; }
@@ -436,11 +365,11 @@ body.ae-running .nav-pill::before {
   border-radius: 50%;
   background: conic-gradient(from 0deg,
     rgba(255, 232, 180, 0) 0deg 26deg,
-    rgba(255, 224, 168, 0.85) 42deg,
-    rgba(255, 246, 216, 0.35) 58deg,
+    rgba(255, 190, 110, 0.9) 42deg,
+    rgba(255, 236, 190, 0.45) 58deg,
     rgba(255, 232, 180, 0) 74deg 168deg,
-    rgba(170, 210, 255, 0.6) 192deg,
-    rgba(255, 236, 196, 0.28) 216deg,
+    rgba(255, 170, 80, 0.6) 192deg,
+    rgba(255, 196, 130, 0.3) 216deg,
     rgba(255, 232, 180, 0) 240deg 360deg);
   -webkit-mask: radial-gradient(circle, transparent 47%, #000 50%, #000 57%, transparent 61%);
   mask: radial-gradient(circle, transparent 47%, #000 50%, #000 57%, transparent 61%);
@@ -457,25 +386,7 @@ body.ae-running .nav-pill::before {
 }
 
 /* broken plasma streaks inside the accretion band */
-.ae-hole__disk-streaks {
-  left: -135%;
-  top: 41%;
-  width: 370%;
-  height: 15%;
-  z-index: 5;
-  border-radius: 50%;
-  background: repeating-linear-gradient(92deg,
-    rgba(255, 244, 220, 0.55) 0 5px,
-    rgba(255, 244, 220, 0) 5px 17px,
-    rgba(255, 226, 176, 0.35) 17px 20px,
-    rgba(255, 244, 220, 0) 20px 34px);
-  -webkit-mask: radial-gradient(ellipse at center, transparent 10%, #000 24%, #000 88%, transparent 100%);
-  mask: radial-gradient(ellipse at center, transparent 10%, #000 24%, #000 88%, transparent 100%);
-  filter: blur(6px);
-  mix-blend-mode: screen;
-  opacity: 0.34;
-  transform: rotate(-8deg);
-}
+
 
 /* infalling dust */
 .ae-hole__dust {

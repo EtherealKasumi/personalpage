@@ -40,11 +40,8 @@
   var holeEl = null;
   var wobbleEl = null;
   var photonEl = null;
-  var chromaEl = null;
   var glowEl = null;
-  var warpDisp = null;
   var flares = [];
-  var lastWarp = 0;
   var rings = [];
   var disks = [];
   var jets = [];
@@ -109,46 +106,85 @@
     root.style.paddingRight = htmlPaddingRight;
   }
 
-  /* the SVG turbulence filter that makes the horizon ragged (built once, pre-warmed) */
-  function buildWarpFilter() {
-    var NS = 'http://www.w3.org/2000/svg';
-    var warpSvg = document.createElementNS(NS, 'svg');
-    warpSvg.setAttribute('aria-hidden', 'true');
-    warpSvg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
-    var warpFilter = document.createElementNS(NS, 'filter');
-    warpFilter.setAttribute('id', 'ae-hole-warp');
-    warpFilter.setAttribute('x', '-250%');
-    warpFilter.setAttribute('y', '-250%');
-    warpFilter.setAttribute('width', '600%');
-    warpFilter.setAttribute('height', '600%');
-    warpFilter.setAttribute('color-interpolation-filters', 'sRGB');
-    var warpNoise = document.createElementNS(NS, 'feTurbulence');
-    warpNoise.setAttribute('type', 'fractalNoise');
-    warpNoise.setAttribute('baseFrequency', '0.018');
-    warpNoise.setAttribute('numOctaves', '2');
-    warpNoise.setAttribute('seed', '7');
-    warpNoise.setAttribute('result', 'noise');
-    warpDisp = document.createElementNS(NS, 'feDisplacementMap');
-    warpDisp.setAttribute('in', 'SourceGraphic');
-    warpDisp.setAttribute('in2', 'noise');
-    warpDisp.setAttribute('scale', '18');
-    warpDisp.setAttribute('xChannelSelector', 'R');
-    warpDisp.setAttribute('yChannelSelector', 'G');
-    warpFilter.appendChild(warpNoise);
-    warpFilter.appendChild(warpDisp);
-    warpSvg.appendChild(warpFilter);
-    document.body.appendChild(warpSvg);
-
-    // warm up the filter pipeline so the first frame of the hole does not hitch
-    var warm = document.createElement('div');
-    warm.style.cssText = 'position:fixed;left:-200px;top:-200px;width:60px;height:60px;border-radius:50%;background:#000;filter:url(#ae-hole-warp);opacity:0.01;pointer-events:none;z-index:-1';
-    document.body.appendChild(warm);
-    setTimeout(function () {
-      if (warm.parentNode) warm.parentNode.removeChild(warm);
-    }, 1200);
+  /* the horizon and the photon ring are baked once on a canvas so the ragged,
+     irregular silhouette costs nothing per frame (no live SVG filters) */
+  function bakeDisc(size, opts) {
+    var canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    var cx = size / 2;
+    var cy = size / 2;
+    var baseR = size * opts.radius;
+    var amp = size * opts.amp;
+    var phase = [];
+    for (var q = 0; q < 5; q++) phase.push(Math.random() * Math.PI * 2);
+    function edgeRadius(angle) {
+      var n = Math.sin(angle * 3 + phase[0]) * 0.5 +
+        Math.sin(angle * 5 + phase[1]) * 0.3 +
+        Math.sin(angle * 9 + phase[2]) * 0.14 +
+        Math.sin(angle * 17 + phase[3]) * 0.06;
+      return baseR + n * amp;
+    }
+    ctx.beginPath();
+    for (var i = 0; i <= 360; i++) {
+      var a = (i / 360) * Math.PI * 2;
+      var r = edgeRadius(a);
+      var x = cx + Math.cos(a) * r;
+      var y = cy + Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.save();
+    ctx.clip();
+    var gradient = ctx.createRadialGradient(cx, cy, baseR * opts.inner, cx, cy, baseR * 1.02);
+    var stops = opts.stops;
+    for (var s = 0; s < stops.length; s++) gradient.addColorStop(stops[s][0], stops[s][1]);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    ctx.restore();
+    return canvas.toDataURL();
   }
 
-  buildWarpFilter();
+  function bakeRing(size, opts) {
+    var canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    var cx = size / 2;
+    var cy = size / 2;
+    var baseR = size * opts.radius;
+    var amp = size * opts.amp;
+    var thickness = size * opts.thickness;
+    var phase = [];
+    for (var q = 0; q < 4; q++) phase.push(Math.random() * Math.PI * 2);
+    function ringRadius(angle) {
+      return baseR + (Math.sin(angle * 2 + phase[0]) * 0.5 +
+        Math.sin(angle * 5 + phase[1]) * 0.3 +
+        Math.sin(angle * 11 + phase[2]) * 0.14 +
+        Math.sin(angle * 19 + phase[3]) * 0.06) * amp;
+    }
+    var gradient = ctx.createRadialGradient(cx, cy, baseR * 0.4, cx, cy, baseR * opts.fade);
+    var stops = opts.stops;
+    for (var s = 0; s < stops.length; s++) gradient.addColorStop(stops[s][0], stops[s][1]);
+    ctx.beginPath();
+    for (var i = 0; i <= 360; i++) {
+      var a = (i / 360) * Math.PI * 2;
+      var r = ringRadius(a) + thickness / 2;
+      var x = cx + Math.cos(a) * r;
+      var y = cy + Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    for (var j = 360; j >= 0; j--) {
+      var a2 = (j / 360) * Math.PI * 2;
+      var r2 = ringRadius(a2) - thickness / 2;
+      ctx.lineTo(cx + Math.cos(a2) * r2, cy + Math.sin(a2) * r2);
+    }
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    return canvas.toDataURL();
+  }
 
   /* ---------------------------------------------------------- */
   /* stage + black hole                                          */
@@ -202,13 +238,23 @@
     el('div', 'ae-hole__bloom ae-hole__bloom--b', wobbleEl);
     el('div', 'ae-hole__hair', wobbleEl);
     var edge = el('div', 'ae-hole__edge', wobbleEl);
-    edge.style.filter = 'url(#ae-hole-warp) blur(2.5px)';
-    el('div', 'ae-hole__disk', edge);
-    el('div', 'ae-hole__disk-streaks', edge);
-    el('div', 'ae-hole__core', edge);
-    el('div', 'ae-hole__disk ae-hole__disk--front', edge);
-    chromaEl = el('div', 'ae-hole__chroma', edge);
+    var coreEl = el('div', 'ae-hole__core', edge);
+    coreEl.style.backgroundImage = 'url("' + bakeDisc(320, {
+      radius: 0.43,
+      amp: 0.028,
+      inner: 0.55,
+      stops: [[0, 'rgba(0,0,0,1)'], [0.72, 'rgba(0,0,0,1)'], [0.88, 'rgba(0,0,0,0.92)'], [0.97, 'rgba(0,0,0,0.5)'], [1, 'rgba(0,0,0,0)']]
+    }) + '")';
     photonEl = el('div', 'ae-hole__photon', edge);
+    photonEl.style.backgroundImage = 'url("' + bakeRing(320, {
+      radius: 0.435,
+      amp: 0.026,
+      thickness: 0.035,
+      fade: 0.72,
+      stops: [[0, 'rgba(255,236,196,0.9)'], [0.4, 'rgba(255,214,150,1)'], [0.72, 'rgba(255,170,74,0.75)'], [1, 'rgba(255,130,30,0)']]
+    }) + '")';
+    photonEl.style.backgroundSize = '100% 100%';
+    coreEl.style.backgroundSize = '100% 100%';
 
     dustLayer = el('div', 'ae-hole__dust', wobbleEl);
     el('div', 'ae-hole__grain', wobbleEl);
@@ -272,8 +318,6 @@
     if (hairEl) spinTweens.push(gsap.to(hairEl, { rotation: '+=360', duration: 26, ease: 'none', repeat: -1 }));
     spinTweens.push(gsap.to(flares[0], { rotation: '+=360', duration: 7.2, ease: 'none', repeat: -1 }));
     spinTweens.push(gsap.to(flares[1], { rotation: '-=360', duration: 11.5, ease: 'none', repeat: -1 }));
-    var plasma = wobbleEl.querySelector('.ae-hole__disk-streaks');
-    if (plasma) spinTweens.push(gsap.to(plasma, { x: 34, duration: 2.9, ease: 'sine.inOut', repeat: -1, yoyo: true }));
   }
 
   function holeTick() {
@@ -287,15 +331,8 @@
     var sy = 1 + Math.cos(t * 8.9) * w + Math.sin(t * 13.1) * w * 0.4;
     var rot = Math.sin(t * 5.3) * w * 14;
     wobbleEl.style.transform = 'scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ') rotate(' + rot.toFixed(2) + 'deg)';
-    if (chromaEl) {
-      chromaEl.style.transform = 'translate(' + (Math.sin(t * 2.3) * 5 + rand(-2.5, 2.5)).toFixed(1) + 'px,' + (Math.cos(t * 3.1) * 4 + rand(-2.5, 2.5)).toFixed(1) + 'px) rotate(' + (Math.sin(t * 1.7) * 18).toFixed(1) + 'deg)';
-    }
     if (glowEl) {
       glowEl.style.opacity = (0.72 + 0.28 * Math.sin(t * 6.1)).toFixed(3);
-    }
-    if (warpDisp && now - lastWarp > 70) {
-      lastWarp = now;
-      warpDisp.setAttribute('scale', (17 + Math.sin(t * 2.7) * 7 + Math.sin(t * 6.9) * 4).toFixed(1));
     }
     var pull = 14 + 34 * holeProgress;
     for (var i = 0; i < dust.length; i++) {
@@ -322,7 +359,7 @@
     var amp = level === 1 ? 3.2 : 7.4;
     gsap.fromTo(avatarSvg, { x: 0, y: 0, rotation: 0 }, {
       duration: 0.052,
-      repeat: level === 1 ? 5 : 8,
+      repeat: level === 1 ? 5 : 7,
       yoyo: true,
       ease: 'none',
       repeatRefresh: true,
@@ -353,10 +390,13 @@
   }
 
   function shatterAvatar(geo) {
+    var shakeX = gsap.getProperty(avatarSvg, 'x') || 0;
+    var shakeY = gsap.getProperty(avatarSvg, 'y') || 0;
+    var shakeR = gsap.getProperty(avatarSvg, 'rotation') || 0;
     gsap.killTweensOf(avatarSvg);
-    gsap.set(avatarSvg, { x: 0, y: 0, rotation: 0 });
-    gsap.fromTo(voidEl, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.45, ease: 'power2.out' });
-    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.12 });
+    gsap.to(avatarSvg, { x: 0, y: 0, rotation: 0, duration: 0.35, ease: 'power2.out' });
+    gsap.fromTo(voidEl, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' });
+    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.14 });
     gsap.to(orbitParts, { opacity: 0, duration: 0.85, delay: 0.08 });
 
     var src = avatarImage.getAttribute('href');
@@ -386,6 +426,7 @@
       var swirl = (Math.random() < 0.5 ? -1 : 1) * rand(80, 170);
       var delay = rand(0, 0.12);
 
+      gsap.set(shard, { x: shakeX, y: shakeY, rotation: shakeR });
       var tl = gsap.timeline({ delay: delay });
       tl.to(shard, {
         x: ox,
@@ -633,7 +674,6 @@
     holeEl = null;
     wobbleEl = null;
     photonEl = null;
-    chromaEl = null;
     glowEl = null;
     rings = [];
     disks = [];
@@ -675,7 +715,7 @@
     tl.call(function () { splitPageText(geo); }, null, CHARGE_TIME + 0.02);
     tl.call(function () { shatterAvatar(geo); }, null, CHARGE_TIME);
     tl.call(function () {
-      gsap.set(holeEl, { opacity: 1 });
+      gsap.to(holeEl, { opacity: 1, duration: 0.2, ease: 'power1.out' });
       startHole();
       gsap.ticker.add(vibrate);
     }, null, CHARGE_TIME + 0.52);
