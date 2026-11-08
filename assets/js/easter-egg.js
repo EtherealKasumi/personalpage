@@ -197,8 +197,12 @@
     el('div', 'ae-hole__flare ae-hole__flare--b', wobbleEl);
     el('div', 'ae-hole__streaks', wobbleEl);
 
+    el('div', 'ae-hole__shadow', wobbleEl);
+    el('div', 'ae-hole__bloom', wobbleEl);
+    el('div', 'ae-hole__bloom ae-hole__bloom--b', wobbleEl);
+    el('div', 'ae-hole__hair', wobbleEl);
     var edge = el('div', 'ae-hole__edge', wobbleEl);
-    edge.style.filter = 'url(#ae-hole-warp)';
+    edge.style.filter = 'url(#ae-hole-warp) blur(2.5px)';
     el('div', 'ae-hole__disk', edge);
     el('div', 'ae-hole__disk-streaks', edge);
     el('div', 'ae-hole__core', edge);
@@ -264,6 +268,8 @@
     spinTweens.push(gsap.to(streaksEl, { rotation: '-=360', duration: 3.1, ease: 'none', repeat: -1 }));
     spinTweens.push(gsap.to(jets, { scaleY: 1.22, duration: 0.38, ease: 'sine.inOut', repeat: -1, yoyo: true }));
     spinTweens.push(gsap.to(photonEl, { scale: 1.06, duration: 0.55, ease: 'sine.inOut', repeat: -1, yoyo: true }));
+    var hairEl = wobbleEl.querySelector('.ae-hole__hair');
+    if (hairEl) spinTweens.push(gsap.to(hairEl, { rotation: '+=360', duration: 26, ease: 'none', repeat: -1 }));
     spinTweens.push(gsap.to(flares[0], { rotation: '+=360', duration: 7.2, ease: 'none', repeat: -1 }));
     spinTweens.push(gsap.to(flares[1], { rotation: '-=360', duration: 11.5, ease: 'none', repeat: -1 }));
     var plasma = wobbleEl.querySelector('.ae-hole__disk-streaks');
@@ -680,7 +686,7 @@
       onUpdate: function () {
         holeProgress = this.progress();
         vibAmp = 8.6 * holeProgress;
-        vignette.style.opacity = String(0.78 * holeProgress);
+        vignette.style.opacity = String(0.95 * holeProgress);
         if (voidEl) voidEl.style.opacity = String(Math.max(0, 1 - holeProgress * 3.2));
       }
     }, CHARGE_TIME + 0.52);
