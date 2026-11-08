@@ -2,10 +2,11 @@
    Avatar easter egg.
    1 click  -> small tremble
    2 clicks -> bigger tremble
-   3 clicks -> tremble escalates, avatar shatters and compresses,
-               a black hole grows, the page text vibrates harder
-               and is pulled in by distance, the hole collapses
-               and explodes, throwing every letter back.
+   3 clicks -> tremble escalates, avatar shatters and spirals in,
+               a black hole grows, the page text trembles and is
+               dragged inwards, then sucked in by distance while
+               still trembling, the hole collapses and explodes,
+               throwing every letter back.
    Requires: gsap + SplitText (loaded only on the home page).
    ============================================================== */
 (function () {
@@ -22,29 +23,42 @@
 
   var CLICK_WINDOW = 1700;
   var CHARGE_TIME = 1.15;
-  var GROW_TIME = 1.5;
-  var SUCK_DURATION = 0.62;
-  var SUCK_SPREAD = 2.05;
-  var COLLAPSE_TIME = 1.15;
+  var GROW_TIME = 1.55;
+  var SUCK_DURATION = 0.65;
+  var SUCK_SPREAD = 2.1;
+  var COLLAPSE_TIME = 1.25;
   var RETURN_TIME = 1.0;
+  var DUST_COUNT = 30;
 
   var clickCount = 0;
   var resetTimer = 0;
   var busy = false;
 
   var stage = null;
+  var vignette = null;
   var holeEl = null;
-  var ringA = null;
-  var ringB = null;
+  var wobbleEl = null;
+  var photonEl = null;
+  var chromaEl = null;
+  var glowEl = null;
+  var rings = [];
+  var disks = [];
+  var jets = [];
+  var streaksEl = null;
+  var dustLayer = null;
+  var dust = [];
   var flashEl = null;
-  var shockEl = null;
+  var flashFull = null;
+  var shocks = [];
   var shards = [];
+  var spinTweens = [];
   var split = null;
-  var splitNodes = [];
   var chars = [];
-  var charData = [];
   var vibAmp = 0;
-  var vibFrame = 0;
+  var holeProgress = 0;
+  var holeAlive = false;
+  var wobbleAmount = 0.022;
+  var lastTick = 0;
   var htmlOverflow = '';
   var htmlPaddingRight = '';
 
@@ -56,6 +70,13 @@
 
   function rand(min, max) {
     return min + Math.random() * (max - min);
+  }
+
+  function el(tag, cls, parent) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (parent) parent.appendChild(node);
+    return node;
   }
 
   function measureAvatar() {
@@ -84,70 +105,143 @@
     root.style.paddingRight = htmlPaddingRight;
   }
 
-  /* ---------- stage / props ---------- */
+  /* ---------------------------------------------------------- */
+  /* stage + black hole                                          */
+  /* ---------------------------------------------------------- */
 
   function buildStage(geo) {
-    stage = document.createElement('div');
-    stage.className = 'ae-stage';
+    var cxPct = (geo.cx / window.innerWidth) * 100;
+    var cyPct = (geo.cy / window.innerHeight) * 100;
+
+    stage = el('div', 'ae-stage');
     stage.setAttribute('aria-hidden', 'true');
     document.body.appendChild(stage);
 
+    vignette = el('div', 'ae-vignette');
+    vignette.style.setProperty('--ae-vx', cxPct.toFixed(2) + '%');
+    vignette.style.setProperty('--ae-vy', cyPct.toFixed(2) + '%');
+    vignette.style.setProperty('--ae-fx', cxPct.toFixed(2) + '%');
+    vignette.style.setProperty('--ae-fy', cyPct.toFixed(2) + '%');
+    document.body.appendChild(vignette);
+
     var side = geo.radius * 2;
-    holeEl = document.createElement('div');
-    holeEl.className = 'ae-hole';
+    holeEl = el('div', 'ae-hole', stage);
     holeEl.style.width = side + 'px';
     holeEl.style.height = side + 'px';
     holeEl.style.left = (geo.cx - geo.radius) + 'px';
     holeEl.style.top = (geo.cy - geo.radius) + 'px';
-    var glow = document.createElement('div');
-    glow.className = 'ae-hole__glow';
-    ringA = document.createElement('div');
-    ringA.className = 'ae-hole__ring';
-    ringB = document.createElement('div');
-    ringB.className = 'ae-hole__ring ae-hole__ring--b';
-    var core = document.createElement('div');
-    core.className = 'ae-hole__core';
-    holeEl.appendChild(glow);
-    holeEl.appendChild(ringA);
-    holeEl.appendChild(ringB);
-    holeEl.appendChild(core);
-    gsap.set(holeEl, { scale: 0.03, opacity: 0 });
-    stage.appendChild(holeEl);
+    gsap.set(holeEl, { scale: 0.02, opacity: 0 });
 
-    flashEl = document.createElement('div');
-    flashEl.className = 'ae-flash';
+    wobbleEl = el('div', 'ae-hole__wobble', holeEl);
+    glowEl = el('div', 'ae-hole__glow', wobbleEl);
+    el('div', 'ae-hole__lens', wobbleEl);
+    el('div', 'ae-hole__lens ae-hole__lens--b', wobbleEl);
+    el('div', 'ae-hole__lens ae-hole__lens--c', wobbleEl);
+    el('div', 'ae-hole__jet ae-hole__jet--up', wobbleEl);
+    el('div', 'ae-hole__jet ae-hole__jet--down', wobbleEl);
+    el('div', 'ae-hole__ring', wobbleEl);
+    el('div', 'ae-hole__ring ae-hole__ring--b', wobbleEl);
+    el('div', 'ae-hole__disk', wobbleEl);
+    el('div', 'ae-hole__disk ae-hole__disk--front', wobbleEl);
+    el('div', 'ae-hole__streaks', wobbleEl);
+    el('div', 'ae-hole__core', wobbleEl);
+    el('div', 'ae-hole__chroma', wobbleEl);
+    photonEl = el('div', 'ae-hole__photon', wobbleEl);
+    dustLayer = el('div', 'ae-hole__dust', wobbleEl);
+
+    rings = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__ring'));
+    disks = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__disk'));
+    jets = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__jet'));
+    streaksEl = wobbleEl.querySelector('.ae-hole__streaks');
+    chromaEl = wobbleEl.querySelector('.ae-hole__chroma');
+
+    for (var i = 0; i < DUST_COUNT; i++) {
+      var dot = el('div', 'ae-dust', dustLayer);
+      var maxR = geo.radius * rand(0.55, 1.9);
+      dust.push({
+        el: dot,
+        angle: Math.random() * TAU,
+        radius: rand(geo.radius * 0.2, maxR),
+        maxRadius: maxR,
+        speed: rand(1.1, 3.6),
+        scale: rand(0.5, 1.5)
+      });
+      gsap.set(dot, { opacity: 0 });
+    }
+    dustLayer.style.opacity = '0';
+
+    flashEl = el('div', 'ae-flash', stage);
     flashEl.style.width = side + 'px';
     flashEl.style.height = side + 'px';
     flashEl.style.left = (geo.cx - geo.radius) + 'px';
     flashEl.style.top = (geo.cy - geo.radius) + 'px';
     gsap.set(flashEl, { scale: 0.2, opacity: 0 });
-    stage.appendChild(flashEl);
 
-    shockEl = document.createElement('div');
-    shockEl.className = 'ae-shock';
-    shockEl.style.width = side + 'px';
-    shockEl.style.height = side + 'px';
-    shockEl.style.left = (geo.cx - geo.radius) + 'px';
-    shockEl.style.top = (geo.cy - geo.radius) + 'px';
-    stage.appendChild(shockEl);
-  }
-
-  function wedgePolygon(index, total) {
-    var c = 50;
-    var r = 50;
-    var start = (index / total) * TAU - Math.PI / 2;
-    var end = ((index + 1) / total) * TAU - Math.PI / 2;
-    var points = [c + '% ' + c + '%'];
-    var steps = 6;
-    for (var s = 0; s <= steps; s++) {
-      var a = start + (end - start) * (s / steps);
-      var rr = r * (0.96 + 0.04 * Math.sin(index * 5.7 + s * 2.3));
-      points.push((c + Math.cos(a) * rr).toFixed(2) + '% ' + (c + Math.sin(a) * rr).toFixed(2) + '%');
+    var shockSpecs = ['', ' ae-shock--red', ' ae-shock--blue'];
+    for (var s = 0; s < shockSpecs.length; s++) {
+      var ring = el('div', 'ae-shock' + shockSpecs[s], stage);
+      ring.style.width = side + 'px';
+      ring.style.height = side + 'px';
+      ring.style.left = (geo.cx - geo.radius) + 'px';
+      ring.style.top = (geo.cy - geo.radius) + 'px';
+      gsap.set(ring, { scale: 0.2, opacity: 0 });
+      shocks.push(ring);
     }
-    return 'polygon(' + points.join(',') + ')';
+
+    flashFull = el('div', 'ae-flashfull');
+    flashFull.style.setProperty('--ae-fx', cxPct.toFixed(2) + '%');
+    flashFull.style.setProperty('--ae-fy', cyPct.toFixed(2) + '%');
+    document.body.appendChild(flashFull);
   }
 
-  /* ---------- phase 1: tremble ---------- */
+  function startHole() {
+    holeAlive = true;
+    lastTick = performance.now();
+    gsap.ticker.add(holeTick);
+    dustLayer.style.opacity = '1';
+    for (var i = 0; i < dust.length; i++) gsap.set(dust[i].el, { opacity: 0.9 });
+    spinTweens.push(gsap.to(rings, { rotation: '+=360', duration: 2.4, ease: 'none', repeat: -1 }));
+    spinTweens.push(gsap.to(streaksEl, { rotation: '-=360', duration: 3.1, ease: 'none', repeat: -1 }));
+    spinTweens.push(gsap.to(jets, { scaleY: 1.22, duration: 0.38, ease: 'sine.inOut', repeat: -1, yoyo: true }));
+    spinTweens.push(gsap.to(photonEl, { scale: 1.06, duration: 0.55, ease: 'sine.inOut', repeat: -1, yoyo: true }));
+  }
+
+  function holeTick() {
+    if (!holeAlive || !wobbleEl) return;
+    var now = performance.now();
+    var dt = Math.min(60, now - lastTick) / 1000;
+    lastTick = now;
+    var t = now * 0.001;
+    var w = wobbleAmount;
+    var sx = 1 + Math.sin(t * 7.7) * w + Math.sin(t * 17.3) * w * 0.45;
+    var sy = 1 + Math.cos(t * 8.9) * w + Math.sin(t * 13.1) * w * 0.4;
+    var rot = Math.sin(t * 5.3) * w * 14;
+    wobbleEl.style.transform = 'scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ') rotate(' + rot.toFixed(2) + 'deg)';
+    if (chromaEl) {
+      chromaEl.style.transform = 'translate(' + (Math.sin(t * 2.3) * 5 + rand(-2.5, 2.5)).toFixed(1) + 'px,' + (Math.cos(t * 3.1) * 4 + rand(-2.5, 2.5)).toFixed(1) + 'px) rotate(' + (Math.sin(t * 1.7) * 18).toFixed(1) + 'deg)';
+    }
+    if (glowEl) {
+      glowEl.style.opacity = (0.72 + 0.28 * Math.sin(t * 6.1)).toFixed(3);
+    }
+    var pull = 14 + 34 * holeProgress;
+    for (var i = 0; i < dust.length; i++) {
+      var p = dust[i];
+      p.angle += p.speed * dt * (1 + holeProgress * 1.8);
+      p.radius -= (pull * 1.4) * dt;
+      if (p.radius < 3) {
+        p.radius = p.maxRadius;
+        p.angle = Math.random() * TAU;
+      }
+      var dx = Math.cos(p.angle) * p.radius;
+      var dy = Math.sin(p.angle) * p.radius * 0.72;
+      p.el.style.transform = 'translate3d(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px,0) scale(' + p.scale.toFixed(2) + ')';
+      p.el.style.opacity = String(Math.max(0.15, Math.min(0.95, (p.radius / p.maxRadius) * 1.4)));
+    }
+  }
+
+  /* ---------------------------------------------------------- */
+  /* phase 1: tremble                                            */
+  /* ---------------------------------------------------------- */
 
   function shakeAvatar(level) {
     gsap.killTweensOf(avatarSvg);
@@ -165,40 +259,54 @@
     });
   }
 
-  /* ---------- phase 2: shatter ---------- */
+  /* ---------------------------------------------------------- */
+  /* phase 2: shatter (violent pop, then spiral into the centre)  */
+  /* ---------------------------------------------------------- */
+
+  function wedgePolygon(index, total) {
+    var c = 50;
+    var r = 50;
+    var start = (index / total) * TAU - Math.PI / 2;
+    var end = ((index + 1) / total) * TAU - Math.PI / 2;
+    var points = [c + '% ' + c + '%'];
+    var steps = 6;
+    for (var s = 0; s <= steps; s++) {
+      var angle = start + (end - start) * (s / steps);
+      var rr = r * (0.95 + 0.05 * Math.sin(index * 5.7 + s * 2.3));
+      points.push((c + Math.cos(angle) * rr).toFixed(2) + '% ' + (c + Math.sin(angle) * rr).toFixed(2) + '%');
+    }
+    return 'polygon(' + points.join(',') + ')';
+  }
 
   function shatterAvatar(geo) {
     gsap.killTweensOf(avatarSvg);
     gsap.set(avatarSvg, { x: 0, y: 0, rotation: 0 });
-    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.14 });
-    gsap.to(orbitParts, { opacity: 0, duration: 0.9, delay: 0.1 });
+    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.12 });
+    gsap.to(orbitParts, { opacity: 0, duration: 0.85, delay: 0.08 });
 
     var src = avatarImage.getAttribute('href');
-    if (!src) {
-      src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-    }
-    var count = geo.photoSide > 420 ? 12 : 10;
+    if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+    var count = geo.photoSide > 420 ? 13 : 11;
     var half = geo.photoSide / 2;
     for (var i = 0; i < count; i++) {
-      var shard = document.createElement('div');
-      shard.className = 'ae-shard';
+      var shard = el('div', 'ae-shard', stage);
       shard.style.left = (geo.cx - half) + 'px';
       shard.style.top = (geo.cy - half) + 'px';
       shard.style.width = geo.photoSide + 'px';
       shard.style.height = geo.photoSide + 'px';
       shard.style.clipPath = wedgePolygon(i, count);
       shard.style.webkitClipPath = shard.style.clipPath;
-      var img = document.createElement('img');
+      var img = el('img', '', shard);
       img.src = src;
       img.alt = '';
       img.draggable = false;
-      shard.appendChild(img);
       var angle = ((i + 0.5) / count) * TAU - Math.PI / 2;
-      var out = rand(9, 24);
+      var out = rand(16, 46);
       shard._ox = Math.cos(angle) * out;
       shard._oy = Math.sin(angle) * out;
-      shard._spin = rand(-12, 12);
-      stage.appendChild(shard);
+      shard._spin = rand(-30, 30);
+      shard._midX = Math.cos(angle) * out * 1.35 - Math.sin(angle) * out * 0.6;
+      shard._midY = Math.sin(angle) * out * 1.35 + Math.cos(angle) * out * 0.6;
       shards.push(shard);
     }
 
@@ -207,23 +315,32 @@
       x: function (i, target) { return target._ox; },
       y: function (i, target) { return target._oy; },
       rotation: function (i, target) { return target._spin; },
-      duration: 0.22,
+      duration: 0.24,
       ease: 'power2.out'
     }, 0);
     tl.to(shards, {
+      x: function (i, target) { return target._midX; },
+      y: function (i, target) { return target._midY; },
+      rotation: function (i, target) { return target._spin * 2.4; },
+      duration: 0.28,
+      ease: 'none'
+    }, 0.24);
+    tl.to(shards, {
       x: 0,
       y: 0,
-      scale: 0.1,
-      rotation: function (i, target) { return target._spin * 5; },
+      scale: 0.04,
+      rotation: function (i, target) { return target._spin * 9; },
       opacity: 0,
-      duration: 0.62,
+      duration: 0.5,
       ease: 'power3.in'
-    }, 0.22);
+    }, 0.52);
   }
 
-  /* ---------- phase 3: text split + vibration ---------- */
+  /* ---------------------------------------------------------- */
+  /* phase 3: text split, endless tremble + gravitational drag    */
+  /* ---------------------------------------------------------- */
 
-  function splitPageText() {
+  function splitPageText(geo) {
     if (split) return;
     try {
       var selectors = ['.nav-brand', '.top-nav .nav-links a', '.profile-info', '.home-sections'];
@@ -240,122 +357,148 @@
         aria: 'auto'
       });
       chars = split.chars || [];
-      charData = [];
+      var maxDist = 1;
       for (var i = 0; i < chars.length; i++) {
-        chars[i]._ox = 0;
-        chars[i]._oy = 0;
-        charData.push({ phaseA: Math.random() * TAU, phaseB: Math.random() * TAU });
+        var node = chars[i];
+        var rect = node.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var dx = geo.cx - cx;
+        var dy = geo.cy - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        node._cx = cx;
+        node._cy = cy;
+        node._dist = dist;
+        node._ux = dx / dist;
+        node._uy = dy / dist;
+        node._rotBias = rand(-1, 1);
+        node._sucked = false;
+        if (dist > maxDist) maxDist = dist;
+      }
+      for (var k = 0; k < chars.length; k++) {
+        chars[k]._falloff = Math.pow(Math.max(0, 1 - chars[k]._dist / maxDist), 1.7);
       }
     } catch (err) {
       split = null;
       chars = [];
-      charData = [];
     }
   }
 
   function vibrate() {
-    if (!vibAmp && vibFrame++ % 3 !== 0) return;
     var amp = vibAmp;
+    var pull = 34 * holeProgress * holeProgress;
     for (var i = 0; i < chars.length; i++) {
-      var el = chars[i];
-      var x = rand(-amp, amp);
-      var y = rand(-amp * 0.85, amp * 0.85);
-      el._ox = x;
-      el._oy = y;
-      el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+      var node = chars[i];
+      if (node._sucked) continue;
+      var x = rand(-amp, amp) + node._ux * node._falloff * pull;
+      var y = rand(-amp * 0.85, amp * 0.85) + node._uy * node._falloff * pull;
+      var rot = node._rotBias * node._falloff * pull * 0.22;
+      node._ox = x;
+      node._oy = y;
+      node.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) rotate(' + rot.toFixed(2) + 'deg)';
     }
   }
 
-  function startVibration() {
-    vibAmp = 0;
-    gsap.ticker.add(vibrate);
-  }
-
-  /* ---------- phase 4: suck ---------- */
+  /* ---------------------------------------------------------- */
+  /* phase 4: suction (keeps trembling until each char starts)    */
+  /* ---------------------------------------------------------- */
 
   function suction(geo) {
-    gsap.ticker.remove(vibrate);
     var list = [];
     for (var i = 0; i < chars.length; i++) {
-      var el = chars[i];
-      var rect = el.getBoundingClientRect();
-      var centerX = rect.left + rect.width / 2 - (el._ox || 0);
-      var centerY = rect.top + rect.height / 2 - (el._oy || 0);
-      var dx = geo.cx - centerX;
-      var dy = geo.cy - centerY;
+      var node = chars[i];
+      var dx = geo.cx - node._cx;
+      var dy = geo.cy - node._cy;
       list.push({
-        el: el,
+        el: node,
         dx: dx,
         dy: dy,
-        dist: Math.sqrt(dx * dx + dy * dy),
-        angle: Math.atan2(dy, dx) * 180 / Math.PI - 90,
-        ox: el._ox || 0,
-        oy: el._oy || 0
+        dist: node._dist,
+        angle: Math.atan2(dy, dx) * 180 / Math.PI - 90
       });
     }
-    if (!list.length) return Promise.resolve();
-    list.sort(function (a, b) { return a.dist - b.dist; });
+    if (!list.length) {
+      gsap.ticker.remove(vibrate);
+      return Promise.resolve();
+    }
+    list.sort(function (p, q) { return p.dist - q.dist; });
     var maxDist = list[list.length - 1].dist || 1;
     var tl = gsap.timeline();
     for (var k = 0; k < list.length; k++) {
       var item = list[k];
-      var ratio = Math.pow(item.dist / maxDist, 0.85);
-      var delay = ratio * SUCK_SPREAD;
-      tl.fromTo(item.el,
-        { x: item.ox, y: item.oy, rotation: 0, scaleX: 1, scaleY: 1, opacity: 1 },
-        {
-          x: item.dx,
-          y: item.dy,
-          rotation: item.angle + rand(-9, 9),
-          scaleX: 0.12,
-          scaleY: 2.5,
-          opacity: 0,
-          duration: SUCK_DURATION,
-          ease: 'power2.in'
-        },
-        delay
-      );
+      var delay = Math.pow(item.dist / maxDist, 0.85) * SUCK_SPREAD;
+      tl.to(item.el, {
+        x: item.dx,
+        y: item.dy,
+        rotation: item.angle + rand(-14, 14),
+        scaleX: 0.1,
+        scaleY: 2.9,
+        opacity: 0,
+        duration: SUCK_DURATION,
+        ease: 'power2.in',
+        onStart: (function (target) {
+          return function () { target._sucked = true; };
+        })(item.el)
+      }, delay);
     }
-    return tl.then();
+    return tl.then(function () { gsap.ticker.remove(vibrate); });
   }
 
-  /* ---------- phase 5: collapse ---------- */
+  /* ---------------------------------------------------------- */
+  /* phase 5: collapse                                           */
+  /* ---------------------------------------------------------- */
 
   function collapseHole() {
     return new Promise(function (resolve) {
+      var spin = { v: 1 };
       var tl = gsap.timeline({ onComplete: resolve });
       tl.to(holeEl, {
-        scale: 0.02,
+        scale: 0.012,
         duration: COLLAPSE_TIME,
         ease: 'power2.in',
         onUpdate: function () {
           var p = this.progress();
-          var jitter = 1.5 + 16 * p * p;
-          gsap.set(holeEl, { x: rand(-jitter, jitter), y: rand(-jitter, jitter) });
+          var j = 2 + 22 * p * p;
+          gsap.set(holeEl, { x: rand(-j, j), y: rand(-j, j) });
+          wobbleAmount = 0.026 + 0.34 * p * p;
         }
       }, 0);
-      tl.to(ringA, { rotation: '+=780', duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
-      tl.to(ringB, { rotation: '-=560', duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
+      tl.to(spin, {
+        v: 6,
+        duration: COLLAPSE_TIME,
+        ease: 'power2.in',
+        onUpdate: function () {
+          for (var i = 0; i < spinTweens.length; i++) spinTweens[i].timeScale(spin.v);
+        }
+      }, 0);
+      tl.to(vignette, { opacity: 0.9, duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
+      tl.to(jets, { scaleY: 1.9, opacity: 0.4, duration: COLLAPSE_TIME }, 0);
+      tl.to(photonEl, { scale: 1.4, duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
     });
   }
 
-  /* ---------- phase 6: boom + return ---------- */
+  /* ---------------------------------------------------------- */
+  /* phase 6: boom + text fly-back                               */
+  /* ---------------------------------------------------------- */
 
   function boom(geo) {
-    var flash = new Promise(function (resolve) {
+    holeAlive = false;
+    gsap.ticker.remove(holeTick);
+    gsap.set(holeEl, { opacity: 0 });
+    var burst = new Promise(function (resolve) {
       var tl = gsap.timeline({ onComplete: resolve });
-      gsap.set(holeEl, { opacity: 0, x: 0, y: 0 });
-      tl.fromTo(flashEl, { scale: 0.25, opacity: 0.95 }, {
-        scale: 4.6, opacity: 0, duration: 0.55, ease: 'power2.out'
-      }, 0);
-      tl.fromTo(shockEl, { scale: 0.2, opacity: 0.9 }, {
-        scale: 7, opacity: 0, duration: 0.8, ease: 'power3.out'
-      }, 0.03);
-      tl.to([avatarImage, avatarRim], { opacity: 1, duration: 0.3 }, 0.08);
-      tl.to(orbitParts, { opacity: 1, duration: 0.45 }, 0.12);
-      tl.fromTo(avatarSvg, { scale: 0.9 }, { scale: 1, duration: 0.55, ease: 'back.out(2)' }, 0.08);
+      tl.fromTo(flashEl, { scale: 0.25, opacity: 1 }, { scale: 5.5, opacity: 0, duration: 0.72, ease: 'expo.out' }, 0);
+      tl.fromTo(shocks[0], { scale: 0.2, opacity: 1 }, { scale: 10, opacity: 0, duration: 0.95, ease: 'expo.out' }, 0);
+      tl.fromTo(shocks[1], { scale: 0.2, opacity: 0.85 }, { scale: 8, opacity: 0, duration: 1.0, ease: 'power3.out' }, 0.04);
+      tl.fromTo(shocks[2], { scale: 0.2, opacity: 0.85 }, { scale: 9, opacity: 0, duration: 1.05, ease: 'power3.out' }, 0.08);
+      tl.fromTo(flashFull, { opacity: 0 }, { opacity: 0.32, duration: 0.08, ease: 'none' }, 0);
+      tl.to(flashFull, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 0.1);
+      tl.to(vignette, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0);
+      tl.to([avatarImage, avatarRim], { opacity: 1, duration: 0.3 }, 0.05);
+      tl.to(orbitParts, { opacity: 1, duration: 0.45 }, 0.1);
+      tl.fromTo(avatarSvg, { scale: 0.86 }, { scale: 1, duration: 0.62, ease: 'back.out(2.4)' }, 0.05);
     });
-    return Promise.all([flash, returnText()]);
+    return Promise.all([burst, returnText()]);
   }
 
   function returnText() {
@@ -370,34 +513,53 @@
         scaleY: 1,
         opacity: 1,
         duration: RETURN_TIME,
-        ease: 'back.out(1.7)',
-        stagger: { each: 0.0012, from: 'random' }
+        ease: 'back.out(1.9)',
+        stagger: { each: 0.0011, from: 'random' }
       }, 0);
     });
   }
 
-  /* ---------- lifecycle ---------- */
+  /* ---------------------------------------------------------- */
+  /* lifecycle                                                   */
+  /* ---------------------------------------------------------- */
 
   function finish() {
+    holeAlive = false;
     gsap.ticker.remove(vibrate);
+    gsap.ticker.remove(holeTick);
+    for (var i = 0; i < spinTweens.length; i++) spinTweens[i].kill();
+    spinTweens = [];
     try {
       if (split) split.revert();
     } catch (err) { /* ignore */ }
     split = null;
     chars = [];
-    charData = [];
     vibAmp = 0;
-    gsap.killTweensOf([avatarSvg, avatarImage, avatarRim, holeEl, flashEl, shockEl].concat(orbitParts));
+    holeProgress = 0;
+    wobbleAmount = 0.022;
+    gsap.killTweensOf([avatarSvg, avatarImage, avatarRim, holeEl, wobbleEl, flashEl, flashFull, vignette].concat(orbitParts, rings, disks, jets, shocks));
     gsap.set(avatarSvg, { clearProps: 'all' });
     gsap.set([avatarImage, avatarRim].concat(orbitParts), { opacity: 1 });
     gsap.set([avatarImage, avatarRim].concat(orbitParts), { clearProps: 'opacity' });
     if (stage && stage.parentNode) stage.parentNode.removeChild(stage);
+    if (vignette && vignette.parentNode) vignette.parentNode.removeChild(vignette);
+    if (flashFull && flashFull.parentNode) flashFull.parentNode.removeChild(flashFull);
     stage = null;
+    vignette = null;
+    flashFull = null;
     holeEl = null;
-    ringA = null;
-    ringB = null;
+    wobbleEl = null;
+    photonEl = null;
+    chromaEl = null;
+    glowEl = null;
+    rings = [];
+    disks = [];
+    jets = [];
+    streaksEl = null;
+    dustLayer = null;
+    dust = [];
     flashEl = null;
-    shockEl = null;
+    shocks = [];
     shards = [];
     unlockScroll();
     document.body.classList.remove('ae-running');
@@ -419,25 +581,30 @@
       duration: CHARGE_TIME,
       ease: 'power2.in',
       onUpdate: function () {
-        var amp = 2 + 15 * charge.t * charge.t;
+        var amp = 2 + 16 * charge.t * charge.t;
         gsap.set(avatarSvg, {
           x: rand(-amp, amp),
           y: rand(-amp * 0.8, amp * 0.8),
-          rotation: rand(-amp * 0.14, amp * 0.14)
+          rotation: rand(-amp * 0.16, amp * 0.16)
         });
       }
     }, 0);
-    tl.call(splitPageText, null, CHARGE_TIME + 0.02);
+    tl.call(function () { splitPageText(geo); }, null, CHARGE_TIME + 0.02);
     tl.call(function () { shatterAvatar(geo); }, null, CHARGE_TIME);
     tl.call(function () {
       gsap.set(holeEl, { opacity: 1 });
-      startVibration();
+      startHole();
+      gsap.ticker.add(vibrate);
     }, null, CHARGE_TIME + 0.62);
     tl.to(holeEl, {
       scale: 1.04,
       duration: GROW_TIME,
       ease: 'power2.in',
-      onUpdate: function () { vibAmp = 8.4 * this.progress(); }
+      onUpdate: function () {
+        holeProgress = this.progress();
+        vibAmp = 8.6 * holeProgress;
+        vignette.style.opacity = String(0.78 * holeProgress);
+      }
     }, CHARGE_TIME + 0.62);
 
     tl.then(function () { return suction(geo); })
