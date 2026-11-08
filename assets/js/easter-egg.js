@@ -38,6 +38,8 @@
   var dimEl = null;
   var paperEl = null;
   var shakeAmp = 0;
+  var shakeFrame = 0;
+  var pageShake = true;
   var implodeLock = [];
   var implodeTickOn = false;
   var implodeAge = 0;
@@ -73,6 +75,17 @@
   var orbitParts = [];
   var orbitNodes = avatarSvg.querySelectorAll('.svg-orbits, .svg-orbits-front, .orbiting-objects');
   for (var oi = 0; oi < orbitNodes.length; oi++) orbitParts.push(orbitNodes[oi]);
+
+  var SIN_TABLE = new Float32Array(2048);
+  (function () {
+    for (var si = 0; si < 2048; si++) SIN_TABLE[si] = Math.sin((si / 2048) * Math.PI * 2);
+  })();
+  function fastSin(x) {
+    return SIN_TABLE[((x * 325.94932345220167) | 0) & 2047];
+  }
+  function fastCos(x) {
+    return SIN_TABLE[((x * 325.94932345220167 + 512) | 0) & 2047];
+  }
 
   function rand(min, max) {
     return min + Math.random() * (max - min);
@@ -371,10 +384,10 @@
     if (glowEl) {
       glowEl.style.opacity = (0.72 + 0.28 * Math.sin(t * 6.1)).toFixed(3);
     }
-    if (shakeAmp > 0.05) {
+    if (shakeAmp > 0.05 && (++shakeFrame % 3 === 0)) {
       var shx = rand(-shakeAmp, shakeAmp);
       var shy = rand(-shakeAmp, shakeAmp);
-      if (paperEl) paperEl.style.transform = 'translate3d(' + shx.toFixed(2) + 'px,' + shy.toFixed(2) + 'px,0)';
+      if (paperEl && pageShake) paperEl.style.transform = 'translate3d(' + shx.toFixed(2) + 'px,' + shy.toFixed(2) + 'px,0)';
       if (stage) stage.style.transform = 'translate3d(' + shx.toFixed(2) + 'px,' + shy.toFixed(2) + 'px,0)';
     }
     var pull = 14 + 34 * holeProgress;
@@ -605,35 +618,64 @@
   /* ---------------------------------------------------------- */
 
   function suction(geo) {
-    var list = [];
+    pageShake = false;
+    // fly whole words: far fewer elements to transform each frame, so it stays smooth
+    var units = [];
     var maxDist = 1;
-    for (var i = 0; i < chars.length; i++) {
-      var node = chars[i];
-      var dx = geo.cx - node._cx;
-      var dy = geo.cy - node._cy;
-      var dist = node._dist;
+    var STEPS = 33;
+    if (!split || !split.words) {
+      gsap.ticker.remove(vibrate);
+      return Promise.resolve();
+    }
+    var words = split.words;
+    for (var i = 0; i < words.length; i++) {
+      var word = words[i];
+      var nodes = word.querySelectorAll('.ae-c');
+      if (!nodes.length) continue;
+      var sx = 0;
+      var sy = 0;
+      for (var n = 0; n < nodes.length; n++) {
+        sx += nodes[n]._cx;
+        sy += nodes[n]._cy;
+        nodes[n].style.transform = '';
+        nodes[n].style.opacity = '';
+      }
+      var cx = sx / nodes.length;
+      var cy = sy / nodes.length;
+      var dx = geo.cx - cx;
+      var dy = geo.cy - cy;
+      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
       if (dist > maxDist) maxDist = dist;
-      var perpX = -dy / (dist || 1);
-      var perpY = dx / (dist || 1);
-      list.push({
-        el: node,
+      var unit = {
+        el: word,
         dx: dx,
         dy: dy,
-        dist: dist,
-        angle: Math.atan2(dy, dx) * 180 / Math.PI - 90,
-        spin: 200 + Math.random() * 160,
-        stretch: 2.2 + Math.random() * 1.1,
-        dur: SUCK_DURATION + Math.random() * 0.14,
-        delay: Math.pow(dist / maxDist, 0.85) * SUCK_SPREAD,
-        curve: (Math.random() < 0.5 ? -1 : 1) * (10 + Math.random() * 26),
+        r0: dist,
+        theta0: Math.atan2(dy, dx),
+        spin: 1.1 + Math.random() * 1.1,
+        dur: SUCK_DURATION + Math.random() * 0.16,
+        delay: 0,
         phase: Math.random() * Math.PI * 2,
-        freq: 11 + Math.random() * 7,
-        perpX: perpX,
-        perpY: perpY,
+        freq: 9 + Math.random() * 6,
         done: false
-      });
+      };
+      var px = (unit.px = new Float32Array(STEPS));
+      var py = (unit.py = new Float32Array(STEPS));
+      var prot = (unit.prot = new Float32Array(STEPS));
+      for (var q = 0; q < STEPS; q++) {
+        var pr = q / (STEPS - 1);
+        var radius = unit.r0 * (1 - pr * pr * pr);
+        var theta = unit.theta0 + unit.spin * (pr * (1 + 1.9 * pr));
+        px[q] = unit.dx + Math.cos(theta) * radius;
+        py[q] = unit.dy + Math.sin(theta) * radius;
+        prot[q] = theta * 180 / Math.PI + 90;
+      }
+      units.push(unit);
     }
-    if (!list.length) {
+    for (var u = 0; u < units.length; u++) {
+      units[u].delay = Math.pow(units[u].r0 / maxDist, 0.85) * SUCK_SPREAD;
+    }
+    if (!units.length) {
       gsap.ticker.remove(vibrate);
       return Promise.resolve();
     }
@@ -644,8 +686,8 @@
         if (!startedAt) startedAt = now;
         var t = (now - startedAt) / 1000;
         var allDone = true;
-        for (var k = 0; k < list.length; k++) {
-          var it = list[k];
+        for (var k = 0; k < units.length; k++) {
+          var it = units[k];
           if (it.done) continue;
           var p = (t - it.delay) / it.dur;
           if (p <= 0) {
@@ -658,24 +700,30 @@
             continue;
           }
           allDone = false;
-          it.el._sucked = true;
-          var ease = Math.pow(p, 2.1);
-          // smooth arc: bow outward slightly before being pulled in
-          var bow = Math.sin(p * Math.PI) * it.curve;
-          var baseX = it.el._ox * (1 - ease) + it.dx * ease + it.perpX * bow;
-          var baseY = it.el._oy * (1 - ease) + it.dy * ease + it.perpY * bow;
-          // continuous tremble (no per-frame white noise) that fades near the hole
-          var tremble = 6.5 * Math.pow(1 - p, 1.4);
-          var x = baseX + Math.sin(t * it.freq + it.phase) * tremble;
-          var y = baseY + Math.cos(t * it.freq * 0.92 + it.phase * 1.31) * tremble;
-          var rot = it.angle + it.spin * ease + Math.sin(t * it.freq * 0.7 + it.phase) * 9 * (1 - p);
-          var sx = 1 - ease * 0.94;
-          var sy = 1 + ease * (it.stretch - 1) * (1 + Math.sin(t * it.freq * 0.6 + it.phase) * 0.12);
+          var pr = p;
+          var idx = pr * (STEPS - 1);
+          var i0 = idx | 0;
+          var frac = idx - i0;
+          var i1 = i0 + 1;
+          if (i1 > STEPS - 1) i1 = STEPS - 1;
+          var orbitX = it.px[i0] + (it.px[i1] - it.px[i0]) * frac;
+          var orbitY = it.py[i0] + (it.py[i1] - it.py[i0]) * frac;
+          var baseRot = it.prot[i0] + (it.prot[i1] - it.prot[i0]) * frac;
+          var inv = 1 - pr;
+          var wob = fastSin(t * it.freq * 6.283 + it.phase);
+          var tremble = 3.4 * inv * inv;
+          var x = orbitX + wob * tremble;
+          var y = orbitY + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
+          var rot = baseRot + wob * 6 * inv;
+          var p3 = pr * pr * pr;
+          var overall = 1 - 0.9 * p3;
+          var along = (1 + 1.7 * p3) * overall;
+          var across = (0.95 - 0.1 * p3) * overall;
           it.el.style.transform =
-            'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)' +
-            ' rotate(' + rot.toFixed(2) + 'deg)' +
-            ' scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ')';
-          it.el.style.opacity = String(Math.max(0, 1 - p * p));
+            'translate3d(' + ((x * 10) | 0) / 10 + 'px,' + ((y * 10) | 0) / 10 + 'px,0)' +
+            ' rotate(' + ((rot * 10) | 0) / 10 + 'deg)' +
+            ' scale(' + ((along * 1000) | 0) / 1000 + ',' + ((across * 1000) | 0) / 1000 + ')';
+          it.el.style.opacity = ((1 - pr * pr) * 100 | 0) / 100;
         }
         if (allDone) {
           gsap.ticker.remove(vibrate);
@@ -693,6 +741,7 @@
   /* ---------------------------------------------------------- */
 
   function collapseHole() {
+    pageShake = true;
     return new Promise(function (resolve) {
       var spin = { v: 1 };
       var tl = gsap.timeline({ onComplete: resolve });
