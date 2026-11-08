@@ -35,12 +35,16 @@
   var busy = false;
 
   var stage = null;
+  var voidEl = null;
   var vignette = null;
   var holeEl = null;
   var wobbleEl = null;
   var photonEl = null;
   var chromaEl = null;
   var glowEl = null;
+  var warpDisp = null;
+  var flares = [];
+  var lastWarp = 0;
   var rings = [];
   var disks = [];
   var jets = [];
@@ -105,6 +109,47 @@
     root.style.paddingRight = htmlPaddingRight;
   }
 
+  /* the SVG turbulence filter that makes the horizon ragged (built once, pre-warmed) */
+  function buildWarpFilter() {
+    var NS = 'http://www.w3.org/2000/svg';
+    var warpSvg = document.createElementNS(NS, 'svg');
+    warpSvg.setAttribute('aria-hidden', 'true');
+    warpSvg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
+    var warpFilter = document.createElementNS(NS, 'filter');
+    warpFilter.setAttribute('id', 'ae-hole-warp');
+    warpFilter.setAttribute('x', '-250%');
+    warpFilter.setAttribute('y', '-250%');
+    warpFilter.setAttribute('width', '600%');
+    warpFilter.setAttribute('height', '600%');
+    warpFilter.setAttribute('color-interpolation-filters', 'sRGB');
+    var warpNoise = document.createElementNS(NS, 'feTurbulence');
+    warpNoise.setAttribute('type', 'fractalNoise');
+    warpNoise.setAttribute('baseFrequency', '0.018');
+    warpNoise.setAttribute('numOctaves', '2');
+    warpNoise.setAttribute('seed', '7');
+    warpNoise.setAttribute('result', 'noise');
+    warpDisp = document.createElementNS(NS, 'feDisplacementMap');
+    warpDisp.setAttribute('in', 'SourceGraphic');
+    warpDisp.setAttribute('in2', 'noise');
+    warpDisp.setAttribute('scale', '18');
+    warpDisp.setAttribute('xChannelSelector', 'R');
+    warpDisp.setAttribute('yChannelSelector', 'G');
+    warpFilter.appendChild(warpNoise);
+    warpFilter.appendChild(warpDisp);
+    warpSvg.appendChild(warpFilter);
+    document.body.appendChild(warpSvg);
+
+    // warm up the filter pipeline so the first frame of the hole does not hitch
+    var warm = document.createElement('div');
+    warm.style.cssText = 'position:fixed;left:-200px;top:-200px;width:60px;height:60px;border-radius:50%;background:#000;filter:url(#ae-hole-warp);opacity:0.01;pointer-events:none;z-index:-1';
+    document.body.appendChild(warm);
+    setTimeout(function () {
+      if (warm.parentNode) warm.parentNode.removeChild(warm);
+    }, 1200);
+  }
+
+  buildWarpFilter();
+
   /* ---------------------------------------------------------- */
   /* stage + black hole                                          */
   /* ---------------------------------------------------------- */
@@ -124,6 +169,13 @@
     vignette.style.setProperty('--ae-fy', cyPct.toFixed(2) + '%');
     document.body.appendChild(vignette);
 
+    var voidSide = geo.photoSide * 1.32;
+    voidEl = el('div', 'ae-void', stage);
+    voidEl.style.width = voidSide + 'px';
+    voidEl.style.height = voidSide + 'px';
+    voidEl.style.left = (geo.cx - voidSide / 2) + 'px';
+    voidEl.style.top = (geo.cy - voidSide / 2) + 'px';
+
     var side = geo.radius * 2;
     holeEl = el('div', 'ae-hole', stage);
     holeEl.style.width = side + 'px';
@@ -141,19 +193,27 @@
     el('div', 'ae-hole__jet ae-hole__jet--down', wobbleEl);
     el('div', 'ae-hole__ring', wobbleEl);
     el('div', 'ae-hole__ring ae-hole__ring--b', wobbleEl);
-    el('div', 'ae-hole__disk', wobbleEl);
-    el('div', 'ae-hole__disk ae-hole__disk--front', wobbleEl);
+    el('div', 'ae-hole__flare', wobbleEl);
+    el('div', 'ae-hole__flare ae-hole__flare--b', wobbleEl);
     el('div', 'ae-hole__streaks', wobbleEl);
-    el('div', 'ae-hole__core', wobbleEl);
-    el('div', 'ae-hole__chroma', wobbleEl);
-    photonEl = el('div', 'ae-hole__photon', wobbleEl);
+
+    var edge = el('div', 'ae-hole__edge', wobbleEl);
+    edge.style.filter = 'url(#ae-hole-warp)';
+    el('div', 'ae-hole__disk', edge);
+    el('div', 'ae-hole__disk-streaks', edge);
+    el('div', 'ae-hole__core', edge);
+    el('div', 'ae-hole__disk ae-hole__disk--front', edge);
+    chromaEl = el('div', 'ae-hole__chroma', edge);
+    photonEl = el('div', 'ae-hole__photon', edge);
+
     dustLayer = el('div', 'ae-hole__dust', wobbleEl);
+    el('div', 'ae-hole__grain', wobbleEl);
 
     rings = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__ring'));
+    flares = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__flare'));
     disks = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__disk'));
     jets = [].slice.call(wobbleEl.querySelectorAll('.ae-hole__jet'));
     streaksEl = wobbleEl.querySelector('.ae-hole__streaks');
-    chromaEl = wobbleEl.querySelector('.ae-hole__chroma');
 
     for (var i = 0; i < DUST_COUNT; i++) {
       var dot = el('div', 'ae-dust', dustLayer);
@@ -204,6 +264,10 @@
     spinTweens.push(gsap.to(streaksEl, { rotation: '-=360', duration: 3.1, ease: 'none', repeat: -1 }));
     spinTweens.push(gsap.to(jets, { scaleY: 1.22, duration: 0.38, ease: 'sine.inOut', repeat: -1, yoyo: true }));
     spinTweens.push(gsap.to(photonEl, { scale: 1.06, duration: 0.55, ease: 'sine.inOut', repeat: -1, yoyo: true }));
+    spinTweens.push(gsap.to(flares[0], { rotation: '+=360', duration: 7.2, ease: 'none', repeat: -1 }));
+    spinTweens.push(gsap.to(flares[1], { rotation: '-=360', duration: 11.5, ease: 'none', repeat: -1 }));
+    var plasma = wobbleEl.querySelector('.ae-hole__disk-streaks');
+    if (plasma) spinTweens.push(gsap.to(plasma, { x: 34, duration: 2.9, ease: 'sine.inOut', repeat: -1, yoyo: true }));
   }
 
   function holeTick() {
@@ -222,6 +286,10 @@
     }
     if (glowEl) {
       glowEl.style.opacity = (0.72 + 0.28 * Math.sin(t * 6.1)).toFixed(3);
+    }
+    if (warpDisp && now - lastWarp > 70) {
+      lastWarp = now;
+      warpDisp.setAttribute('scale', (17 + Math.sin(t * 2.7) * 7 + Math.sin(t * 6.9) * 4).toFixed(1));
     }
     var pull = 14 + 34 * holeProgress;
     for (var i = 0; i < dust.length; i++) {
@@ -281,13 +349,15 @@
   function shatterAvatar(geo) {
     gsap.killTweensOf(avatarSvg);
     gsap.set(avatarSvg, { x: 0, y: 0, rotation: 0 });
+    gsap.fromTo(voidEl, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.45, ease: 'power2.out' });
     gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.12 });
     gsap.to(orbitParts, { opacity: 0, duration: 0.85, delay: 0.08 });
 
     var src = avatarImage.getAttribute('href');
     if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-    var count = geo.photoSide > 420 ? 13 : 11;
+    var count = geo.photoSide > 420 ? 15 : 12;
     var half = geo.photoSide / 2;
+
     for (var i = 0; i < count; i++) {
       var shard = el('div', 'ae-shard', stage);
       shard.style.left = (geo.cx - half) + 'px';
@@ -300,40 +370,46 @@
       img.src = src;
       img.alt = '';
       img.draggable = false;
-      var angle = ((i + 0.5) / count) * TAU - Math.PI / 2;
-      var out = rand(16, 46);
-      shard._ox = Math.cos(angle) * out;
-      shard._oy = Math.sin(angle) * out;
-      shard._spin = rand(-30, 30);
-      shard._midX = Math.cos(angle) * out * 1.35 - Math.sin(angle) * out * 0.6;
-      shard._midY = Math.sin(angle) * out * 1.35 + Math.cos(angle) * out * 0.6;
       shards.push(shard);
-    }
 
-    var tl = gsap.timeline();
-    tl.to(shards, {
-      x: function (i, target) { return target._ox; },
-      y: function (i, target) { return target._oy; },
-      rotation: function (i, target) { return target._spin; },
-      duration: 0.24,
-      ease: 'power2.out'
-    }, 0);
-    tl.to(shards, {
-      x: function (i, target) { return target._midX; },
-      y: function (i, target) { return target._midY; },
-      rotation: function (i, target) { return target._spin * 2.4; },
-      duration: 0.28,
-      ease: 'none'
-    }, 0.24);
-    tl.to(shards, {
-      x: 0,
-      y: 0,
-      scale: 0.04,
-      rotation: function (i, target) { return target._spin * 9; },
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power3.in'
-    }, 0.52);
+      var angle = ((i + 0.5) / count) * TAU - Math.PI / 2;
+      var out = rand(22, 60);
+      var ox = Math.cos(angle) * out;
+      var oy = Math.sin(angle) * out;
+      var spin = rand(-36, 36);
+      var swirl = (Math.random() < 0.5 ? -1 : 1) * rand(80, 170);
+      var delay = rand(0, 0.12);
+
+      var tl = gsap.timeline({ delay: delay });
+      tl.to(shard, {
+        x: ox,
+        y: oy,
+        rotation: spin,
+        scale: 1.05,
+        duration: 0.3,
+        ease: 'power2.out'
+      }, 0);
+      tl.to(shard, {
+        x: ox * 0.45 - Math.sin(angle) * out * 0.55,
+        y: oy * 0.45 + Math.cos(angle) * out * 0.55,
+        rotation: spin * 2.1,
+        duration: 0.32,
+        ease: 'power1.inOut'
+      }, 0.3);
+      tl.to(shard, {
+        x: 0,
+        y: 0,
+        rotation: spin * 4 + swirl,
+        scale: 0.02,
+        duration: 0.6,
+        ease: 'power3.in'
+      }, 0.62);
+      tl.to(shard, {
+        opacity: 0,
+        duration: 0.18,
+        ease: 'power1.in'
+      }, 1.02);
+    }
   }
 
   /* ---------------------------------------------------------- */
@@ -545,6 +621,7 @@
     if (vignette && vignette.parentNode) vignette.parentNode.removeChild(vignette);
     if (flashFull && flashFull.parentNode) flashFull.parentNode.removeChild(flashFull);
     stage = null;
+    voidEl = null;
     vignette = null;
     flashFull = null;
     holeEl = null;
@@ -595,7 +672,7 @@
       gsap.set(holeEl, { opacity: 1 });
       startHole();
       gsap.ticker.add(vibrate);
-    }, null, CHARGE_TIME + 0.62);
+    }, null, CHARGE_TIME + 0.52);
     tl.to(holeEl, {
       scale: 1.04,
       duration: GROW_TIME,
@@ -604,8 +681,9 @@
         holeProgress = this.progress();
         vibAmp = 8.6 * holeProgress;
         vignette.style.opacity = String(0.78 * holeProgress);
+        if (voidEl) voidEl.style.opacity = String(Math.max(0, 1 - holeProgress * 3.2));
       }
-    }, CHARGE_TIME + 0.62);
+    }, CHARGE_TIME + 0.52);
 
     tl.then(function () { return suction(geo); })
       .then(function () { return collapseHole(); })
