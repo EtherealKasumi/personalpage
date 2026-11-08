@@ -28,7 +28,7 @@
   var SUCK_SPREAD = 2.1;
   var COLLAPSE_TIME = 1.25;
   var RETURN_TIME = 1.0;
-  var DUST_COUNT = 30;
+  var DUST_COUNT = 46;
 
   var clickCount = 0;
   var resetTimer = 0;
@@ -332,6 +332,7 @@
     dimEl = el('div', 'ae-dim');
     document.body.appendChild(dimEl);
     paperEl = document.querySelector('.paper-container');
+    if (paperEl) paperEl.style.willChange = 'transform';
 
     flashFull = el('div', 'ae-flashfull');
     flashFull.style.setProperty('--ae-fx', cxPct.toFixed(2) + '%');
@@ -362,8 +363,9 @@
     lastTick = now;
     var t = now * 0.001;
     var w = wobbleAmount;
-    var sx = 1 + Math.sin(t * 7.7) * w + Math.sin(t * 17.3) * w * 0.45;
-    var sy = 1 + Math.cos(t * 8.9) * w + Math.sin(t * 13.1) * w * 0.4;
+    var breath = 1 + Math.sin(t * 2.1) * 0.018;
+    var sx = breath * (1 + Math.sin(t * 7.7) * w + Math.sin(t * 17.3) * w * 0.45);
+    var sy = breath * (1 + Math.cos(t * 8.9) * w + Math.sin(t * 13.1) * w * 0.4);
     var rot = Math.sin(t * 5.3) * w * 14;
     wobbleEl.style.transform = 'scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ') rotate(' + rot.toFixed(2) + 'deg)';
     if (glowEl) {
@@ -611,17 +613,23 @@
       var dy = geo.cy - node._cy;
       var dist = node._dist;
       if (dist > maxDist) maxDist = dist;
+      var perpX = -dy / (dist || 1);
+      var perpY = dx / (dist || 1);
       list.push({
         el: node,
         dx: dx,
         dy: dy,
         dist: dist,
         angle: Math.atan2(dy, dx) * 180 / Math.PI - 90,
-        spin: 220 + Math.random() * 200,
-        stretch: 2.4 + Math.random() * 1.3,
-        dur: SUCK_DURATION + Math.random() * 0.12,
+        spin: 200 + Math.random() * 160,
+        stretch: 2.2 + Math.random() * 1.1,
+        dur: SUCK_DURATION + Math.random() * 0.14,
         delay: Math.pow(dist / maxDist, 0.85) * SUCK_SPREAD,
-        started: false,
+        curve: (Math.random() < 0.5 ? -1 : 1) * (10 + Math.random() * 26),
+        phase: Math.random() * Math.PI * 2,
+        freq: 11 + Math.random() * 7,
+        perpX: perpX,
+        perpY: perpY,
         done: false
       });
     }
@@ -650,21 +658,22 @@
             continue;
           }
           allDone = false;
-          it.started = true;
           it.el._sucked = true;
-          // pulled in with power2.in, plus a tremble that fades as it nears the hole
-          var ease = p * p;
-          var baseX = it.el._ox * (1 - ease) + it.dx * ease;
-          var baseY = it.el._oy * (1 - ease) + it.dy * ease;
-          var tremble = 6.5 * (1 - p) * (0.4 + Math.random() * 0.8);
-          var x = baseX + rand(-tremble, tremble);
-          var y = baseY + rand(-tremble, tremble);
-          var rot = it.angle + it.spin * ease + rand(-18, 18) * (1 - p);
+          var ease = Math.pow(p, 2.1);
+          // smooth arc: bow outward slightly before being pulled in
+          var bow = Math.sin(p * Math.PI) * it.curve;
+          var baseX = it.el._ox * (1 - ease) + it.dx * ease + it.perpX * bow;
+          var baseY = it.el._oy * (1 - ease) + it.dy * ease + it.perpY * bow;
+          // continuous tremble (no per-frame white noise) that fades near the hole
+          var tremble = 6.5 * Math.pow(1 - p, 1.4);
+          var x = baseX + Math.sin(t * it.freq + it.phase) * tremble;
+          var y = baseY + Math.cos(t * it.freq * 0.92 + it.phase * 1.31) * tremble;
+          var rot = it.angle + it.spin * ease + Math.sin(t * it.freq * 0.7 + it.phase) * 9 * (1 - p);
           var sx = 1 - ease * 0.94;
-          var sy = 1 + ease * (it.stretch - 1) + rand(-0.12, 0.12);
+          var sy = 1 + ease * (it.stretch - 1) * (1 + Math.sin(t * it.freq * 0.6 + it.phase) * 0.12);
           it.el.style.transform =
-            'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)' +
-            ' rotate(' + rot.toFixed(1) + 'deg)' +
+            'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)' +
+            ' rotate(' + rot.toFixed(2) + 'deg)' +
             ' scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ')';
           it.el.style.opacity = String(Math.max(0, 1 - p * p));
         }
@@ -709,6 +718,7 @@
         }
       }, 0);
       tl.to(vignette, { opacity: 0.9, duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
+      if (dimEl) tl.to(dimEl, { opacity: 0.66, duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
       tl.to(jets, { scaleY: 1.9, opacity: 0.4, duration: COLLAPSE_TIME }, 0);
       tl.to(photonEl, { scale: 1.4, duration: COLLAPSE_TIME, ease: 'power2.in' }, 0);
     });
@@ -783,7 +793,7 @@
     gsap.set(avatarSvg, { clearProps: 'all' });
     gsap.set([avatarImage, avatarRim].concat(orbitParts), { opacity: 1 });
     gsap.set([avatarImage, avatarRim].concat(orbitParts), { clearProps: 'opacity' });
-    if (paperEl) paperEl.style.transform = '';
+    if (paperEl) { paperEl.style.transform = ''; paperEl.style.willChange = ''; }
     if (dimEl && dimEl.parentNode) dimEl.parentNode.removeChild(dimEl);
     dimEl = null;
     paperEl = null;
@@ -837,21 +847,21 @@
     }, 0);
     tl.call(function () { splitPageText(geo); }, null, CHARGE_TIME + 0.02);
     tl.call(function () { implodeAvatar(geo); }, null, CHARGE_TIME);
+    tl.to(dimEl, { opacity: 0.5, duration: 2.3, ease: 'sine.inOut' }, CHARGE_TIME + 0.05);
     tl.call(function () {
       gsap.to(holeEl, { opacity: 1, duration: 0.2, ease: 'power1.out' });
       startHole();
       gsap.ticker.add(vibrate);
     }, null, CHARGE_TIME + 0.78);
     tl.to(holeEl, {
-      scale: 1.35,
+      scale: 1.55,
       duration: 1.45,
       ease: 'power2.in',
       onUpdate: function () {
         holeProgress = this.progress();
         vibAmp = 8.6 * holeProgress;
         vignette.style.opacity = String(0.95 * holeProgress);
-        shakeAmp = 1.2 + 2.6 * holeProgress;
-        if (dimEl) dimEl.style.opacity = String(0.55 * holeProgress);
+        shakeAmp = 1.6 + 4.2 * holeProgress;
       }
     }, CHARGE_TIME + 0.78);
 
