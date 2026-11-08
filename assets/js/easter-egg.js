@@ -62,6 +62,7 @@
   var spinTweens = [];
   var split = null;
   var chars = [];
+  var flyUnits = [];
   var vibAmp = 0;
   var holeProgress = 0;
   var holeAlive = false;
@@ -649,8 +650,6 @@
       for (var n = 0; n < nodes.length; n++) {
         sx += nodes[n]._cx;
         sy += nodes[n]._cy;
-        nodes[n].style.transform = '';
-        nodes[n].style.opacity = '';
       }
       var dx = geo.cx - sx / nodes.length;
       var dy = geo.cy - sy / nodes.length;
@@ -658,6 +657,7 @@
       if (dist > maxDist) maxDist = dist;
       units.push({
         el: word,
+        chars: nodes,
         dx: dx,
         dy: dy,
         r0: dist,
@@ -678,6 +678,7 @@
       gsap.ticker.remove(vibrate);
       return Promise.resolve();
     }
+    flyUnits = units.map(function (u) { return u.el; });
     var startedAt = 0;
 
     return new Promise(function (resolve) {
@@ -699,10 +700,17 @@
             continue;
           }
           allDone = false;
-          it.el._sucked = true;
+          if (!it.started) {
+            it.started = true;
+            for (var ci = 0; ci < it.chars.length; ci++) {
+              it.chars[ci]._sucked = true;
+              it.chars[ci].style.transform = '';
+              it.chars[ci].style.opacity = '';
+            }
+          }
           var ease = p * p * (3 - 2 * p) * 0.35 + p * p * 0.65;
           var bow = fastSin(p * 3.14159) * it.curve;
-          var tremble = 3.2 * (1 - p) * (1 - p);
+          var tremble = 5.4 * (1 - p) * (1 - p);
           var wob = fastSin(t * it.freq * 6.283 + it.phase);
           var x = it.dx * ease + it.perpX * bow + wob * tremble;
           var y = it.dy * ease + it.perpY * bow + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
@@ -790,9 +798,14 @@
 
   function returnText() {
     return new Promise(function (resolve) {
-      if (!chars.length) { resolve(); return; }
+      var targets = flyUnits.length ? flyUnits : chars;
+      if (!targets.length) { resolve(); return; }
+      for (var i = 0; i < targets.length; i++) {
+        targets[i].style.opacity = '1';
+        if (targets[i].style.visibility === 'hidden') targets[i].style.visibility = '';
+      }
       var tl = gsap.timeline({ onComplete: resolve });
-      tl.to(chars, {
+      tl.to(targets, {
         x: 0,
         y: 0,
         rotation: 0,
@@ -801,7 +814,7 @@
         opacity: 1,
         duration: RETURN_TIME,
         ease: 'back.out(1.9)',
-        stagger: { each: 0.0011, from: 'random' }
+        stagger: { each: 0.0012, from: 'random' }
       }, 0);
     });
   }
