@@ -583,58 +583,79 @@
         aria: 'auto'
       });
       chars = split.chars || [];
-      pathX = new Float32Array(chars.length * PATH_STEPS);
-      pathY = new Float32Array(chars.length * PATH_STEPS);
       var maxDist = 1;
-      for (var i = 0; i < chars.length; i++) {
-        var node = chars[i];
-        var rect = node.getBoundingClientRect();
-        var cx = rect.left + rect.width / 2;
-        var cy = rect.top + rect.height / 2;
-        var dx = geo.cx - cx;
-        var dy = geo.cy - cy;
-        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        node._cx = cx;
-        node._cy = cy;
-        node._dist = dist;
-        node._ux = dx / dist;
-        node._uy = dy / dist;
-        node._rotBias = rand(-1, 1);
-        node._phase = (cx * 0.0137 + cy * 0.0113) % (Math.PI * 2);
-        node._rphase = rand(0, Math.PI * 2);
-        node._rfreq = rand(0.82, 1.2);
-        node._sucked = false;
-        if (dist > maxDist) maxDist = dist;
+      for (var ci = 0; ci < chars.length; ci++) {
+        var cnode = chars[ci];
+        var crect = cnode.getBoundingClientRect();
+        var ccx = crect.left + crect.width / 2;
+        var ccy = crect.top + crect.height / 2;
+        var cdx = geo.cx - ccx;
+        var cdy = geo.cy - ccy;
+        var cdist = Math.sqrt(cdx * cdx + cdy * cdy) || 1;
+        cnode._cx = ccx;
+        cnode._cy = ccy;
+        cnode._dist = cdist;
+        cnode._ux = cdx / cdist;
+        cnode._uy = cdy / cdist;
+        cnode._rotBias = rand(-1, 1);
+        cnode._phase = (ccx * 0.0137 + ccy * 0.0113) % (Math.PI * 2);
+        cnode._rphase = rand(0, Math.PI * 2);
+        cnode._rfreq = rand(0.82, 1.2);
+        cnode._sucked = false;
+        if (cdist > maxDist) maxDist = cdist;
       }
-      for (var k = 0; k < chars.length; k++) {
-        chars[k]._falloff = Math.pow(Math.max(0, 1 - chars[k]._dist / maxDist), 1.7);
+      for (var ck = 0; ck < chars.length; ck++) {
+        chars[ck]._falloff = Math.pow(Math.max(0, 1 - chars[ck]._dist / maxDist), 1.7);
       }
       pathX = new Float32Array(chars.length * PATH_STEPS);
       pathY = new Float32Array(chars.length * PATH_STEPS);
+      var captureR = geo.radius * 1.35;
+      var STRAIGHT = 0.68;
       for (var pi = 0; pi < chars.length; pi++) {
         var pn = chars[pi];
         pn._dx = geo.cx - pn._cx;
         pn._dy = geo.cy - pn._cy;
-        pn._perpX = -pn._dy / pn._dist;
-        pn._perpY = pn._dx / pn._dist;
-        pn._curve = (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 16);
-        pn._tilt = rand(-28, 28);
+        pn._r0 = Math.max(pn._dist, 1);
+        // direction from the hole to the letter
+        pn._theta0 = Math.atan2(-pn._dy, -pn._dx);
+        pn._side = Math.random() < 0.5 ? -1 : 1;
+        pn._maxAngle = (0.8 + Math.random() * 1.2) * Math.PI;
+        pn._tilt = rand(-14, 14);
         pn._p2 = Math.random() * Math.PI * 2;
         pn._f2 = 9 + Math.random() * 5;
-        pn._dur2 = SUCK_DURATION + Math.random() * 0.16;
-        pn._delay2 = Math.pow(pn._dist / maxDist, 1.5) * 1.55;
+        // closer letters are quicker
+        pn._dur2 = (0.46 + Math.random() * 0.12) * (0.55 + 0.45 * (pn._dist / maxDist));
+        pn._delay2 = Math.pow(pn._dist / maxDist, 1.4) * 1.4;
         pn._started = false;
         pn._done = false;
-      }
-      for (var qi = 0; qi < chars.length; qi++) {
-        var qn = chars[qi];
-        var qbase = qi * PATH_STEPS;
+        // impact parameter: the letter passes the hole off-centre, then spirals in
+        pn._b = Math.min(pn._r0 * 0.92, captureR * (0.22 + Math.random() * 0.7));
+        var phi = pn._r0 > pn._b ? Math.asin(pn._b / pn._r0) : 0;
+        var thetaT = pn._theta0 + pn._side * phi;
+        var sx = Math.cos(pn._theta0) * pn._r0;
+        var sy = Math.sin(pn._theta0) * pn._r0;
+        var tx = Math.cos(thetaT) * pn._b;
+        var ty = Math.sin(thetaT) * pn._b;
+        var pbase = pi * PATH_STEPS;
         for (var qs = 0; qs < PATH_STEPS; qs++) {
           var qp = qs / (PATH_STEPS - 1);
-          var qe = qp * qp * (3 - 2 * qp) * 0.35 + qp * qp * 0.65;
-          var qb = fastSin(qp * 3.14159) * qn._curve;
-          pathX[qbase + qs] = qn._dx * qe + qn._perpX * qb;
-          pathY[qbase + qs] = qn._dy * qe + qn._perpY * qb;
+          var px2;
+          var py2;
+          if (qp <= STRAIGHT) {
+            var e = qp / STRAIGHT;
+            e = e * e * (3 - 2 * e);
+            px2 = sx + (tx - sx) * e;
+            py2 = sy + (ty - sy) * e;
+          } else {
+            var q2 = (qp - STRAIGHT) / (1 - STRAIGHT);
+            var rr = pn._b * (1 - q2 * q2);
+            var ratio = Math.min(1, Math.log(1 / Math.max(1 - q2 * q2, 0.05)) / Math.log(20));
+            var ang = thetaT + pn._side * pn._maxAngle * ratio;
+            px2 = Math.cos(ang) * rr;
+            py2 = Math.sin(ang) * rr;
+          }
+          pathX[pbase + qs] = pn._dx + px2;
+          pathY[pbase + qs] = pn._dy + py2;
         }
       }
     } catch (err) {
@@ -909,7 +930,7 @@
       ease: 'power2.in',
       onUpdate: function () {
         holeProgress = this.progress();
-        vibAmp = 8.6 * holeProgress;
+        vibAmp = 13 * Math.pow(holeProgress, 1.25);
         vignette.style.opacity = String(0.95 * holeProgress);
         shakeAmp = 1.6 + 4.2 * holeProgress;
       }
