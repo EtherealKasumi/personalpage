@@ -29,7 +29,7 @@ body.ae-running .nav-pill::before {
 .ae-stage {
   position: fixed;
   inset: 0;
-  z-index: 90;
+  z-index: 120;
   pointer-events: none;
   overflow: hidden;
   contain: layout style;
@@ -39,7 +39,7 @@ body.ae-running .nav-pill::before {
 .ae-vignette {
   position: fixed;
   inset: 0;
-  z-index: 88;
+  z-index: 104;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(circle at var(--ae-vx, 50%) var(--ae-vy, 50%),
@@ -148,6 +148,16 @@ body.ae-running .nav-pill::before {
     rgba(255, 90, 20, 0) 60%);
   filter: blur(20px);
   mix-blend-mode: screen;
+}
+
+/* uniform, edge-less dimming of the whole page: plain oppression */
+.ae-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 105;
+  pointer-events: none;
+  opacity: 0;
+  background: #120d08;
 }
 
 /* soft gravitational shadow that grounds the hole */
@@ -455,7 +465,7 @@ body.ae-running .nav-pill::before {
 .ae-flashfull {
   position: fixed;
   inset: 0;
-  z-index: 95;
+  z-index: 130;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(circle at var(--ae-fx, 50%) var(--ae-fy, 50%),

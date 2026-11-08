@@ -36,6 +36,9 @@
 
   var stage = null;
   var voidEl = null;
+  var dimEl = null;
+  var paperEl = null;
+  var shakeAmp = 0;
   var vignette = null;
   var holeEl = null;
   var wobbleEl = null;
@@ -299,6 +302,10 @@
       shocks.push(ring);
     }
 
+    dimEl = el('div', 'ae-dim');
+    document.body.appendChild(dimEl);
+    paperEl = document.querySelector('.paper-container');
+
     flashFull = el('div', 'ae-flashfull');
     flashFull.style.setProperty('--ae-fx', cxPct.toFixed(2) + '%');
     flashFull.style.setProperty('--ae-fy', cyPct.toFixed(2) + '%');
@@ -334,6 +341,12 @@
     wobbleEl.style.transform = 'scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ') rotate(' + rot.toFixed(2) + 'deg)';
     if (glowEl) {
       glowEl.style.opacity = (0.72 + 0.28 * Math.sin(t * 6.1)).toFixed(3);
+    }
+    if (shakeAmp > 0.05) {
+      var shx = rand(-shakeAmp, shakeAmp);
+      var shy = rand(-shakeAmp, shakeAmp);
+      if (paperEl) paperEl.style.transform = 'translate3d(' + shx.toFixed(2) + 'px,' + shy.toFixed(2) + 'px,0)';
+      if (stage) stage.style.transform = 'translate3d(' + shx.toFixed(2) + 'px,' + shy.toFixed(2) + 'px,0)';
     }
     var pull = 14 + 34 * holeProgress;
     for (var i = 0; i < dust.length; i++) {
@@ -403,26 +416,37 @@
     var src = avatarImage.getAttribute('href');
     if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
     var size = geo.photoSide;
-    var implodeEl = el('div', 'ae-implode', stage);
-    implodeEl.style.width = size + 'px';
-    implodeEl.style.height = size + 'px';
-    implodeEl.style.left = (geo.cx - size / 2) + 'px';
-    implodeEl.style.top = (geo.cy - size / 2) + 'px';
-    implodeEl.style.backgroundImage = 'url("' + src + '")';
-    gsap.set(implodeEl, { x: shakeX, y: shakeY, rotation: shakeR });
+
+    function spawnCopy(scaleFrom, opacityFrom) {
+      var node = el('div', 'ae-implode', stage);
+      node.style.width = size + 'px';
+      node.style.height = size + 'px';
+      node.style.left = (geo.cx - size / 2) + 'px';
+      node.style.top = (geo.cy - size / 2) + 'px';
+      node.style.backgroundImage = 'url("' + src + '")';
+      gsap.set(node, { x: shakeX, y: shakeY, rotation: shakeR, scale: scaleFrom, opacity: opacityFrom });
+      return node;
+    }
+
+    var copies = [spawnCopy(1, 1)];
+    for (var g = 0; g < 3; g++) copies.push(spawnCopy(0.97 - g * 0.05, 0.5 - g * 0.12));
 
     var tl = gsap.timeline();
-    tl.to(implodeEl, { scale: 1.07, rotation: shakeR + 7, duration: 0.2, ease: 'power2.out' }, 0);
-    tl.to(implodeEl, {
-      x: 0,
-      y: 0,
-      scale: 0.015,
-      rotation: shakeR + 620,
-      duration: 0.98,
-      ease: 'power3.in',
-      filter: 'blur(9px)'
-    }, 0.18);
-    tl.to(implodeEl, { opacity: 0, duration: 0.16, ease: 'power1.in' }, 0.98);
+    tl.to(copies, { scale: 1.09, rotation: shakeR + 7, duration: 0.2, ease: 'power2.out' }, 0);
+    for (var c = 0; c < copies.length; c++) {
+      var copy = copies[c];
+      var lag = c * 0.07;
+      tl.to(copy, {
+        x: 0,
+        y: 0,
+        scale: c === 0 ? 0.018 : 0.05 - c * 0.01,
+        rotation: shakeR + 620 + c * 140,
+        duration: 0.95 - c * 0.05,
+        ease: 'power3.in',
+        filter: 'blur(' + (c === 0 ? 10 : 6 + c * 4) + 'px)'
+      }, 0.18 + lag);
+      tl.to(copy, { opacity: 0, duration: 0.16, ease: 'power1.in' }, 0.98 + lag);
+    }
   }
 
   /* ---------------------------------------------------------- */
@@ -475,13 +499,13 @@
 
   function vibrate() {
     var amp = vibAmp;
-    var pull = 34 * holeProgress * holeProgress;
+    var pull = 72 * holeProgress * holeProgress;
     for (var i = 0; i < chars.length; i++) {
       var node = chars[i];
       if (node._sucked) continue;
       var x = rand(-amp, amp) + node._ux * node._falloff * pull;
       var y = rand(-amp * 0.85, amp * 0.85) + node._uy * node._falloff * pull;
-      var rot = node._rotBias * node._falloff * pull * 0.22;
+      var rot = node._rotBias * node._falloff * pull * 0.16;
       node._ox = x;
       node._oy = y;
       node.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) rotate(' + rot.toFixed(2) + 'deg)';
@@ -520,8 +544,8 @@
         x: item.dx,
         y: item.dy,
         rotation: item.angle + rand(-14, 14),
-        scaleX: 0.1,
-        scaleY: 2.9,
+        scaleX: 0.07,
+        scaleY: 3.4,
         opacity: 0,
         duration: SUCK_DURATION,
         ease: 'power2.in',
@@ -549,7 +573,9 @@
           var p = this.progress();
           var j = 2 + 22 * p * p;
           gsap.set(holeEl, { x: rand(-j, j), y: rand(-j, j) });
-          wobbleAmount = 0.026 + 0.34 * p * p;
+          wobbleAmount = 0.026 + 0.42 * p * p;
+          shakeAmp = 3 + 5 * p * p;
+          if (dimEl) dimEl.style.opacity = String(0.55 + 0.22 * p);
         }
       }, 0);
       tl.to(spin, {
@@ -583,6 +609,8 @@
       tl.fromTo(flashFull, { opacity: 0 }, { opacity: 0.32, duration: 0.08, ease: 'none' }, 0);
       tl.to(flashFull, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 0.1);
       tl.to(vignette, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0);
+      if (dimEl) tl.to(dimEl, { opacity: 0, duration: 0.45, ease: 'power2.out' }, 0);
+      tl.to({}, { duration: 0.4, onUpdate: function () { shakeAmp *= 0.92; } }, 0);
       tl.to([avatarImage, avatarRim], { opacity: 1, duration: 0.3 }, 0.05);
       tl.to(orbitParts, { opacity: 1, duration: 0.45 }, 0.1);
       tl.fromTo(avatarSvg, { scale: 0.86 }, { scale: 1, duration: 0.62, ease: 'back.out(2.4)' }, 0.05);
@@ -630,6 +658,11 @@
     gsap.set(avatarSvg, { clearProps: 'all' });
     gsap.set([avatarImage, avatarRim].concat(orbitParts), { opacity: 1 });
     gsap.set([avatarImage, avatarRim].concat(orbitParts), { clearProps: 'opacity' });
+    if (paperEl) paperEl.style.transform = '';
+    if (dimEl && dimEl.parentNode) dimEl.parentNode.removeChild(dimEl);
+    dimEl = null;
+    paperEl = null;
+    shakeAmp = 0;
     if (stage && stage.parentNode) stage.parentNode.removeChild(stage);
     if (vignette && vignette.parentNode) vignette.parentNode.removeChild(vignette);
     if (flashFull && flashFull.parentNode) flashFull.parentNode.removeChild(flashFull);
@@ -686,13 +719,15 @@
       gsap.ticker.add(vibrate);
     }, null, CHARGE_TIME + 0.22);
     tl.to(holeEl, {
-      scale: 1.04,
+      scale: 1.35,
       duration: 1.45,
       ease: 'power2.in',
       onUpdate: function () {
         holeProgress = this.progress();
         vibAmp = 8.6 * holeProgress;
         vignette.style.opacity = String(0.95 * holeProgress);
+        shakeAmp = 1.2 + 2.6 * holeProgress;
+        if (dimEl) dimEl.style.opacity = String(0.55 * holeProgress);
         if (voidEl) voidEl.style.opacity = String(Math.max(0, 1 - holeProgress * 3.2));
       }
     }, CHARGE_TIME + 0.22);
