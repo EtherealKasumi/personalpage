@@ -596,6 +596,8 @@
         node._uy = dy / dist;
         node._rotBias = rand(-1, 1);
         node._phase = (cx * 0.0137 + cy * 0.0113) % (Math.PI * 2);
+        node._rphase = rand(0, Math.PI * 2);
+        node._rfreq = rand(0.82, 1.2);
         node._sucked = false;
         if (dist > maxDist) maxDist = dist;
       }
@@ -615,13 +617,14 @@
     for (var i = 0; i < chars.length; i++) {
       var node = chars[i];
       if (node._sucked) continue;
-      var ph = node._phase || 0;
-      // two slow waves plus a shimmer, phase-shifted by position: a wave travels across the text
-      var wx = fastSin(t * 6.1 + ph) * 0.62 + fastSin(t * 11.3 + ph * 1.71) * 0.26 + fastSin(t * 3.3 + ph * 0.5) * 0.12;
-      var wy = fastCos(t * 5.2 + ph * 1.27) * 0.58 + fastSin(t * 9.7 + ph * 1.93) * 0.3 + fastCos(t * 2.7 + ph * 0.7) * 0.12;
+      // every letter gets its own phase and rate (with a hint of a travelling wave)
+      var ph = (node._phase || 0) * 0.5 + (node._rphase || 0) * 0.5;
+      var fr = node._rfreq || 1;
+      var wx = fastSin(t * 6.1 * fr + ph) * 0.62 + fastSin(t * 11.3 * fr + ph * 1.71) * 0.26 + fastSin(t * 3.3 * fr + ph * 0.5) * 0.12;
+      var wy = fastCos(t * 5.2 * fr + ph * 1.27) * 0.58 + fastSin(t * 9.7 * fr + ph * 1.93) * 0.3 + fastCos(t * 2.7 * fr + ph * 0.7) * 0.12;
       var x = wx * amp + node._ux * node._falloff * pull;
       var y = wy * amp * 0.9 + node._uy * node._falloff * pull;
-      var rot = (fastSin(t * 4.4 + ph * 1.5) * 0.7 + fastSin(t * 8.2 + ph) * 0.3) * amp * 0.5;
+      var rot = (fastSin(t * 4.4 * fr + ph * 1.5) * 0.7 + fastSin(t * 8.2 * fr + ph) * 0.3) * amp * 0.7;
       node._ox = x;
       node._oy = y;
       node.style.transform = 'translate3d(' + ((x * 10) | 0) / 10 + 'px,' + ((y * 10) | 0) / 10 + 'px,0) rotate(' + ((rot * 10) | 0) / 10 + 'deg)';
@@ -634,51 +637,50 @@
 
   function suction(geo) {
     pageShake = false;
-    var units = [];
-    var maxDist = 1;
-    if (!split || !split.words) {
+    if (!chars.length) {
       gsap.ticker.remove(vibrate);
       return Promise.resolve();
     }
-    var words = split.words;
-    for (var i = 0; i < words.length; i++) {
-      var word = words[i];
-      var nodes = word.querySelectorAll('.ae-c');
-      if (!nodes.length) continue;
-      var sx = 0;
-      var sy = 0;
-      for (var n = 0; n < nodes.length; n++) {
-        sx += nodes[n]._cx;
-        sy += nodes[n]._cy;
-      }
-      var dx = geo.cx - sx / nodes.length;
-      var dy = geo.cy - sy / nodes.length;
+    var list = [];
+    var maxDist = 1;
+    var STEPS = 25;
+    for (var i = 0; i < chars.length; i++) {
+      var node = chars[i];
+      var dx = geo.cx - node._cx;
+      var dy = geo.cy - node._cy;
       var dist = Math.sqrt(dx * dx + dy * dy) || 1;
       if (dist > maxDist) maxDist = dist;
-      units.push({
-        el: word,
-        chars: nodes,
+      var item = {
+        el: node,
         dx: dx,
         dy: dy,
         r0: dist,
         perpX: -dy / dist,
         perpY: dx / dist,
-        curve: (Math.random() < 0.5 ? -1 : 1) * (6 + Math.random() * 16),
+        curve: (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 16),
         dur: SUCK_DURATION + Math.random() * 0.16,
         delay: 0,
         phase: Math.random() * Math.PI * 2,
-        freq: 8 + Math.random() * 5,
+        freq: 9 + Math.random() * 5,
+        tilt: rand(-28, 28),
+        started: false,
         done: false
-      });
+      };
+      var px = (item.px = new Float32Array(STEPS));
+      var py = (item.py = new Float32Array(STEPS));
+      for (var q = 0; q < STEPS; q++) {
+        var pr = q / (STEPS - 1);
+        var ease = pr * pr * (3 - 2 * pr) * 0.35 + pr * pr * 0.65;
+        var bow = fastSin(pr * 3.14159) * item.curve;
+        px[q] = item.dx * ease + item.perpX * bow;
+        py[q] = item.dy * ease + item.perpY * bow;
+      }
+      list.push(item);
     }
-    for (var u = 0; u < units.length; u++) {
-      units[u].delay = Math.pow(units[u].r0 / maxDist, 0.85) * SUCK_SPREAD;
+    for (var u = 0; u < list.length; u++) {
+      list[u].delay = Math.pow(list[u].r0 / maxDist, 0.85) * SUCK_SPREAD;
     }
-    if (!units.length) {
-      gsap.ticker.remove(vibrate);
-      return Promise.resolve();
-    }
-    flyUnits = units.map(function (u) { return u.el; });
+    flyUnits = chars;
     var startedAt = 0;
 
     return new Promise(function (resolve) {
@@ -686,8 +688,8 @@
         if (!startedAt) startedAt = now;
         var t = (now - startedAt) / 1000;
         var allDone = true;
-        for (var k = 0; k < units.length; k++) {
-          var it = units[k];
+        for (var k = 0; k < list.length; k++) {
+          var it = list[k];
           if (it.done) continue;
           var p = (t - it.delay) / it.dur;
           if (p <= 0) {
@@ -702,24 +704,25 @@
           allDone = false;
           if (!it.started) {
             it.started = true;
-            for (var ci = 0; ci < it.chars.length; ci++) {
-              it.chars[ci]._sucked = true;
-              it.chars[ci].style.transform = '';
-              it.chars[ci].style.opacity = '';
-            }
+            it.el._sucked = true;
+            it.el.style.transform = '';
           }
-          var ease = p * p * (3 - 2 * p) * 0.35 + p * p * 0.65;
-          var bow = fastSin(p * 3.14159) * it.curve;
-          var tremble = 5.4 * (1 - p) * (1 - p);
+          var idx = p * (STEPS - 1);
+          var i0 = idx | 0;
+          var frac = idx - i0;
+          var i1 = i0 + 1 > STEPS - 1 ? STEPS - 1 : i0 + 1;
+          var bx = it.px[i0] + (it.px[i1] - it.px[i0]) * frac;
+          var by = it.py[i0] + (it.py[i1] - it.py[i0]) * frac;
+          var tremble = 4.8 * (1 - p) * (1 - p);
           var wob = fastSin(t * it.freq * 6.283 + it.phase);
-          var x = it.dx * ease + it.perpX * bow + wob * tremble;
-          var y = it.dy * ease + it.perpY * bow + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
-          var overall = 1 - 0.9 * p * p;
-          var along = (1 + 0.9 * p) * overall;
-          var across = (0.95 - 0.05 * p) * overall;
+          var x = bx + wob * tremble;
+          var y = by + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
+          var rot = it.tilt * p * p + wob * 6 * (1 - p);
+          var shrink = 1 - 0.86 * p * p;
           it.el.style.transform =
             'translate3d(' + ((x * 10) | 0) / 10 + 'px,' + ((y * 10) | 0) / 10 + 'px,0)' +
-            ' scale(' + ((along * 1000) | 0) / 1000 + ',' + ((across * 1000) | 0) / 1000 + ')';
+            ' rotate(' + ((rot * 10) | 0) / 10 + 'deg)' +
+            ' scale(' + ((shrink * 1000) | 0) / 1000 + ')';
           it.el.style.opacity = ((1 - p * p) * 100 | 0) / 100;
         }
         if (allDone) {
