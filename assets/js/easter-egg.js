@@ -35,7 +35,6 @@
   var busy = false;
 
   var stage = null;
-  var voidEl = null;
   var dimEl = null;
   var paperEl = null;
   var shakeAmp = 0;
@@ -242,13 +241,6 @@
     vignette.style.setProperty('--ae-fx', cxPct.toFixed(2) + '%');
     vignette.style.setProperty('--ae-fy', cyPct.toFixed(2) + '%');
     document.body.appendChild(vignette);
-
-    var voidSide = geo.photoSide * 1.32;
-    voidEl = el('div', 'ae-void', stage);
-    voidEl.style.width = voidSide + 'px';
-    voidEl.style.height = voidSide + 'px';
-    voidEl.style.left = (geo.cx - voidSide / 2) + 'px';
-    voidEl.style.top = (geo.cy - voidSide / 2) + 'px';
 
     var side = geo.radius * 2;
     holeEl = el('div', 'ae-hole', stage);
@@ -464,7 +456,6 @@
     gsap.to(avatarSvg, { x: 0, y: 0, rotation: 0, duration: 0.3, ease: 'power2.out' });
     gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.18 });
     gsap.to(orbitParts, { opacity: 0, duration: 0.7, delay: 0.06 });
-    gsap.fromTo(voidEl, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' });
 
     var src = avatarImage.getAttribute('href');
     if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
@@ -801,7 +792,6 @@
     if (vignette && vignette.parentNode) vignette.parentNode.removeChild(vignette);
     if (flashFull && flashFull.parentNode) flashFull.parentNode.removeChild(flashFull);
     stage = null;
-    voidEl = null;
     vignette = null;
     flashFull = null;
     holeEl = null;
@@ -862,7 +852,6 @@
         vignette.style.opacity = String(0.95 * holeProgress);
         shakeAmp = 1.2 + 2.6 * holeProgress;
         if (dimEl) dimEl.style.opacity = String(0.55 * holeProgress);
-        if (voidEl) voidEl.style.opacity = String(Math.max(0, 1 - holeProgress * 3.2));
       }
     }, CHARGE_TIME + 0.78);
 

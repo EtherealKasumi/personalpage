@@ -51,21 +51,6 @@ body.ae-running .nav-pill::before {
   mix-blend-mode: multiply;
 }
 
-/* the darkness revealed behind the shattering avatar */
-.ae-void {
-  position: absolute;
-  z-index: 0;
-  border-radius: 50%;
-  opacity: 0;
-  background: radial-gradient(circle,
-    rgba(3, 4, 8, 0.94) 0%,
-    rgba(5, 7, 12, 0.82) 42%,
-    rgba(8, 10, 17, 0.5) 66%,
-    rgba(8, 10, 17, 0) 84%);
-  filter: blur(2px);
-  pointer-events: none;
-}
-
 /* whole avatar being pulled into the centre: outer wrapper deforms/spins,
    inner layer keeps trembling while it is being swallowed */
 .ae-implode-wrap {
