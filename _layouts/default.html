@@ -763,6 +763,146 @@
                 margin-top: -8px;
             }
         }
+        /* ===== Liquid glass navigation ===== */
+        .top-nav {
+            position: sticky;
+            top: 14px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            width: min(1040px, calc(100% - 36px));
+            height: 72px;
+            margin: 22px auto 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+        .nav-pill {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            width: 100%;
+            height: 72px;
+            padding: 0;
+            border-radius: 999px;
+            pointer-events: auto;
+            box-shadow:
+                0 16px 36px -18px rgba(15, 48, 79, 0),
+                0 2px 8px rgba(15, 48, 79, 0);
+            transition:
+                height 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+                padding 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+                box-shadow 0.5s ease;
+        }
+        .nav-pill::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1px;
+            pointer-events: none;
+            background: rgba(59, 110, 165, 0.16);
+            transition: opacity 0.45s ease;
+        }
+        .top-nav[data-scrolled="true"] .nav-pill {
+            height: 54px;
+            padding: 0 24px;
+            box-shadow:
+                0 16px 36px -18px rgba(15, 48, 79, 0.26),
+                0 2px 8px rgba(15, 48, 79, 0.05);
+        }
+        .top-nav[data-scrolled="true"] .nav-pill::before { opacity: 0; }
+        .nav-glass {
+            position: absolute;
+            inset: 0;
+            display: block;
+            border-radius: inherit;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .nav-glass > span {
+            position: absolute;
+            display: block;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        .nav-glass__frost {
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 253, 246, 0.58), rgba(248, 245, 234, 0.48));
+            -webkit-backdrop-filter: blur(1.2px) saturate(1.35);
+            backdrop-filter: blur(1.2px) saturate(1.35);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .top-nav:not([data-liquid="ready"]) .nav-glass__frost {
+            -webkit-backdrop-filter: blur(4.5px) saturate(1.4);
+            backdrop-filter: blur(4.5px) saturate(1.4);
+        }
+        .nav-glass__liquid {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 54px;
+            transform: translateY(-50%);
+            border-radius: 999px;
+            opacity: 0;
+            transition: opacity 0.22s linear;
+        }
+        .nav-glass__sheen {
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0) 52%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .nav-glass__rim {
+            inset: 0;
+            box-shadow:
+                inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+                inset 1px 1.6px 0 -1px rgba(255, 255, 255, 0.72),
+                inset -2px -2px 0 -2px rgba(255, 253, 244, 0.4),
+                inset 0 -12px 20px -18px rgba(15, 48, 79, 0.26);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .top-nav[data-scrolled="true"] .nav-glass__frost,
+        .top-nav[data-scrolled="true"] .nav-glass__rim,
+        .top-nav[data-scrolled="true"] .nav-glass__sheen { opacity: 1; }
+        .top-nav[data-liquid="ready"][data-scrolled="true"] .nav-glass__liquid { opacity: 1; transition-duration: 0.55s; }
+        .nav-pill > .nav-brand,
+        .nav-pill > .nav-links,
+        .nav-pill > .menu-toggle { position: relative; z-index: 1; }
+        .top-nav .nav-brand { font-size: clamp(2.1rem, 4vw, 2.8rem); transition: font-size 0.55s cubic-bezier(0.22, 0.61, 0.36, 1); }
+        .top-nav[data-scrolled="true"] .nav-brand { font-size: clamp(1.55rem, 2vw, 1.78rem); }
+        .top-nav .nav-links { gap: 4px; transition: gap 0.55s cubic-bezier(0.22, 0.61, 0.36, 1); }
+        .top-nav .nav-links a { line-height: 1.25; transition: color 0.22s ease, background-color 0.22s ease, padding 0.55s cubic-bezier(0.22, 0.61, 0.36, 1), font-size 0.55s cubic-bezier(0.22, 0.61, 0.36, 1); }
+        .top-nav[data-scrolled="true"] .nav-links a { padding: 6px 9px; font-size: 0.88rem; font-weight: 500; color: rgba(15, 48, 79, 0.92); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75); }
+        .top-nav[data-scrolled="true"] .nav-links a:hover { color: var(--ink-deep); background: rgba(15, 48, 79, 0.075); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55), 0 1px 2px rgba(15, 48, 79, 0.06); }
+        .top-nav[data-scrolled="true"] .nav-links a.lang-switch { color: var(--lake-blue); }
+        body .top-nav .nav-links a:focus-visible,
+        body .top-nav .menu-toggle:focus-visible {
+            outline: 2px solid rgba(59, 110, 165, 0.55);
+            outline-offset: 2px;
+        }
+        @media (max-width: 768px) {
+            .top-nav { top: 10px; width: min(100% - 24px, 1040px); height: 64px; margin-top: 14px; }
+            .nav-pill { gap: 12px; height: 64px; }
+            .top-nav[data-scrolled="true"] .nav-pill { height: 56px; padding: 0 16px; }
+            .nav-pill > .nav-links { position: absolute; top: calc(100% + 12px); left: 0; width: 100%; z-index: 2; }
+            .top-nav .nav-brand { font-size: clamp(1.8rem, 7.5vw, 2.2rem); }
+            .top-nav[data-scrolled="true"] .nav-brand { font-size: clamp(1.4rem, 5.6vw, 1.62rem); }
+            .top-nav .nav-glass__liquid { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .nav-pill,
+            .top-nav .nav-brand,
+            .top-nav .nav-links,
+            .top-nav .nav-links a { transition-duration: 0.01ms; }
+        }
         @keyframes surfaceRise {
             from { opacity: 0; transform: translateY(18px) scale(0.985); }
             to { opacity: 1; transform: translateY(0) scale(1); }
@@ -776,29 +916,61 @@
         }
 
     </style>
+    <noscript>
+        <style>
+            .top-nav { height: auto; }
+            .nav-pill { height: auto; padding: 12px 0 14px; flex-wrap: wrap; }
+            .nav-glass { display: none; }
+            @media (max-width: 768px) {
+                .menu-toggle { display: none; }
+                .nav-links {
+                    position: static;
+                    width: 100%;
+                    max-height: none;
+                    padding: 10px 0 0;
+                    border: 0;
+                    box-shadow: none;
+                    background: transparent;
+                    -webkit-backdrop-filter: none;
+                    backdrop-filter: none;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    justify-content: flex-end;
+                }
+            }
+        </style>
+    </noscript>
 </head>
 <body>
 
     <div class="paper-background" aria-hidden="true"></div>
 
-    <nav class="top-nav">
-        <div class="nav-brand">Principia.</div>
-        <button class="menu-toggle" id="mobile-menu-btn" type="button" aria-label="{% if is_zh %}打开导航菜单{% else %}Open navigation menu{% endif %}" aria-expanded="false" aria-controls="nav-links" data-en-label="Open navigation menu" data-zh-label="打开导航菜单">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <div class="nav-links" id="nav-links">
-            <a href="{% if is_zh %}{{ '/zh/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Home" data-zh-label="主页" data-en-href="{{ '/' | relative_url }}" data-zh-href="{{ '/zh/' | relative_url }}">{% if is_zh %}主页{% else %}Home{% endif %}</a>
-            <a href="{% if is_zh %}{{ '/zh/cv.html' | relative_url }}{% else %}{{ '/cv.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="CV" data-zh-label="简历" data-en-href="{{ '/cv.html' | relative_url }}" data-zh-href="{{ '/zh/cv.html' | relative_url }}">{% if is_zh %}简历{% else %}CV{% endif %}</a>
-            <a href="{% if is_zh %}{{ '/zh/blogs.html' | relative_url }}{% else %}{{ '/blogs.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Blogs" data-zh-label="博客" data-en-href="{{ '/blogs.html' | relative_url }}" data-zh-href="{{ '/zh/blogs.html' | relative_url }}">{% if is_zh %}博客{% else %}Blogs{% endif %}</a>
-            <a href="{% if is_zh %}{{ '/zh/notes.html' | relative_url }}{% else %}{{ '/notes.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Notes" data-zh-label="笔记" data-en-href="{{ '/notes.html' | relative_url }}" data-zh-href="{{ '/zh/notes.html' | relative_url }}">{% if is_zh %}笔记{% else %}Notes{% endif %}</a>
-            <a href="{% if is_zh %}{{ '/zh/resources.html' | relative_url }}{% else %}{{ '/resources.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Resources" data-zh-label="资源" data-en-href="{{ '/resources.html' | relative_url }}" data-zh-href="{{ '/zh/resources.html' | relative_url }}">{% if is_zh %}资源{% else %}Resources{% endif %}</a>
-            {% if alternate %}
-                <a href="{{ alternate.url | relative_url }}" class="lang-switch">{% if is_zh %}English{% else %}中文{% endif %}</a>
-            {% else %}
-                <a href="{{ page.url | relative_url }}?ui={% if is_zh %}en{% else %}zh{% endif %}" class="lang-switch" data-toggle-ui-lang="true">{% if is_zh %}English{% else %}中文{% endif %}</a>
-            {% endif %}
+    <nav class="top-nav" id="site-nav" data-scrolled="false" aria-label="{% if is_zh %}主导航{% else %}Primary navigation{% endif %}">
+        <div class="nav-pill">
+            <span class="nav-glass" aria-hidden="true">
+                <span class="nav-glass__frost"></span>
+                <span class="nav-glass__liquid"></span>
+                <span class="nav-glass__sheen"></span>
+                <span class="nav-glass__rim"></span>
+            </span>
+            <div class="nav-brand">Principia.</div>
+            <button class="menu-toggle" id="mobile-menu-btn" type="button" aria-label="{% if is_zh %}打开导航菜单{% else %}Open navigation menu{% endif %}" aria-expanded="false" aria-controls="nav-links" data-en-label="Open navigation menu" data-zh-label="打开导航菜单">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="nav-links">
+                <a href="{% if is_zh %}{{ '/zh/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Home" data-zh-label="主页" data-en-href="{{ '/' | relative_url }}" data-zh-href="{{ '/zh/' | relative_url }}">{% if is_zh %}主页{% else %}Home{% endif %}</a>
+                <a href="{% if is_zh %}{{ '/zh/cv.html' | relative_url }}{% else %}{{ '/cv.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="CV" data-zh-label="简历" data-en-href="{{ '/cv.html' | relative_url }}" data-zh-href="{{ '/zh/cv.html' | relative_url }}">{% if is_zh %}简历{% else %}CV{% endif %}</a>
+                <a href="{% if is_zh %}{{ '/zh/blogs.html' | relative_url }}{% else %}{{ '/blogs.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Blogs" data-zh-label="博客" data-en-href="{{ '/blogs.html' | relative_url }}" data-zh-href="{{ '/zh/blogs.html' | relative_url }}">{% if is_zh %}博客{% else %}Blogs{% endif %}</a>
+                <a href="{% if is_zh %}{{ '/zh/notes.html' | relative_url }}{% else %}{{ '/notes.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Notes" data-zh-label="笔记" data-en-href="{{ '/notes.html' | relative_url }}" data-zh-href="{{ '/zh/notes.html' | relative_url }}">{% if is_zh %}笔记{% else %}Notes{% endif %}</a>
+                <a href="{% if is_zh %}{{ '/zh/resources.html' | relative_url }}{% else %}{{ '/resources.html' | relative_url }}{% endif %}" class="i18n-nav-link" data-en-label="Resources" data-zh-label="资源" data-en-href="{{ '/resources.html' | relative_url }}" data-zh-href="{{ '/zh/resources.html' | relative_url }}">{% if is_zh %}资源{% else %}Resources{% endif %}</a>
+                {% if alternate %}
+                    <a href="{{ alternate.url | relative_url }}" class="lang-switch">{% if is_zh %}English{% else %}中文{% endif %}</a>
+                {% else %}
+                    <a href="{{ page.url | relative_url }}?ui={% if is_zh %}en{% else %}zh{% endif %}" class="lang-switch" data-toggle-ui-lang="true">{% if is_zh %}English{% else %}中文{% endif %}</a>
+                {% endif %}
+            </div>
         </div>
     </nav>
 
@@ -949,6 +1121,214 @@
                 ], throwOnError : false
             });
         });
+        /* ===== Liquid glass navigation: scroll state + refraction map ===== */
+        (function () {
+            var nav = document.getElementById("site-nav");
+            if (!nav) return;
+
+            var SCROLL_THRESHOLD = 24;
+            var scrollSyncPending = false;
+
+            function syncScrollState() {
+                scrollSyncPending = false;
+                var offset = window.pageYOffset || document.documentElement.scrollTop || 0;
+                var next = offset > SCROLL_THRESHOLD ? "true" : "false";
+                if (nav.dataset.scrolled !== next) nav.dataset.scrolled = next;
+            }
+
+            function requestScrollSync() {
+                if (scrollSyncPending) return;
+                scrollSyncPending = true;
+                window.requestAnimationFrame(syncScrollState);
+            }
+
+            window.addEventListener("scroll", requestScrollSync, { passive: true });
+            window.addEventListener("resize", requestScrollSync, { passive: true });
+            window.addEventListener("pageshow", requestScrollSync);
+            syncScrollState();
+
+            var liquidLayer = nav.querySelector(".nav-glass__liquid");
+            if (!liquidLayer) return;
+
+            var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+            var pointerQuery = window.matchMedia("(pointer: fine)");
+            var widthQuery = window.matchMedia("(min-width: 769px)");
+            var isChromium = /(Chrome|Chromium|Edg|OPR)\//.test(navigator.userAgent);
+            var supportsBackdropUrl = false;
+            try {
+                supportsBackdropUrl = !!(window.CSS && window.CSS.supports && (
+                    window.CSS.supports("backdrop-filter", "url(#nav-glass)")
+                    || window.CSS.supports("-webkit-backdrop-filter", "url(#nav-glass)")
+                ));
+            } catch (error) {
+                supportsBackdropUrl = false;
+            }
+
+            function liquidEnabled() {
+                return isChromium && supportsBackdropUrl && pointerQuery.matches && widthQuery.matches && !motionQuery.matches;
+            }
+
+            function roundedRectDistance(x, y, halfWidth, halfHeight, radius) {
+                var qx = Math.abs(x) - halfWidth + radius;
+                var qy = Math.abs(y) - halfHeight + radius;
+                return Math.min(Math.max(qx, qy), 0) + Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) - radius;
+            }
+
+            function smoothstep(edge0, edge1, value) {
+                var t = Math.max(0, Math.min(1, (value - edge0) / (edge1 - edge0)));
+                return t * t * (3 - 2 * t);
+            }
+
+            function createDisplacementMap(width, height, radius) {
+                var canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                var context = canvas.getContext("2d");
+                if (!context) return null;
+
+                var pixels = new Uint8ClampedArray(width * height * 4);
+                var vectors = new Float32Array(width * height * 2);
+                var halfWidth = width / 2;
+                var halfHeight = height / 2;
+                var band = 10;
+                var curvature = 6;
+                var maxOffset = 0;
+                var x;
+                var y;
+
+                for (y = 0; y < height; y++) {
+                    for (x = 0; x < width; x++) {
+                        var px = x - halfWidth + 0.5;
+                        var py = y - halfHeight + 0.5;
+                        var falloff = smoothstep(band, 0, -roundedRectDistance(px, py, halfWidth, halfHeight, radius));
+                        var dx = 0;
+                        var dy = 0;
+                        if (falloff > 0) {
+                            var nx = roundedRectDistance(px + 1, py, halfWidth, halfHeight, radius) - roundedRectDistance(px - 1, py, halfWidth, halfHeight, radius);
+                            var ny = roundedRectDistance(px, py + 1, halfWidth, halfHeight, radius) - roundedRectDistance(px, py - 1, halfWidth, halfHeight, radius);
+                            var length = Math.hypot(nx, ny) || 1;
+                            nx /= length;
+                            ny /= length;
+                            var force = falloff * falloff * curvature;
+                            dx = -nx * force;
+                            dy = -ny * force;
+                            maxOffset = Math.max(maxOffset, Math.abs(dx), Math.abs(dy));
+                        }
+                        var vectorIndex = (y * width + x) * 2;
+                        vectors[vectorIndex] = dx;
+                        vectors[vectorIndex + 1] = dy;
+                    }
+                }
+
+                maxOffset = Math.max(maxOffset, 1e-6);
+                for (var index = 0; index < width * height; index++) {
+                    var pixelIndex = index * 4;
+                    pixels[pixelIndex] = (vectors[index * 2] / maxOffset * 0.5 + 0.5) * 255;
+                    pixels[pixelIndex + 1] = (vectors[index * 2 + 1] / maxOffset * 0.5 + 0.5) * 255;
+                    pixels[pixelIndex + 2] = 0;
+                    pixels[pixelIndex + 3] = 255;
+                }
+                context.putImageData(new ImageData(pixels, width, height), 0, 0);
+
+                return { uri: canvas.toDataURL(), width: width, height: height, scale: 2 * maxOffset };
+            }
+
+            var SVG_NS = "http://www.w3.org/2000/svg";
+            var XLINK_NS = "http://www.w3.org/1999/xlink";
+            var filterId = "nav-liquid-" + Math.random().toString(36).slice(2, 9);
+            var svg = document.createElementNS(SVG_NS, "svg");
+            svg.setAttribute("aria-hidden", "true");
+            svg.setAttribute("focusable", "false");
+            svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
+            var defs = document.createElementNS(SVG_NS, "defs");
+            var filter = document.createElementNS(SVG_NS, "filter");
+            filter.setAttribute("id", filterId);
+            filter.setAttribute("filterUnits", "userSpaceOnUse");
+            filter.setAttribute("color-interpolation-filters", "sRGB");
+            filter.setAttribute("x", "0");
+            filter.setAttribute("y", "0");
+            var feImage = document.createElementNS(SVG_NS, "feImage");
+            feImage.setAttribute("result", "map");
+            feImage.setAttribute("preserveAspectRatio", "none");
+            feImage.setAttribute("x", "0");
+            feImage.setAttribute("y", "0");
+            var feDisplacement = document.createElementNS(SVG_NS, "feDisplacementMap");
+            feDisplacement.setAttribute("in", "SourceGraphic");
+            feDisplacement.setAttribute("in2", "map");
+            feDisplacement.setAttribute("xChannelSelector", "R");
+            feDisplacement.setAttribute("yChannelSelector", "G");
+            filter.appendChild(feImage);
+            filter.appendChild(feDisplacement);
+            defs.appendChild(filter);
+            svg.appendChild(defs);
+            nav.appendChild(svg);
+
+            var builtWidth = 0;
+            var builtHeight = 0;
+            var buildTimer = 0;
+
+            function buildLiquidFilter() {
+                if (!liquidEnabled()) return;
+                var width = Math.round(liquidLayer.offsetWidth);
+                var height = Math.round(liquidLayer.offsetHeight);
+                if (!width || !height) return;
+                if (width === builtWidth && height === builtHeight) return;
+
+                var map = createDisplacementMap(width, height, height / 2);
+                if (!map) return;
+
+                filter.setAttribute("width", String(width));
+                filter.setAttribute("height", String(height));
+                feImage.setAttribute("x", "0");
+                feImage.setAttribute("y", "0");
+                feImage.setAttribute("width", String(width));
+                feImage.setAttribute("height", String(height));
+                feImage.setAttribute("href", map.uri);
+                feImage.setAttributeNS(XLINK_NS, "xlink:href", map.uri);
+                feDisplacement.setAttribute("scale", String(map.scale));
+
+                var value = "url(#" + filterId + ") blur(0.25px) contrast(1.1) brightness(1.05) saturate(1.18)";
+                liquidLayer.style.webkitBackdropFilter = value;
+                liquidLayer.style.backdropFilter = value;
+
+                builtWidth = width;
+                builtHeight = height;
+                nav.dataset.liquid = "ready";
+            }
+
+            function scheduleBuild(delay) {
+                window.clearTimeout(buildTimer);
+                buildTimer = window.setTimeout(buildLiquidFilter, delay);
+            }
+
+            function handlePreferenceChange() {
+                if (!liquidEnabled()) {
+                    window.clearTimeout(buildTimer);
+                    nav.removeAttribute("data-liquid");
+                    liquidLayer.style.webkitBackdropFilter = "";
+                    liquidLayer.style.backdropFilter = "";
+                    builtWidth = 0;
+                    builtHeight = 0;
+                    return;
+                }
+                scheduleBuild(0);
+            }
+
+            [motionQuery, pointerQuery, widthQuery].forEach(function (query) {
+                if (query.addEventListener) query.addEventListener("change", handlePreferenceChange);
+                else if (query.addListener) query.addListener(handlePreferenceChange);
+            });
+
+            if (window.ResizeObserver) {
+                new ResizeObserver(function () { scheduleBuild(120); }).observe(liquidLayer);
+            } else {
+                window.addEventListener("resize", function () { scheduleBuild(160); }, { passive: true });
+            }
+            scheduleBuild(0);
+            window.addEventListener("load", function () { scheduleBuild(0); });
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scheduleBuild(0); });
+        })();
+
     </script>
 
     <!-- === Mermaid 矢量图表引擎 === -->
