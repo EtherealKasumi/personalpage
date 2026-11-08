@@ -127,6 +127,14 @@
     filter.appendChild(gooDisp);
     svg.appendChild(filter);
     document.body.appendChild(svg);
+
+    // warm the filter up so the first frame of the implosion does not stall
+    var warm = document.createElement('div');
+    warm.style.cssText = 'position:fixed;left:-300px;top:-300px;width:40px;height:40px;border-radius:50%;background:#000;filter:url(#ae-goo);opacity:0.01;pointer-events:none;z-index:-1';
+    document.body.appendChild(warm);
+    setTimeout(function () {
+      if (warm.parentNode) warm.parentNode.removeChild(warm);
+    }, 1500);
   }
   buildGooFilter();
 
@@ -586,6 +594,7 @@
         node._ux = dx / dist;
         node._uy = dy / dist;
         node._rotBias = rand(-1, 1);
+        node._phase = (cx * 0.0137 + cy * 0.0113) % (Math.PI * 2);
         node._sucked = false;
         if (dist > maxDist) maxDist = dist;
       }
@@ -601,15 +610,20 @@
   function vibrate() {
     var amp = vibAmp;
     var pull = 72 * holeProgress * holeProgress;
+    var t = performance.now() * 0.001;
     for (var i = 0; i < chars.length; i++) {
       var node = chars[i];
       if (node._sucked) continue;
-      var x = rand(-amp, amp) + node._ux * node._falloff * pull;
-      var y = rand(-amp * 0.85, amp * 0.85) + node._uy * node._falloff * pull;
-      var rot = node._rotBias * node._falloff * pull * 0.16;
+      var ph = node._phase || 0;
+      // two slow waves plus a shimmer, phase-shifted by position: a wave travels across the text
+      var wx = fastSin(t * 6.1 + ph) * 0.62 + fastSin(t * 11.3 + ph * 1.71) * 0.26 + fastSin(t * 3.3 + ph * 0.5) * 0.12;
+      var wy = fastCos(t * 5.2 + ph * 1.27) * 0.58 + fastSin(t * 9.7 + ph * 1.93) * 0.3 + fastCos(t * 2.7 + ph * 0.7) * 0.12;
+      var x = wx * amp + node._ux * node._falloff * pull;
+      var y = wy * amp * 0.9 + node._uy * node._falloff * pull;
+      var rot = (fastSin(t * 4.4 + ph * 1.5) * 0.7 + fastSin(t * 8.2 + ph) * 0.3) * amp * 0.5;
       node._ox = x;
       node._oy = y;
-      node.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) rotate(' + rot.toFixed(2) + 'deg)';
+      node.style.transform = 'translate3d(' + ((x * 10) | 0) / 10 + 'px,' + ((y * 10) | 0) / 10 + 'px,0) rotate(' + ((rot * 10) | 0) / 10 + 'deg)';
     }
   }
 
@@ -619,10 +633,8 @@
 
   function suction(geo) {
     pageShake = false;
-    // fly whole words: far fewer elements to transform each frame, so it stays smooth
     var units = [];
     var maxDist = 1;
-    var STEPS = 33;
     if (!split || !split.words) {
       gsap.ticker.remove(vibrate);
       return Promise.resolve();
@@ -640,37 +652,24 @@
         nodes[n].style.transform = '';
         nodes[n].style.opacity = '';
       }
-      var cx = sx / nodes.length;
-      var cy = sy / nodes.length;
-      var dx = geo.cx - cx;
-      var dy = geo.cy - cy;
+      var dx = geo.cx - sx / nodes.length;
+      var dy = geo.cy - sy / nodes.length;
       var dist = Math.sqrt(dx * dx + dy * dy) || 1;
       if (dist > maxDist) maxDist = dist;
-      var unit = {
+      units.push({
         el: word,
         dx: dx,
         dy: dy,
         r0: dist,
-        theta0: Math.atan2(dy, dx),
-        spin: 1.1 + Math.random() * 1.1,
+        perpX: -dy / dist,
+        perpY: dx / dist,
+        curve: (Math.random() < 0.5 ? -1 : 1) * (6 + Math.random() * 16),
         dur: SUCK_DURATION + Math.random() * 0.16,
         delay: 0,
         phase: Math.random() * Math.PI * 2,
-        freq: 9 + Math.random() * 6,
+        freq: 8 + Math.random() * 5,
         done: false
-      };
-      var px = (unit.px = new Float32Array(STEPS));
-      var py = (unit.py = new Float32Array(STEPS));
-      var prot = (unit.prot = new Float32Array(STEPS));
-      for (var q = 0; q < STEPS; q++) {
-        var pr = q / (STEPS - 1);
-        var radius = unit.r0 * (1 - pr * pr * pr);
-        var theta = unit.theta0 + unit.spin * (pr * (1 + 1.9 * pr));
-        px[q] = unit.dx + Math.cos(theta) * radius;
-        py[q] = unit.dy + Math.sin(theta) * radius;
-        prot[q] = theta * 180 / Math.PI + 90;
-      }
-      units.push(unit);
+      });
     }
     for (var u = 0; u < units.length; u++) {
       units[u].delay = Math.pow(units[u].r0 / maxDist, 0.85) * SUCK_SPREAD;
@@ -700,30 +699,20 @@
             continue;
           }
           allDone = false;
-          var pr = p;
-          var idx = pr * (STEPS - 1);
-          var i0 = idx | 0;
-          var frac = idx - i0;
-          var i1 = i0 + 1;
-          if (i1 > STEPS - 1) i1 = STEPS - 1;
-          var orbitX = it.px[i0] + (it.px[i1] - it.px[i0]) * frac;
-          var orbitY = it.py[i0] + (it.py[i1] - it.py[i0]) * frac;
-          var baseRot = it.prot[i0] + (it.prot[i1] - it.prot[i0]) * frac;
-          var inv = 1 - pr;
+          it.el._sucked = true;
+          var ease = p * p * (3 - 2 * p) * 0.35 + p * p * 0.65;
+          var bow = fastSin(p * 3.14159) * it.curve;
+          var tremble = 3.2 * (1 - p) * (1 - p);
           var wob = fastSin(t * it.freq * 6.283 + it.phase);
-          var tremble = 3.4 * inv * inv;
-          var x = orbitX + wob * tremble;
-          var y = orbitY + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
-          var rot = baseRot + wob * 6 * inv;
-          var p3 = pr * pr * pr;
-          var overall = 1 - 0.9 * p3;
-          var along = (1 + 1.7 * p3) * overall;
-          var across = (0.95 - 0.1 * p3) * overall;
+          var x = it.dx * ease + it.perpX * bow + wob * tremble;
+          var y = it.dy * ease + it.perpY * bow + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
+          var overall = 1 - 0.9 * p * p;
+          var along = (1 + 0.9 * p) * overall;
+          var across = (0.95 - 0.05 * p) * overall;
           it.el.style.transform =
             'translate3d(' + ((x * 10) | 0) / 10 + 'px,' + ((y * 10) | 0) / 10 + 'px,0)' +
-            ' rotate(' + ((rot * 10) | 0) / 10 + 'deg)' +
             ' scale(' + ((along * 1000) | 0) / 1000 + ',' + ((across * 1000) | 0) / 1000 + ')';
-          it.el.style.opacity = ((1 - pr * pr) * 100 | 0) / 100;
+          it.el.style.opacity = ((1 - p * p) * 100 | 0) / 100;
         }
         if (allDone) {
           gsap.ticker.remove(vibrate);
