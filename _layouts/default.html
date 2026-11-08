@@ -916,6 +916,9 @@
         }
 
     </style>
+    {% if page.ref == "home" %}
+    <link rel="stylesheet" href="{{ '/assets/css/easter-egg.css' | relative_url }}">
+    {% endif %}
     <noscript>
         <style>
             .top-nav { height: auto; }
@@ -1363,5 +1366,12 @@
             await mermaid.run({ querySelector: '.mermaid' });
         });
     </script>
+
+    {% if page.ref == "home" %}
+    <!-- Avatar easter egg (3 clicks): shatter -> black hole -> text is sucked in -> boom -->
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/SplitText.min.js"></script>
+    <script defer src="{{ '/assets/js/easter-egg.js' | relative_url }}"></script>
+    {% endif %}
 </body>
 </html>

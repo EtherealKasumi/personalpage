@@ -1,0 +1,156 @@
+/* ============================================================
+   Avatar easter egg: shatter -> black hole -> suck text -> boom
+   Scope: only loaded on the home page.
+   ============================================================ */
+
+.profile-orbital-portrait {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.ae-running {
+  cursor: progress;
+  -webkit-user-select: none;
+  user-select: none;
+}
+body.ae-running a,
+body.ae-running button,
+body.ae-running .profile-orbital-portrait {
+  pointer-events: none !important;
+}
+/* page furniture that would be left floating once the text is gone */
+body.ae-running .action-buttons .btn {
+  border-bottom-color: transparent !important;
+  transition: border-color 0.35s ease;
+}
+body.ae-running .nav-pill::before {
+  opacity: 0 !important;
+}
+
+.ae-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout style;
+}
+
+.ae-shard {
+  position: absolute;
+  overflow: hidden;
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.ae-shard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.ae-hole {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.ae-hole__glow {
+  position: absolute;
+  inset: -70%;
+  border-radius: 50%;
+  z-index: 0;
+  background: radial-gradient(circle,
+    rgba(255, 246, 226, 0.95) 0%,
+    rgba(214, 228, 255, 0.6) 22%,
+    rgba(150, 185, 245, 0.3) 40%,
+    rgba(90, 130, 205, 0) 62%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.ae-hole__ring {
+  position: absolute;
+  inset: -13%;
+  border-radius: 50%;
+  z-index: 1;
+  background: conic-gradient(from 0deg,
+    rgba(255, 232, 190, 0) 0%,
+    rgba(255, 226, 170, 0.95) 11%,
+    rgba(255, 246, 220, 0.6) 19%,
+    rgba(140, 185, 255, 0) 33%,
+    rgba(255, 232, 190, 0) 51%,
+    rgba(160, 198, 255, 0.8) 65%,
+    rgba(255, 240, 206, 0) 81%);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 61%, #000 79%, transparent 85%);
+  mask: radial-gradient(circle, transparent 58%, #000 61%, #000 79%, transparent 85%);
+  filter: blur(4px);
+  opacity: 0.95;
+  pointer-events: none;
+}
+.ae-hole__ring--b {
+  inset: -26%;
+  opacity: 0.55;
+  filter: blur(8px);
+  -webkit-mask: radial-gradient(circle, transparent 64%, #000 67%, #000 75%, transparent 80%);
+  mask: radial-gradient(circle, transparent 64%, #000 67%, #000 75%, transparent 80%);
+  background: conic-gradient(from 120deg,
+    rgba(255, 236, 196, 0) 0%,
+    rgba(160, 200, 255, 0.75) 16%,
+    rgba(255, 240, 210, 0) 38%,
+    rgba(255, 226, 176, 0.55) 60%,
+    rgba(140, 180, 255, 0) 82%);
+}
+.ae-hole__core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  z-index: 2;
+  background: #000;
+  box-shadow:
+    0 0 0 1px rgba(255, 242, 214, 0.6),
+    0 0 16px 2px rgba(255, 228, 176, 0.4),
+    0 0 46px 12px rgba(130, 172, 240, 0.32),
+    inset 0 0 26px 8px #000;
+  pointer-events: none;
+}
+
+.ae-flash {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle,
+    #ffffff 0%,
+    rgba(255, 247, 224, 0.95) 30%,
+    rgba(190, 216, 255, 0.5) 55%,
+    rgba(140, 180, 255, 0) 74%);
+  filter: blur(3px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.ae-shock {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 242, 214, 0.9);
+  box-shadow:
+    0 0 26px 4px rgba(255, 232, 188, 0.5),
+    0 0 60px 10px rgba(150, 190, 255, 0.35),
+    inset 0 0 22px 4px rgba(255, 238, 205, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* split-text helpers (GSAP SplitText adds its own inline styles) */
+.ae-running .ae-c,
+.ae-running .ae-w {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-orbital-portrait { cursor: default; }
+}
