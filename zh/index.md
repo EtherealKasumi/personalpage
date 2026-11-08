@@ -85,7 +85,7 @@ permalink: /zh/
 
         <div class="profile-info">
             <p class="home-kicker">the 1000th summer ——</p>
-            <h1><span>你好，我是</span><span>刘宇轩</span></h1>
+            <h1><span>你好，我是</span><span>朧千夏</span></h1>
             <p class="subtitle">南开大学数学科学学院 2023 级本科生。这里存放一些关于数学、物理、学习笔记和日常片段的文字。</p>
 
             <div class="action-buttons">
