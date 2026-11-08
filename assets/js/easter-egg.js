@@ -23,7 +23,7 @@
 
   var CLICK_WINDOW = 1700;
   var CHARGE_TIME = 1.15;
-  var GROW_TIME = 1.55;
+  var GROW_TIME = 1.45;
   var SUCK_DURATION = 0.65;
   var SUCK_SPREAD = 2.1;
   var COLLAPSE_TIME = 1.25;
@@ -236,6 +236,7 @@
     el('div', 'ae-hole__shadow', wobbleEl);
     el('div', 'ae-hole__bloom', wobbleEl);
     el('div', 'ae-hole__bloom ae-hole__bloom--b', wobbleEl);
+    el('div', 'ae-hole__accretion', wobbleEl);
     el('div', 'ae-hole__hair', wobbleEl);
     var edge = el('div', 'ae-hole__edge', wobbleEl);
     var coreEl = el('div', 'ae-hole__core', edge);
@@ -389,74 +390,39 @@
     return 'polygon(' + points.join(',') + ')';
   }
 
-  function shatterAvatar(geo) {
+  function implodeAvatar(geo) {
     var shakeX = gsap.getProperty(avatarSvg, 'x') || 0;
     var shakeY = gsap.getProperty(avatarSvg, 'y') || 0;
     var shakeR = gsap.getProperty(avatarSvg, 'rotation') || 0;
     gsap.killTweensOf(avatarSvg);
-    gsap.to(avatarSvg, { x: 0, y: 0, rotation: 0, duration: 0.35, ease: 'power2.out' });
-    gsap.fromTo(voidEl, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' });
-    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.14 });
-    gsap.to(orbitParts, { opacity: 0, duration: 0.85, delay: 0.08 });
+    gsap.to(avatarSvg, { x: 0, y: 0, rotation: 0, duration: 0.3, ease: 'power2.out' });
+    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.2 });
+    gsap.to(orbitParts, { opacity: 0, duration: 0.75, delay: 0.08 });
+    gsap.fromTo(voidEl, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' });
 
     var src = avatarImage.getAttribute('href');
     if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-    var count = geo.photoSide > 420 ? 15 : 12;
-    var half = geo.photoSide / 2;
+    var size = geo.photoSide;
+    var implodeEl = el('div', 'ae-implode', stage);
+    implodeEl.style.width = size + 'px';
+    implodeEl.style.height = size + 'px';
+    implodeEl.style.left = (geo.cx - size / 2) + 'px';
+    implodeEl.style.top = (geo.cy - size / 2) + 'px';
+    implodeEl.style.backgroundImage = 'url("' + src + '")';
+    gsap.set(implodeEl, { x: shakeX, y: shakeY, rotation: shakeR });
 
-    for (var i = 0; i < count; i++) {
-      var shard = el('div', 'ae-shard', stage);
-      shard.style.left = (geo.cx - half) + 'px';
-      shard.style.top = (geo.cy - half) + 'px';
-      shard.style.width = geo.photoSide + 'px';
-      shard.style.height = geo.photoSide + 'px';
-      shard.style.clipPath = wedgePolygon(i, count);
-      shard.style.webkitClipPath = shard.style.clipPath;
-      var img = el('img', '', shard);
-      img.src = src;
-      img.alt = '';
-      img.draggable = false;
-      shards.push(shard);
-
-      var angle = ((i + 0.5) / count) * TAU - Math.PI / 2;
-      var out = rand(22, 60);
-      var ox = Math.cos(angle) * out;
-      var oy = Math.sin(angle) * out;
-      var spin = rand(-36, 36);
-      var swirl = (Math.random() < 0.5 ? -1 : 1) * rand(80, 170);
-      var delay = rand(0, 0.12);
-
-      gsap.set(shard, { x: shakeX, y: shakeY, rotation: shakeR });
-      var tl = gsap.timeline({ delay: delay });
-      tl.to(shard, {
-        x: ox,
-        y: oy,
-        rotation: spin,
-        scale: 1.05,
-        duration: 0.3,
-        ease: 'power2.out'
-      }, 0);
-      tl.to(shard, {
-        x: ox * 0.45 - Math.sin(angle) * out * 0.55,
-        y: oy * 0.45 + Math.cos(angle) * out * 0.55,
-        rotation: spin * 2.1,
-        duration: 0.32,
-        ease: 'power1.inOut'
-      }, 0.3);
-      tl.to(shard, {
-        x: 0,
-        y: 0,
-        rotation: spin * 4 + swirl,
-        scale: 0.02,
-        duration: 0.6,
-        ease: 'power3.in'
-      }, 0.62);
-      tl.to(shard, {
-        opacity: 0,
-        duration: 0.18,
-        ease: 'power1.in'
-      }, 1.02);
-    }
+    var tl = gsap.timeline();
+    tl.to(implodeEl, { scale: 1.07, rotation: shakeR + 7, duration: 0.2, ease: 'power2.out' }, 0);
+    tl.to(implodeEl, {
+      x: 0,
+      y: 0,
+      scale: 0.015,
+      rotation: shakeR + 620,
+      duration: 0.98,
+      ease: 'power3.in',
+      filter: 'blur(9px)'
+    }, 0.18);
+    tl.to(implodeEl, { opacity: 0, duration: 0.16, ease: 'power1.in' }, 0.98);
   }
 
   /* ---------------------------------------------------------- */
@@ -713,15 +679,15 @@
       }
     }, 0);
     tl.call(function () { splitPageText(geo); }, null, CHARGE_TIME + 0.02);
-    tl.call(function () { shatterAvatar(geo); }, null, CHARGE_TIME);
+    tl.call(function () { implodeAvatar(geo); }, null, CHARGE_TIME);
     tl.call(function () {
       gsap.to(holeEl, { opacity: 1, duration: 0.2, ease: 'power1.out' });
       startHole();
       gsap.ticker.add(vibrate);
-    }, null, CHARGE_TIME + 0.52);
+    }, null, CHARGE_TIME + 0.22);
     tl.to(holeEl, {
       scale: 1.04,
-      duration: GROW_TIME,
+      duration: 1.45,
       ease: 'power2.in',
       onUpdate: function () {
         holeProgress = this.progress();
@@ -729,7 +695,7 @@
         vignette.style.opacity = String(0.95 * holeProgress);
         if (voidEl) voidEl.style.opacity = String(Math.max(0, 1 - holeProgress * 3.2));
       }
-    }, CHARGE_TIME + 0.52);
+    }, CHARGE_TIME + 0.22);
 
     tl.then(function () { return suction(geo); })
       .then(function () { return collapseHole(); })

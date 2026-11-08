@@ -66,6 +66,38 @@ body.ae-running .nav-pill::before {
   pointer-events: none;
 }
 
+/* whole avatar being pulled into the centre */
+.ae-implode {
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  will-change: transform, opacity, filter;
+  pointer-events: none;
+}
+
+/* the accretion halo that wraps around the shadow */
+.ae-hole__accretion {
+  left: -100%;
+  top: -32%;
+  width: 300%;
+  height: 164%;
+  z-index: 4;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(255, 214, 150, 0) 43%,
+    rgba(255, 226, 178, 0.12) 47%,
+    rgba(255, 212, 146, 0.85) 50.5%,
+    rgba(255, 190, 108, 0.5) 55%,
+    rgba(255, 150, 60, 0.14) 61%,
+    rgba(255, 150, 60, 0) 68%);
+  filter: blur(9px);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  transform: rotate(-11deg);
+}
+
 /* ---- avatar shards ---- */
 .ae-shard {
   position: absolute;
