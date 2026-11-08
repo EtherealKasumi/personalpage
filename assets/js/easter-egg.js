@@ -63,6 +63,9 @@
   var split = null;
   var chars = [];
   var flyUnits = [];
+  var PATH_STEPS = 25;
+  var pathX = null;
+  var pathY = null;
   var vibAmp = 0;
   var holeProgress = 0;
   var holeAlive = false;
@@ -580,6 +583,8 @@
         aria: 'auto'
       });
       chars = split.chars || [];
+      pathX = new Float32Array(chars.length * PATH_STEPS);
+      pathY = new Float32Array(chars.length * PATH_STEPS);
       var maxDist = 1;
       for (var i = 0; i < chars.length; i++) {
         var node = chars[i];
@@ -603,6 +608,34 @@
       }
       for (var k = 0; k < chars.length; k++) {
         chars[k]._falloff = Math.pow(Math.max(0, 1 - chars[k]._dist / maxDist), 1.7);
+      }
+      pathX = new Float32Array(chars.length * PATH_STEPS);
+      pathY = new Float32Array(chars.length * PATH_STEPS);
+      for (var pi = 0; pi < chars.length; pi++) {
+        var pn = chars[pi];
+        pn._dx = geo.cx - pn._cx;
+        pn._dy = geo.cy - pn._cy;
+        pn._perpX = -pn._dy / pn._dist;
+        pn._perpY = pn._dx / pn._dist;
+        pn._curve = (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 16);
+        pn._tilt = rand(-28, 28);
+        pn._p2 = Math.random() * Math.PI * 2;
+        pn._f2 = 9 + Math.random() * 5;
+        pn._dur2 = SUCK_DURATION + Math.random() * 0.16;
+        pn._delay2 = Math.pow(pn._dist / maxDist, 1.5) * 1.55;
+        pn._started = false;
+        pn._done = false;
+      }
+      for (var qi = 0; qi < chars.length; qi++) {
+        var qn = chars[qi];
+        var qbase = qi * PATH_STEPS;
+        for (var qs = 0; qs < PATH_STEPS; qs++) {
+          var qp = qs / (PATH_STEPS - 1);
+          var qe = qp * qp * (3 - 2 * qp) * 0.35 + qp * qp * 0.65;
+          var qb = fastSin(qp * 3.14159) * qn._curve;
+          pathX[qbase + qs] = qn._dx * qe + qn._perpX * qb;
+          pathY[qbase + qs] = qn._dy * qe + qn._perpY * qb;
+        }
       }
     } catch (err) {
       split = null;
@@ -637,48 +670,10 @@
 
   function suction(geo) {
     pageShake = false;
-    if (!chars.length) {
+    var count = chars.length;
+    if (!count || !pathX) {
       gsap.ticker.remove(vibrate);
       return Promise.resolve();
-    }
-    var list = [];
-    var maxDist = 1;
-    var STEPS = 25;
-    for (var i = 0; i < chars.length; i++) {
-      var node = chars[i];
-      var dx = geo.cx - node._cx;
-      var dy = geo.cy - node._cy;
-      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      if (dist > maxDist) maxDist = dist;
-      var item = {
-        el: node,
-        dx: dx,
-        dy: dy,
-        r0: dist,
-        perpX: -dy / dist,
-        perpY: dx / dist,
-        curve: (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 16),
-        dur: SUCK_DURATION + Math.random() * 0.16,
-        delay: 0,
-        phase: Math.random() * Math.PI * 2,
-        freq: 9 + Math.random() * 5,
-        tilt: rand(-28, 28),
-        started: false,
-        done: false
-      };
-      var px = (item.px = new Float32Array(STEPS));
-      var py = (item.py = new Float32Array(STEPS));
-      for (var q = 0; q < STEPS; q++) {
-        var pr = q / (STEPS - 1);
-        var ease = pr * pr * (3 - 2 * pr) * 0.35 + pr * pr * 0.65;
-        var bow = fastSin(pr * 3.14159) * item.curve;
-        px[q] = item.dx * ease + item.perpX * bow;
-        py[q] = item.dy * ease + item.perpY * bow;
-      }
-      list.push(item);
-    }
-    for (var u = 0; u < list.length; u++) {
-      list[u].delay = Math.pow(list[u].r0 / maxDist, 0.85) * SUCK_SPREAD;
     }
     flyUnits = chars;
     var startedAt = 0;
@@ -688,42 +683,43 @@
         if (!startedAt) startedAt = now;
         var t = (now - startedAt) / 1000;
         var allDone = true;
-        for (var k = 0; k < list.length; k++) {
-          var it = list[k];
-          if (it.done) continue;
-          var p = (t - it.delay) / it.dur;
+        for (var k = 0; k < count; k++) {
+          var it = chars[k];
+          if (it._done) continue;
+          var p = (t - it._delay2) / it._dur2;
           if (p <= 0) {
             allDone = false;
             continue;
           }
           if (p >= 1) {
-            it.done = true;
-            it.el.style.opacity = '0';
+            it._done = true;
+            it.style.opacity = '0';
             continue;
           }
           allDone = false;
-          if (!it.started) {
-            it.started = true;
-            it.el._sucked = true;
-            it.el.style.transform = '';
+          if (!it._started) {
+            it._started = true;
+            it._sucked = true;
+            it.style.transform = '';
           }
-          var idx = p * (STEPS - 1);
+          var base = k * PATH_STEPS;
+          var idx = p * (PATH_STEPS - 1);
           var i0 = idx | 0;
           var frac = idx - i0;
-          var i1 = i0 + 1 > STEPS - 1 ? STEPS - 1 : i0 + 1;
-          var bx = it.px[i0] + (it.px[i1] - it.px[i0]) * frac;
-          var by = it.py[i0] + (it.py[i1] - it.py[i0]) * frac;
+          var i1 = i0 + 1 > PATH_STEPS - 1 ? PATH_STEPS - 1 : i0 + 1;
+          var bx = pathX[base + i0] + (pathX[base + i1] - pathX[base + i0]) * frac;
+          var by = pathY[base + i0] + (pathY[base + i1] - pathY[base + i0]) * frac;
           var tremble = 4.8 * (1 - p) * (1 - p);
-          var wob = fastSin(t * it.freq * 6.283 + it.phase);
+          var wob = fastSin(t * it._f2 * 6.283 + it._p2);
           var x = bx + wob * tremble;
-          var y = by + fastCos(t * it.freq * 6.283 * 0.9 + it.phase) * tremble;
-          var rot = it.tilt * p * p + wob * 6 * (1 - p);
+          var y = by + fastCos(t * it._f2 * 6.283 * 0.9 + it._p2) * tremble;
+          var rot = it._tilt * p * p + wob * 6 * (1 - p);
           var shrink = 1 - 0.86 * p * p;
-          it.el.style.transform =
+          it.style.transform =
             'translate3d(' + ((x * 10) | 0) / 10 + 'px,' + ((y * 10) | 0) / 10 + 'px,0)' +
             ' rotate(' + ((rot * 10) | 0) / 10 + 'deg)' +
             ' scale(' + ((shrink * 1000) | 0) / 1000 + ')';
-          it.el.style.opacity = ((1 - p * p) * 100 | 0) / 100;
+          it.style.opacity = ((1 - p * p) * 100 | 0) / 100;
         }
         if (allDone) {
           gsap.ticker.remove(vibrate);
