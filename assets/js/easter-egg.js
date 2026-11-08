@@ -39,6 +39,9 @@
   var dimEl = null;
   var paperEl = null;
   var shakeAmp = 0;
+  var implodeLock = [];
+  var implodeTickOn = false;
+  var implodeAge = 0;
   var vignette = null;
   var holeEl = null;
   var wobbleEl = null;
@@ -403,49 +406,103 @@
     return 'polygon(' + points.join(',') + ')';
   }
 
+  function implodeTick() {
+    if (!implodeTickOn) return;
+    implodeAge += 0.02;
+    for (var i = 0; i < implodeLock.length; i++) {
+      var item = implodeLock[i];
+      if (!item.node || !item.node.parentNode) continue;
+      var amp = item.amp * (1 + Math.min(1.6, implodeAge));
+      var x = rand(-amp, amp);
+      var y = rand(-amp * 0.9, amp * 0.9);
+      var r = rand(-amp * 2.2, amp * 2.2);
+      item.node.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) rotate(' + r.toFixed(2) + 'deg)';
+    }
+  }
+
   function implodeAvatar(geo) {
     var shakeX = gsap.getProperty(avatarSvg, 'x') || 0;
     var shakeY = gsap.getProperty(avatarSvg, 'y') || 0;
     var shakeR = gsap.getProperty(avatarSvg, 'rotation') || 0;
     gsap.killTweensOf(avatarSvg);
     gsap.to(avatarSvg, { x: 0, y: 0, rotation: 0, duration: 0.3, ease: 'power2.out' });
-    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.2 });
-    gsap.to(orbitParts, { opacity: 0, duration: 0.75, delay: 0.08 });
+    gsap.to([avatarImage, avatarRim], { opacity: 0, duration: 0.18 });
+    gsap.to(orbitParts, { opacity: 0, duration: 0.7, delay: 0.06 });
     gsap.fromTo(voidEl, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' });
 
     var src = avatarImage.getAttribute('href');
     if (!src) src = avatarImage.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
     var size = geo.photoSide;
 
-    function spawnCopy(scaleFrom, opacityFrom) {
-      var node = el('div', 'ae-implode', stage);
-      node.style.width = size + 'px';
-      node.style.height = size + 'px';
-      node.style.left = (geo.cx - size / 2) + 'px';
-      node.style.top = (geo.cy - size / 2) + 'px';
-      node.style.backgroundImage = 'url("' + src + '")';
-      gsap.set(node, { x: shakeX, y: shakeY, rotation: shakeR, scale: scaleFrom, opacity: opacityFrom });
-      return node;
+    // gravity vortex behind the avatar
+    var vortex = el('div', 'ae-vortex', stage);
+    vortex.style.width = size * 2.2 + 'px';
+    vortex.style.height = size * 2.2 + 'px';
+    vortex.style.left = (geo.cx - size * 1.1) + 'px';
+    vortex.style.top = (geo.cy - size * 1.1) + 'px';
+    gsap.set(vortex, { scale: 0.35, opacity: 0, rotation: 0 });
+    gsap.to(vortex, { scale: 1.25, opacity: 0.9, rotation: 220, duration: 1.15, ease: 'power2.in' });
+    gsap.to(vortex, { opacity: 0, duration: 0.25, delay: 1.0 });
+
+    implodeLock = [];
+    var wrappers = [];
+    var layers = 3;
+    for (var i = 0; i < layers; i++) {
+      var wrap = el('div', 'ae-implode-wrap', stage);
+      wrap.style.width = size + 'px';
+      wrap.style.height = size + 'px';
+      wrap.style.left = (geo.cx - size / 2) + 'px';
+      wrap.style.top = (geo.cy - size / 2) + 'px';
+      var inner = el('div', 'ae-implode-core', wrap);
+      inner.style.backgroundImage = 'url("' + src + '")';
+      implodeLock.push({ node: inner, amp: 1.4 + i * 0.6 });
+      gsap.set(wrap, {
+        x: shakeX + rand(-2, 2),
+        y: shakeY + rand(-2, 2),
+        rotation: shakeR,
+        scale: i === 0 ? 1 : 0.94 - i * 0.05,
+        opacity: i === 0 ? 1 : 0.4 - i * 0.1
+      });
+      wrappers.push({ wrap: wrap, inner: inner, index: i });
     }
 
-    var copies = [spawnCopy(1, 1)];
-    for (var g = 0; g < 3; g++) copies.push(spawnCopy(0.97 - g * 0.05, 0.5 - g * 0.12));
+    implodeAge = 0;
+    implodeTickOn = true;
+    gsap.ticker.add(implodeTick);
 
-    var tl = gsap.timeline();
-    tl.to(copies, { scale: 1.09, rotation: shakeR + 7, duration: 0.2, ease: 'power2.out' }, 0);
-    for (var c = 0; c < copies.length; c++) {
-      var copy = copies[c];
-      var lag = c * 0.07;
-      tl.to(copy, {
-        x: 0,
-        y: 0,
-        scale: c === 0 ? 0.018 : 0.05 - c * 0.01,
-        rotation: shakeR + 620 + c * 140,
-        duration: 0.95 - c * 0.05,
-        ease: 'power3.in',
-        filter: 'blur(' + (c === 0 ? 10 : 6 + c * 4) + 'px)'
-      }, 0.18 + lag);
-      tl.to(copy, { opacity: 0, duration: 0.16, ease: 'power1.in' }, 0.98 + lag);
+    for (var w = 0; w < wrappers.length; w++) {
+      (function (item) {
+        var lag = item.index * 0.045;
+        var spin = 280 + item.index * 55;
+        var tl = gsap.timeline({ delay: lag });
+        // tremble grows while it is being pulled in: uneven stretch first
+        tl.to(item.wrap, {
+          scaleX: 1.14,
+          scaleY: 0.9,
+          rotation: shakeR + spin * 0.25,
+          duration: 0.22,
+          ease: 'power1.out'
+        }, 0);
+        tl.to(item.wrap, {
+          scaleX: 0.4,
+          scaleY: 2.0,
+          x: 0,
+          y: 0,
+          rotation: shakeR + spin * 0.75,
+          duration: 0.5,
+          ease: 'power2.in',
+          filter: 'blur(' + (item.index === 0 ? 3 : 4 + item.index * 2) + 'px)'
+        }, 0.22);
+        tl.to(item.wrap, {
+          scaleX: 0.02,
+          scaleY: 0.22,
+          rotation: shakeR + spin,
+          duration: 0.45,
+          ease: 'power3.in',
+          filter: 'blur(' + (item.index === 0 ? 14 : 10 + item.index * 3) + 'px)'
+        }, 0.72);
+        tl.to(item.wrap, { opacity: 0, duration: 0.14, ease: 'power1.in' }, 1.02);
+      })(wrappers[w]);
     }
   }
 
@@ -518,43 +575,79 @@
 
   function suction(geo) {
     var list = [];
+    var maxDist = 1;
     for (var i = 0; i < chars.length; i++) {
       var node = chars[i];
       var dx = geo.cx - node._cx;
       var dy = geo.cy - node._cy;
+      var dist = node._dist;
+      if (dist > maxDist) maxDist = dist;
       list.push({
         el: node,
         dx: dx,
         dy: dy,
-        dist: node._dist,
-        angle: Math.atan2(dy, dx) * 180 / Math.PI - 90
+        dist: dist,
+        angle: Math.atan2(dy, dx) * 180 / Math.PI - 90,
+        spin: 220 + Math.random() * 200,
+        stretch: 2.4 + Math.random() * 1.3,
+        dur: SUCK_DURATION + Math.random() * 0.12,
+        delay: Math.pow(dist / maxDist, 0.85) * SUCK_SPREAD,
+        started: false,
+        done: false
       });
     }
     if (!list.length) {
       gsap.ticker.remove(vibrate);
       return Promise.resolve();
     }
-    list.sort(function (p, q) { return p.dist - q.dist; });
-    var maxDist = list[list.length - 1].dist || 1;
-    var tl = gsap.timeline();
-    for (var k = 0; k < list.length; k++) {
-      var item = list[k];
-      var delay = Math.pow(item.dist / maxDist, 0.85) * SUCK_SPREAD;
-      tl.to(item.el, {
-        x: item.dx,
-        y: item.dy,
-        rotation: item.angle + rand(-14, 14),
-        scaleX: 0.07,
-        scaleY: 3.4,
-        opacity: 0,
-        duration: SUCK_DURATION,
-        ease: 'power2.in',
-        onStart: (function (target) {
-          return function () { target._sucked = true; };
-        })(item.el)
-      }, delay);
-    }
-    return tl.then(function () { gsap.ticker.remove(vibrate); });
+    var startedAt = 0;
+
+    return new Promise(function (resolve) {
+      function frame(now) {
+        if (!startedAt) startedAt = now;
+        var t = (now - startedAt) / 1000;
+        var allDone = true;
+        for (var k = 0; k < list.length; k++) {
+          var it = list[k];
+          if (it.done) continue;
+          var p = (t - it.delay) / it.dur;
+          if (p <= 0) {
+            allDone = false;
+            continue;
+          }
+          if (p >= 1) {
+            it.done = true;
+            it.el.style.opacity = '0';
+            continue;
+          }
+          allDone = false;
+          it.started = true;
+          it.el._sucked = true;
+          // pulled in with power2.in, plus a tremble that fades as it nears the hole
+          var ease = p * p;
+          var baseX = it.el._ox * (1 - ease) + it.dx * ease;
+          var baseY = it.el._oy * (1 - ease) + it.dy * ease;
+          var tremble = 6.5 * (1 - p) * (0.4 + Math.random() * 0.8);
+          var x = baseX + rand(-tremble, tremble);
+          var y = baseY + rand(-tremble, tremble);
+          var rot = it.angle + it.spin * ease + rand(-18, 18) * (1 - p);
+          var sx = 1 - ease * 0.94;
+          var sy = 1 + ease * (it.stretch - 1) + rand(-0.12, 0.12);
+          it.el.style.transform =
+            'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)' +
+            ' rotate(' + rot.toFixed(1) + 'deg)' +
+            ' scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ')';
+          it.el.style.opacity = String(Math.max(0, 1 - p * p));
+        }
+        if (allDone) {
+          gsap.ticker.remove(vibrate);
+          resolve();
+        } else {
+          requestAnimationFrame(frame);
+        }
+      }
+      requestAnimationFrame(frame);
+    });
   }
 
   /* ---------------------------------------------------------- */
@@ -642,6 +735,9 @@
 
   function finish() {
     holeAlive = false;
+    implodeTickOn = false;
+    gsap.ticker.remove(implodeTick);
+    implodeLock = [];
     gsap.ticker.remove(vibrate);
     gsap.ticker.remove(holeTick);
     for (var i = 0; i < spinTweens.length; i++) spinTweens[i].kill();

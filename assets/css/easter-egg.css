@@ -66,15 +66,42 @@ body.ae-running .nav-pill::before {
   pointer-events: none;
 }
 
-/* whole avatar being pulled into the centre */
-.ae-implode {
+/* whole avatar being pulled into the centre: outer wrapper deforms/spins,
+   inner layer keeps trembling while it is being swallowed */
+.ae-implode-wrap {
   position: absolute;
   z-index: 1;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity, filter;
+}
+.ae-implode-core {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  will-change: transform, opacity, filter;
+  will-change: transform;
+}
+.ae-vortex {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
   pointer-events: none;
+  background: conic-gradient(from 0deg,
+    rgba(255, 226, 170, 0) 0deg 18deg,
+    rgba(255, 232, 186, 0.55) 34deg,
+    rgba(255, 214, 150, 0) 56deg 108deg,
+    rgba(255, 200, 140, 0.4) 126deg,
+    rgba(255, 226, 170, 0) 148deg 196deg,
+    rgba(255, 232, 186, 0.5) 214deg,
+    rgba(255, 206, 146, 0) 236deg 300deg,
+    rgba(255, 220, 170, 0.45) 318deg,
+    rgba(255, 220, 170, 0) 344deg 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 8%, #000 26%, #000 62%, transparent 80%);
+  mask: radial-gradient(circle, transparent 8%, #000 26%, #000 62%, transparent 80%);
+  filter: blur(7px);
+  mix-blend-mode: screen;
 }
 
 /* the accretion halo that wraps around the shadow */
@@ -384,15 +411,15 @@ body.ae-running .nav-pill::before {
 
 /* film grain so nothing looks clean */
 .ae-hole__grain {
-  inset: -220%;
+  inset: -46%;
   z-index: 12;
   border-radius: 50%;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.6'/></svg>");
   background-size: 180px 180px;
-  -webkit-mask: radial-gradient(circle, #000 0 46%, rgba(0, 0, 0, 0) 74%);
-  mask: radial-gradient(circle, #000 0 46%, rgba(0, 0, 0, 0) 74%);
+  -webkit-mask: radial-gradient(circle, #000 0 52%, rgba(0, 0, 0, 0) 76%);
+  mask: radial-gradient(circle, #000 0 52%, rgba(0, 0, 0, 0) 76%);
   mix-blend-mode: soft-light;
-  opacity: 0.6;
+  opacity: 0.5;
   pointer-events: none;
 }
   33% { background-position: -40px 26px; }
